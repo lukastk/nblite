@@ -1,0 +1,14 @@
+export_pipeline = """
+nbs -> pcts
+pcts -> lgts
+lgts -> lib
+"""
+
+[cl.lib]
+path="my_module"
+
+[cl.pcts]
+format="percent"
+
+[cl.lgts]
+format="light"

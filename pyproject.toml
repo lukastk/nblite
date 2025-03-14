@@ -1,0 +1,32 @@
+[project]
+name = "nblite"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "jupytext>=1",
+    "nbdev>=2",
+    "nbformat>=5",
+    "pydantic>=2",
+    "toml>=0.10",
+    "typer",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "jupyterlab>=4.3.5",
+]
+
+[project.scripts]
+nbl = "nblite.cli:main"
+
+[tool.hatch.build.targets.sdist]
+include = ["nblite/defaults/**"]
+
+[tool.hatch.build.targets.wheel]
+include = ["nblite/defaults/**"]

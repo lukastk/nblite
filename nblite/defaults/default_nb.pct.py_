@@ -1,0 +1,18 @@
+# %% [markdown]
+# # {nb_title}
+
+# %%
+#|default_exp {mod_name}
+
+# %%
+#|hide
+import nbdev; nbdev.nbdev_export()
+
+# %%
+#|hide
+from nbdev.showdoc import show_doc
+
+# %%
+#|export
+def foo():
+    print("Hello")

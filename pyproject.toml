@@ -25,8 +25,7 @@ dev = [
 [project.scripts]
 nbl = "nblite.cli:main"
 
-[tool.hatch.build.targets.sdist]
-include = ["nblite/defaults/**"]
-
-[tool.hatch.build.targets.wheel]
+[tool.hatch.build]
+ignore-vcs = true
+packages = ["nblite"]
 include = ["nblite/defaults/**"]

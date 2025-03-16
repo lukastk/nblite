@@ -1,9 +1,0 @@
-project:
-  output-dir: _docs
-
-website:
-  title: "nblite"
-  site-url: "https://lukastk.github.io/nblite"
-  description: ""
-  repo-branch: main
-  repo-url: "https://github.com/lukastk/nblite"

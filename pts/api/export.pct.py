@@ -6,10 +6,6 @@
 
 # %%
 #|hide
-import nbdev; nbdev.nbdev_export()
-
-# %%
-#|hide
 from nbdev.showdoc import show_doc
 
 # %%
@@ -20,11 +16,12 @@ from pathlib import Path
 from typer import Argument
 from typing_extensions import Annotated
 from typing import Union, List
+import json
 
 from nblite.const import nblite_config_file_name
 from nblite.config import read_config, parse_config_dict, get_project_root_and_config
 from nblite.const import format_to_jupytertext_formats
-from nblite.utils import get_nb_format_from_path, get_code_location_nbs
+from nblite.utils import get_nb_format_from_path, get_code_location_nbs, get_nb_path_info
 
 # %%
 import nblite.export
@@ -110,6 +107,81 @@ with tempfile.TemporaryDirectory() as tmpdirname:
     assert Path(root_path / "pcts" / "notebook1.pct.py").read_text() == Path(tempdir / "nb.pct.py").read_text()
 
 # %%
+show_doc(nblite.export.get_nb_module_export_name)
+
+
+# %%
+#|export
+def get_nb_module_export_name(nb_path: str, lib_path: str) -> str:
+    import nbdev.export
+    exp = nbdev.export.ExportModuleProc()
+    if not Path(nb_path).as_posix().endswith('.ipynb'):
+        tmp_nb_path = tempfile.NamedTemporaryFile(suffix='.ipynb', delete=False)
+        convert_nb(nb_path, tmp_nb_path.name)
+        nb_path = tmp_nb_path.name
+    nb = nbdev.export.NBProcessor(nb_path, [exp], debug=False)
+    nb.process()
+    for mod,cells in exp.modules.items():
+        if nbdev.export.first(1 for o in cells if o.cell_type=='code'):
+            all_cells = exp.in_all[mod]
+            nm = getattr(exp, 'default_exp', None) if mod=='#' else mod
+            return nm
+    return None
+
+
+# %%
+get_nb_module_export_name('../../test_proj/nbs/submodule/notebook3.ipynb', '../../test_proj/my_module')
+
+# %%
+show_doc(nblite.export.get_nb_module_export_path)
+
+
+# %%
+#|export
+def get_nb_module_export_path(nb_path: str, lib_path: str) -> str:
+    nb_mod_export_name = get_nb_module_export_name(nb_path, lib_path)
+    if nb_mod_export_name:
+        return (Path(lib_path) / nb_mod_export_name.replace('.', '/')).with_suffix('.py').resolve()
+    return None
+
+
+# %%
+get_nb_module_export_path('../../test_proj/nbs/submodule/notebook3.ipynb', '../../test_proj/my_module')
+
+# %%
+show_doc(nblite.export.get_nb_twin_paths)
+
+
+# %%
+#|export
+def get_nb_twin_paths(nb_path: str, root_path: str):
+    """For a given notebook in a code location, returns the paths to all its 'twins' (the corresponding notebooks in the other code locations).
+    The original given notebook path is also returned."""
+    if root_path is None:
+        root_path, config = get_project_root_and_config()
+    else:
+        root_path = Path(root_path)
+        config = read_config(root_path / nblite_config_file_name)
+    nb_path = Path(nb_path).resolve()
+    cl_nb_name = get_nb_path_info(nb_path, root_path, config)['cl_name']
+    
+    nb_twins = []
+    for loc in config.code_locations.values():
+        if loc.format == 'module':
+            twin_path = get_nb_module_export_path(nb_path, root_path / loc.path)
+            if twin_path is None: continue # Some notebooks are not exported to a module
+        else:
+            twin_path = root_path / loc.path / cl_nb_name.with_suffix('.' + loc.file_ext)
+        nb_twins.append(Path(twin_path).resolve())
+        
+    nb_twins = tuple(sorted([fp.as_posix() for fp in nb_twins]))
+    return nb_twins
+
+
+# %%
+get_nb_twin_paths('../../test_proj/nbs/folder/notebook4.ipynb', '../../test_proj')
+
+# %%
 show_doc(nblite.export.export_to_lib)
 
 
@@ -149,10 +221,6 @@ def _nbdev_nb_export(nbname:str, # Filename of notebook
                 mm.dest2nb = relative_path
                 mm.hdr = f"# %% {relative_path}"
             mm.make(cells, all_cells, lib_path=lib_path)
-
-
-# %%
-show_doc(nblite.export.export_to_lib)
 
 
 # %%
@@ -268,6 +336,7 @@ show_doc(nblite.export.clean_ipynb)
 
 
 # %%
+
 #|export
 def clean_ipynb(nb_path:str, remove_outputs:bool=False, remove_metadata:bool=True):
     """
@@ -288,7 +357,7 @@ def clean_ipynb(nb_path:str, remove_outputs:bool=False, remove_metadata:bool=Tru
 
     with open(nb_path) as f:
         nb = nbformat.read(f, as_version=4)
-        
+                
     # Remove outputs from each cell
     if remove_outputs:
         for cell in nb.cells:
@@ -300,9 +369,18 @@ def clean_ipynb(nb_path:str, remove_outputs:bool=False, remove_metadata:bool=Tru
             if cell['cell_type'] == 'code':
                 cell['execution_count'] = None
             cell.metadata = {} 
+            for output in cell.get('outputs', []):
+                if 'execution_count' in output: output['execution_count'] = None
+                if 'metadata' in output: output['metadata'] = {}
             
     with open(nb_path, "w") as f:
         nbformat.write(nb, f)
+        
+    with open(nb_path) as f:
+        nb_json = json.load(f)
+    nb_json['metadata'] = {}
+    with open(nb_path, "w") as f:
+        json.dump(nb_json, f, indent=4)
 
 
 # %%
@@ -379,15 +457,12 @@ def fill_ipynb(nb_path:str, cell_exec_timeout=None, remove_pre_existing_outputs:
     for cell in skipped_cells:
         cell['cell_type'] = 'code'
 
-    # Remove metadata from each cell
-    if remove_metadata:
-        for cell in nb.cells:
-            if cell['cell_type'] == 'code':
-                cell['execution_count'] = None
-            cell.metadata = {}
-
     with open(nb_path, "w") as f:
         nbformat.write(nb, f)
+        
+    # Remove metadata from each cell
+    if remove_metadata:
+        clean_ipynb(nb_path, remove_outputs=False, remove_metadata=True)
 
 
 # %%

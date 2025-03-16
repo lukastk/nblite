@@ -6,10 +6,6 @@
 
 # %%
 #|hide
-import nbdev; nbdev.nbdev_export()
-
-# %%
-#|hide
 from nbdev.showdoc import show_doc
 
 # %%

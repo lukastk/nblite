@@ -6,7 +6,7 @@
 
 # %%
 #|hide
-import nbdev; nbdev.nbdev_export()
+import nblite; nblite.export.export()
 
 # %%
 #|hide
@@ -25,12 +25,13 @@ from pathlib import Path
 import tempfile
 import importlib.resources as resources
 import sys
+import subprocess
 
 from nblite.const import nblite_config_file_name
 from nblite.config import get_project_root_and_config, read_config
 from nblite.export import convert_nb
-from nblite.utils import get_unclean_nbs, get_code_location_nbs
-from nblite.git import get_unstaged_nb_twins, get_git_root
+from nblite.utils import get_code_location_nbs, is_nb_unclean, get_relative_path
+from nblite.git import get_unstaged_nb_twins, get_git_root, is_file_staged
 
 # %%
 import nblite.cli
@@ -351,11 +352,28 @@ def cli_validate_staging(
     The command will exit with code 1 if the staging is invalid.
     """
     
-    unclean_nbs = get_unclean_nbs(root_path, ignore_underscores=False)
+    if root_path is None:
+        root_path, config = get_project_root_and_config()
+    else:
+        root_path = Path(root_path)
+        config = read_config(root_path / nblite_config_file_name)
+    
+    unclean_nbs = []
+    for cl in config.code_locations.values():
+        if cl.format != 'ipynb': continue
+        cl_nbs = get_code_location_nbs(root_path, cl, ignore_underscores=False)
+        for nb_path in cl_nbs:
+            if not is_file_staged(nb_path): continue
+            with tempfile.NamedTemporaryFile(suffix='.ipynb') as tmp_file:
+                rel_nb_path = get_relative_path('.', nb_path)
+                subprocess.run(['git', 'show', f':{rel_nb_path}'], stdout=tmp_file)
+                if is_nb_unclean(tmp_file.name):
+                    unclean_nbs.append(nb_path)
+            
     if unclean_nbs:
-        unclean_nbs_str = "\n".join([f"- {fp}" for fp in unclean_nbs])
-        typer.echo(f"Error: The following notebooks are not clean:\n{unclean_nbs_str}\n", err=True)
-        typer.echo("Please run `nbl clean`.")
+        unclean_nbs_str = "\n".join([f" - {fp}" for fp in unclean_nbs])
+        typer.echo(f"Error: The following staged notebooks are not clean:\n{unclean_nbs_str}\n", err=True)
+        typer.echo("Please run `nbl clean` and re-stage the notebooks.")
         raise typer.Exit(code=1)
         
     unstaged_nb_twins = get_unstaged_nb_twins()
@@ -363,10 +381,10 @@ def cli_validate_staging(
         typer.echo("There are staged notebooks that have unstaged twins.\n", err=True)
         
         for tg in unstaged_nb_twins:
-            staged_str = "\n".join([f'- {fp}' for fp in tg['staged']])
-            unstaged_str = "\n".join([f'- {fp}' for fp in tg['unstaged']])
-            typer.echo(f"The following staged notebooks have unstaged twins:\n{staged_str}")
-            typer.echo(f"Corresponding unstaged twins:\n{unstaged_str}")
+            staged_str = "\n".join([f' - {fp}' for fp in tg['staged']])
+            unstaged_str = "\n".join([f' - {fp}' for fp in tg['unstaged']])
+            typer.echo(f"The following staged notebooks...\n{staged_str}")
+            typer.echo(f"have the corresponding unstaged twins:\n{unstaged_str}")
             typer.echo()
             
         typer.echo("Remember to run `nbl clean` before git adding notebooks.")

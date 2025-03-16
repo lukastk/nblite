@@ -6,10 +6,6 @@
 
 # %%
 #|hide
-import nbdev; nbdev.nbdev_export()
-
-# %%
-#|hide
 from nbdev.showdoc import show_doc
 
 # %%
@@ -19,7 +15,8 @@ from pathlib import Path
 
 from nblite.const import nblite_config_file_name
 from nblite.config import get_project_root_and_config, read_config
-from nblite.utils import get_code_location_nbs, is_code_loc_nb, get_nb_twin_paths
+from nblite.utils import get_code_location_nbs
+from nblite.export import get_nb_twin_paths
 
 # %%
 import nblite.git

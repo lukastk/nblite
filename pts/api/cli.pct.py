@@ -29,7 +29,7 @@ import subprocess
 
 from nblite.const import nblite_config_file_name
 from nblite.config import get_project_root_and_config, read_config
-from nblite.export import convert_nb
+from nblite.export import convert_nb, generate_readme
 from nblite.utils import get_code_location_nbs, is_nb_unclean, get_relative_path
 from nblite.git import get_unstaged_nb_twins, get_git_root, is_file_staged
 
@@ -145,6 +145,17 @@ def cli_export(
     and all parent directories, and use the directory containing the nblite.toml file as the root folder.
     """
     export(root_path, config_path, export_pipeline, nb_paths)
+
+
+# %% [markdown]
+# ## `nbl readme`
+
+# %%
+#|export
+@app.command(name='readme')
+@derive_cli_meta(generate_readme)
+def cli_readme(root_path=None):
+    generate_readme(root_path)
 
 
 # %% [markdown]

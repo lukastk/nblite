@@ -20,7 +20,7 @@ import json
 
 from nblite.const import nblite_config_file_name
 from nblite.config import read_config, parse_config_dict, get_project_root_and_config
-from nblite.const import format_to_jupytertext_formats
+from nblite.const import format_to_jupytext_format
 from nblite.utils import get_nb_format_from_path, get_code_location_nbs, get_nb_path_info
 
 # %%
@@ -52,8 +52,8 @@ def convert_nb(nb_path:str, dest_path:str, nb_format:str=None, dest_format:str=N
     if dest_format is None:
         dest_format = get_nb_format_from_path(dest_path)
         
-    jpt_src_fmt = format_to_jupytertext_formats[nb_format]
-    jpt_dest_fmt = format_to_jupytertext_formats[dest_format]
+    jpt_src_fmt = format_to_jupytext_format[nb_format]
+    jpt_dest_fmt = format_to_jupytext_format[dest_format]
     
     nb_converted = jupytext.read(nb_path, fmt=jpt_src_fmt)
     
@@ -467,3 +467,44 @@ def fill_ipynb(nb_path:str, cell_exec_timeout=None, remove_pre_existing_outputs:
 
 # %%
 fill_ipynb('../../test_proj/nbs/notebook1.ipynb')
+
+# %%
+show_doc(nblite.export.generate_readme)
+
+
+# %%
+#|export
+def generate_readme(root_path:Union[str,None] = None):
+    """
+    Generate a README.md file for the project from the index.ipynb file.
+    
+    Args:
+        root_path: The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.
+    """
+    # Hot reloading, to reduce loading time for CLI
+    import jupytext
+    from jupytext.config import JupytextConfiguration
+    from jupytext.formats import long_form_one_format
+    
+    if root_path is None:
+        root_path, config = get_project_root_and_config()
+    else:
+        root_path = Path(root_path)
+        config = read_config(root_path / nblite_config_file_name)
+        
+    if not config.code_locations: return
+        
+    # Get the top-level code location
+    top_level_cl_key = config.export_pipeline[0].from_key
+    top_level_cl = config.code_locations[top_level_cl_key]
+    
+    index_nb_path = root_path / top_level_cl.path / ('index.' + top_level_cl.file_ext)
+    if not index_nb_path.exists(): return
+
+    config = JupytextConfiguration()
+    config.set_default_format_options(long_form_one_format(top_level_cl.format), read=False)
+    config.notebook_metadata_filter = '-all'
+    
+    index_nb = jupytext.read(index_nb_path, fmt=top_level_cl.jupytext_format)
+
+    jupytext.write(index_nb, root_path / 'README.md', fmt='md', config=config)

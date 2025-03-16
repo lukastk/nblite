@@ -6,15 +6,13 @@
 
 # %%
 #|hide
-import nbdev; nbdev.nbdev_export()
-
-# %%
-#|hide
 from nbdev.showdoc import show_doc
 
 # %%
 #|export
 from pathlib import Path
+from typing import Union
+import os
 
 from nblite.config import NBLiteConfig, get_project_root_and_config, CodeLocation, read_config
 from nblite.const import file_exts_to_format, nblite_config_file_name
@@ -198,32 +196,47 @@ get_code_location_nbs('../../test_proj', CodeLocation(path='nbs', format='ipynb'
 get_code_location_nbs('../../test_proj', CodeLocation(path='nbs', format='ipynb'), ignore_underscores=False)
 
 # %%
-show_doc(nblite.utils.does_nb_have_metadata)
+show_doc(nblite.utils.is_nb_unclean)
 
 
 # %%
 #|export
-def does_nb_have_metadata(nb_path:str):
+def is_nb_unclean(nb_path:Union[str, None]=None, file_content:Union[str, None]=None):
     import nbformat
     from nbconvert.preprocessors import ExecutePreprocessor
 
-    nb_path = Path(nb_path)
-    if not nb_path.as_posix().endswith('.ipynb'):
-        raise ValueError(f"Error: '{nb_path}' is not a Jupyter notebook file.")
+    if nb_path is not None and file_content is not None:
+        raise ValueError("Only one of nb_path or file_content can be provided.")
+    
+    if nb_path is None and file_content is None:
+        raise ValueError("Either nb_path or file_content must be provided.")
 
-    with open(nb_path) as f:
-        nb = nbformat.read(f, as_version=4)
+    if nb_path:
+        nb_path = Path(nb_path)
+        if not nb_path.as_posix().endswith('.ipynb'):
+            raise ValueError(f"Error: '{nb_path}' is not a Jupyter notebook file.")
+
+        with open(nb_path) as f:
+            nb = nbformat.read(f, as_version=4)
+    else:
+        nb = nbformat.reads(file_content, as_version=4)
 
     for cell in nb.cells:
         if cell['cell_type'] != 'code': continue
         if cell['execution_count'] is not None: return True
         if cell.metadata: return True
+        for output in cell.get('outputs', []):
+            if 'execution_count' in output and output['execution_count'] is not None: return True
+            if 'metadata' in output and output['metadata']: return True
 
     return False
 
 
 # %%
-does_nb_have_metadata('../../test_proj/nbs/notebook1.ipynb')
+is_nb_unclean(file_content='{"cells":[]}')
+
+# %%
+is_nb_unclean('../../test_proj/nbs/notebook1.ipynb')
 
 # %%
 show_doc(nblite.utils.get_unclean_nbs)
@@ -248,9 +261,23 @@ def get_unclean_nbs(root_path: str = None, ignore_underscores: bool = False):
     for cl in config.code_locations.values():
         if not cl.format == 'ipynb': continue
         cl_nbs = get_code_location_nbs(root_path, cl, ignore_underscores=ignore_underscores)
-        unclean_nbs.extend([nb_path.relative_to(root_path) for nb_path in cl_nbs if does_nb_have_metadata(nb_path)])
+        unclean_nbs.extend([nb_path.relative_to(root_path) for nb_path in cl_nbs if is_nb_unclean(nb_path)])
     return unclean_nbs
 
 
 # %%
 get_unclean_nbs('../../test_proj')
+
+# %%
+show_doc(nblite.utils.get_relative_path)
+
+
+# %%
+#|export
+def get_relative_path(from_path: str, to_path: str):
+    """Returns the relative path to the root path."""
+    return Path(os.path.relpath(Path(to_path).resolve(), start=Path(from_path).resolve()))
+
+
+# %%
+get_relative_path('.', '/Users/lukastk/')

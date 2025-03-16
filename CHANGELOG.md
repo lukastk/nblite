@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.2] - 2025-03-16
+
+### 🐛 Bug Fixes
+
+- Added nbconvert as dependency
+- Nbl clean and nbl fill were trying to clean/fill non-ipynb notebooks
+
 ## [0.0.1] - 2025-03-16
 
 ### 🚀 Features

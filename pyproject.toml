@@ -19,7 +19,9 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
+    "git-cliff>=2.8.0",
     "jupyterlab>=4.3.5",
+    "twine>=6.1.0",
 ]
 
 [project.scripts]

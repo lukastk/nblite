@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.0] - 2025-03-16
+
+### 🚀 Features
+
+- *(utils)* Get_relative_path and is_nb_unclean now also checks top-level metadata
+
+### 🚜 Refactor
+
+- Migrated from nbdev to nblite
+- Removed __version__ from __init__.py
+- Exported
+
+### ⚙️ Miscellaneous Tasks
+
+- Updated version in pyproject.toml
+- Nbdev_clean
+- Cleaned test_proj
+- Cleaned code with new more agressive cleaning
+- Clean notebook1.ipynb
+- New version
+
 ## [0.0.2] - 2025-03-16
 
 ### 🐛 Bug Fixes

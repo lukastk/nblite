@@ -6,10 +6,6 @@
 
 # %%
 #|hide
-import nbdev; nbdev.nbdev_export()
-
-# %%
-#|hide
 from nbdev.showdoc import show_doc
 
 # %%
@@ -19,7 +15,7 @@ from pydantic import BaseModel, field_validator
 from typing import List, Dict, Union
 from pathlib import Path
 
-from nblite.const import code_loc_key_to_default_formats, nb_formats, nblite_config_file_name, format_to_file_exts, format_to_jupytertext_formats
+from nblite.const import code_loc_key_to_default_formats, nb_formats, nblite_config_file_name, format_to_file_exts, format_to_jupytext_format
 
 # %%
 import nblite.config
@@ -43,8 +39,8 @@ class CodeLocation(BaseModel):
         return format_to_file_exts[self.format]
     
     @property
-    def jupyter_text_format(self) -> str:
-        return format_to_jupytertext_formats[self.format]
+    def jupytext_format(self) -> str:
+        return format_to_jupytext_format[self.format]
 
 class NBLiteConfig(BaseModel):
     """

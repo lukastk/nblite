@@ -26,7 +26,7 @@ file_exts_to_format = {v: k for k, v in format_to_file_exts.items()}
 
 nb_formats = list(format_to_file_exts.keys()) + ['module']
 
-format_to_jupytertext_formats = {
+format_to_jupytext_format = {
     'module' : 'py',
     'ipynb' : 'ipynb',
     'percent' : 'py:percent',

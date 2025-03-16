@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.1] - 2025-03-16
+
+### ⚙️ Miscellaneous Tasks
+
+- Needed to bump the version since 0.1.0 has already been uploaded to pip
+
 ## [0.1.0] - 2025-03-16
 
 ### 🚀 Features

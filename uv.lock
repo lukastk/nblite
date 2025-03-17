@@ -1276,7 +1276,7 @@ wheels = [
 
 [[package]]
 name = "nblite"
-version = "0.1.0"
+version = "0.1.2"
 source = { editable = "." }
 dependencies = [
     { name = "jupytext" },
@@ -1284,6 +1284,7 @@ dependencies = [
     { name = "nbdev" },
     { name = "nbformat" },
     { name = "pydantic" },
+    { name = "rich" },
     { name = "toml" },
     { name = "typer" },
 ]
@@ -1298,10 +1299,11 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "jupytext", specifier = ">=1" },
-    { name = "nbconvert", specifier = ">=7.16.6" },
+    { name = "nbconvert", specifier = ">=7" },
     { name = "nbdev", specifier = ">=2" },
     { name = "nbformat", specifier = ">=5" },
     { name = "pydantic", specifier = ">=2" },
+    { name = "rich", specifier = ">=13.9.4" },
     { name = "toml", specifier = ">=0.10" },
     { name = "typer" },
 ]

@@ -361,7 +361,8 @@ def clean_ipynb(nb_path:str, remove_outputs:bool=False, remove_metadata:bool=Tru
     # Remove outputs from each cell
     if remove_outputs:
         for cell in nb.cells:
-            cell.outputs = {}
+            if cell['cell_type'] == 'code':
+                cell.outputs = []
             
     # Remove metadata from each cell
     if remove_metadata:
@@ -392,7 +393,7 @@ show_doc(nblite.export.fill_ipynb)
 
 # %%
 #|export
-def fill_ipynb(nb_path:str, cell_exec_timeout=None, remove_pre_existing_outputs:bool=True, remove_metadata:bool=True):
+def fill_ipynb(nb_path:str, cell_exec_timeout=None, remove_pre_existing_outputs:bool=True, remove_metadata:bool=True, working_dir:Union[str,None]=None):
     """
     Execute a notebook and fill it with the outputs.
     
@@ -420,7 +421,8 @@ def fill_ipynb(nb_path:str, cell_exec_timeout=None, remove_pre_existing_outputs:
     # Remove outputs from each cell
     if remove_pre_existing_outputs:
         for cell in nb.cells:
-            cell.outputs = {}
+            if cell['cell_type'] == 'code':
+                cell.outputs = []
 
     # Parse directives for skipping cell evaluations
     skip_evals_mode = False
@@ -450,7 +452,9 @@ def fill_ipynb(nb_path:str, cell_exec_timeout=None, remove_pre_existing_outputs:
 
     # Create the execute preprocessor
     ep = ExecutePreprocessor(timeout=cell_exec_timeout, kernel_name="python3")
-    resources = {"metadata": {"path": "."}}
+    if working_dir is None:
+        working_dir = nb_path.parent
+    resources = {"metadata": {"path": working_dir}}
     ep.preprocess(nb, resources)
 
     # Restore the cell types of skipped code cells
@@ -464,6 +468,16 @@ def fill_ipynb(nb_path:str, cell_exec_timeout=None, remove_pre_existing_outputs:
     if remove_metadata:
         clean_ipynb(nb_path, remove_outputs=False, remove_metadata=True)
 
+
+# %%
+import nbformat
+from nbconvert.preprocessors import ExecutePreprocessor
+
+nb_path = './utils.ipynb'
+with open(nb_path) as f:
+    nb = nbformat.read(f, as_version=4)
+    
+nb
 
 # %%
 fill_ipynb('../../test_proj/nbs/notebook1.ipynb')

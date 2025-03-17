@@ -393,7 +393,14 @@ show_doc(nblite.export.fill_ipynb)
 
 # %%
 #|export
-def fill_ipynb(nb_path:str, cell_exec_timeout=None, remove_pre_existing_outputs:bool=True, remove_metadata:bool=True, working_dir:Union[str,None]=None):
+def fill_ipynb(
+    nb_path:str,
+    cell_exec_timeout=None,
+    remove_pre_existing_outputs:bool=True,
+    remove_metadata:bool=True,
+    working_dir:Union[str,None]=None,
+    dry_run:bool=False,
+):
     """
     Execute a notebook and fill it with the outputs.
     
@@ -461,12 +468,13 @@ def fill_ipynb(nb_path:str, cell_exec_timeout=None, remove_pre_existing_outputs:
     for cell in skipped_cells:
         cell['cell_type'] = 'code'
 
-    with open(nb_path, "w") as f:
-        nbformat.write(nb, f)
-        
-    # Remove metadata from each cell
-    if remove_metadata:
-        clean_ipynb(nb_path, remove_outputs=False, remove_metadata=True)
+    if not dry_run:
+        with open(nb_path, "w") as f:
+            nbformat.write(nb, f)
+            
+        # Remove metadata from each cell
+        if remove_metadata:
+            clean_ipynb(nb_path, remove_outputs=False, remove_metadata=True)
 
 
 # %%

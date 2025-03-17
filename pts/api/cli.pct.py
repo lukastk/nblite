@@ -319,6 +319,7 @@ def cli_fill(
     root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None,
     cell_exec_timeout: Annotated[Union[int,None], Option("-t", "--timeout", help="The timeout for the cell execution.")] = None,
     ignore_underscores: Annotated[bool, Option("-i", "--ignore-underscores", help="Ignore notebooks that begin with an underscore in their filenames or in their parent folders.")] = False,
+    dry_run: Annotated[bool, Option(help="Dry run the command.")] = False,
 ):
     """
     Clean notebooks in an nblite project by removing outputs and metadata.
@@ -347,7 +348,7 @@ def cli_fill(
         typer.echo()
         
         try:
-            fill_ipynb(nb_path, cell_exec_timeout, remove_prev_outputs, remove_metadata)
+            fill_ipynb(nb_path, cell_exec_timeout, remove_prev_outputs, remove_metadata, dry_run)
         except Exception as e:
             exc_msg = typer.style("Exception!\n", fg=typer.colors.BRIGHT_MAGENTA, bold=True)
             typer.echo(exc_msg, err=True)

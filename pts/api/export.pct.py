@@ -470,16 +470,6 @@ def fill_ipynb(nb_path:str, cell_exec_timeout=None, remove_pre_existing_outputs:
 
 
 # %%
-import nbformat
-from nbconvert.preprocessors import ExecutePreprocessor
-
-nb_path = './utils.ipynb'
-with open(nb_path) as f:
-    nb = nbformat.read(f, as_version=4)
-    
-nb
-
-# %%
 fill_ipynb('../../test_proj/nbs/notebook1.ipynb')
 
 # %%

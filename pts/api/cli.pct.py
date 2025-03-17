@@ -348,12 +348,30 @@ def cli_fill(
         typer.echo()
         
         try:
-            fill_ipynb(nb_path, cell_exec_timeout, remove_prev_outputs, remove_metadata, dry_run)
+            fill_ipynb(nb_path, cell_exec_timeout, remove_prev_outputs, remove_metadata, dry_run=dry_run)
         except Exception as e:
             exc_msg = typer.style("Exception!\n", fg=typer.colors.BRIGHT_MAGENTA, bold=True)
             typer.echo(exc_msg, err=True)
             typer.echo(e, err=True)
             raise typer.Exit(code=1)
+
+
+# %% [markdown]
+# ## `nbl test`
+
+# %%
+#|export
+@app.command(name='test')
+def cli_test(
+    nb_paths: Annotated[Union[List[str], None], Argument(help="Specify the jupyter notebooks to fill. If omitted, all ipynb files in the project's code locations will be filled.")] = None,
+    root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None,
+    cell_exec_timeout: Annotated[Union[int,None], Option("-t", "--timeout", help="The timeout for the cell execution.")] = None,
+    ignore_underscores: Annotated[bool, Option("-i", "--ignore-underscores", help="Ignore notebooks that begin with an underscore in their filenames or in their parent folders.")] = False,
+):
+    """
+    Alias for `nbl fill --dry-run`. Used to test that all cells in the notebooks can be executed without errors.
+    """
+    cli_fill(nb_paths=nb_paths, root_path=root_path, dry_run=True, cell_exec_timeout=cell_exec_timeout, ignore_underscores=ignore_underscores)
 
 
 # %% [markdown]

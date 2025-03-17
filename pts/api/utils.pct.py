@@ -6,7 +6,7 @@
 
 # %%
 #|hide
-from nbdev.showdoc import show_doc
+import nblite; from nbdev.showdoc import show_doc; nblite.nbl_export()
 
 # %%
 #|export

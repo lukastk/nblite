@@ -442,6 +442,9 @@ def cli_install_hooks(
     
     with open(pre_commit_hook_path, 'w') as f:
         f.write((resources.files("nblite") / "defaults" / "pre-commit.sh").read_text())
+        
+    # Make the pre-commit hook executable
+    pre_commit_hook_path.chmod(pre_commit_hook_path.stat().st_mode | 0o111)
 
 
 # %% [markdown]

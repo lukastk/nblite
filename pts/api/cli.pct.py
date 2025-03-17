@@ -455,10 +455,11 @@ def cli_git_add(
     extra_args: Annotated[List[str], Option("--", help="Extra arguments to pass to git add.")] = [],
 ):
     """
-    Like `git add`, but also cleans any notebooks that are passed, and stages their twins.
+    Like `git add`, but also runs `nbl export`, cleans any notebooks that are passed, and stages their twins.
     """
     
     root_path, config = get_project_root_and_config()
+    cli_export()
     
     for fp in list(file_paths):
         if not is_code_loc_nb(fp, root_path, config): continue
@@ -468,6 +469,7 @@ def cli_git_add(
         file_paths.remove(fp)
         twin_paths = get_nb_twin_paths(fp, root_path)
         for twin_path in twin_paths:
+            if not Path(twin_path).as_posix().endswith('.ipynb'): continue
             clean_ipynb(twin_path, remove_outputs=False, remove_metadata=True)
         twin_paths = [p for p in twin_paths if has_unstaged_changes(p)]
         file_paths.extend(twin_paths)

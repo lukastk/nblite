@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2025-03-17
+
+### 🚀 Features
+
+- *(cli)* 'nbl git-add'
+- *(cli)* Git-add now also exports before adding. Also fixed bug in cleaning
+
+### 🐛 Bug Fixes
+
+- *(cli)* Install-hooks now also makes the pre-commit executable. Otherwise it doesn't work
+
+### 🚜 Refactor
+
+- *(cli)* Changed '_' to '-' in install-hooks and validate-staging
+
+### ⚙️ Miscellaneous Tasks
+
+- Fixed poorly formatted nb
+- New version
+
 ## [0.1.3] - 2025-03-17
 
 ### 🚀 Features
@@ -36,7 +56,6 @@ All notable changes to this project will be documented in this file.
 ### ⚙️ Miscellaneous Tasks
 
 - Generated readme
-- New version
 
 ## [0.1.1] - 2025-03-16
 
@@ -58,12 +77,10 @@ All notable changes to this project will be documented in this file.
 
 ### ⚙️ Miscellaneous Tasks
 
-- Updated version in pyproject.toml
 - Nbdev_clean
 - Cleaned test_proj
 - Cleaned code with new more agressive cleaning
 - Clean notebook1.ipynb
-- New version
 
 ## [0.0.2] - 2025-03-16
 
@@ -93,7 +110,6 @@ All notable changes to this project will be documented in this file.
 
 ### 🐛 Bug Fixes
 
-- String conversion
 - String conversion
 - Root_folder argument is now respected
 - Pre-commit.sh resource was missing

@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.3] - 2025-03-17
+
+### 🚀 Features
+
+- Added nblite.nbl_export alias
+- Changed default notebook template
+- 'nbl fill' now has more useful error messages
+
+### 🐛 Bug Fixes
+
+- *(export)* Clean and fill were filling the 'output' field in non-code cells
+
+### 🚜 Refactor
+
+- Removed dud test cell
+
+### ⚙️ Miscellaneous Tasks
+
+- Added rich dependency (for typer)
+- Bumped version
+
+## [0.1.2] - 2025-03-16
+
+### 🚀 Features
+
+- Nbl readme
+
+### 🚜 Refactor
+
+- Fixed typos in format_to_jupytertext_formats
+
+### ⚙️ Miscellaneous Tasks
+
+- Generated readme
+- New version
+
 ## [0.1.1] - 2025-03-16
 
 ### ⚙️ Miscellaneous Tasks

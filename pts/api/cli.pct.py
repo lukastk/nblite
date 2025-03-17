@@ -25,9 +25,9 @@ import subprocess
 
 from nblite.const import nblite_config_file_name
 from nblite.config import get_project_root_and_config, read_config
-from nblite.export import convert_nb, generate_readme
-from nblite.utils import get_code_location_nbs, is_nb_unclean, get_relative_path
-from nblite.git import get_unstaged_nb_twins, get_git_root, is_file_staged
+from nblite.export import convert_nb, generate_readme, get_nb_twin_paths
+from nblite.utils import get_code_location_nbs, is_nb_unclean, get_relative_path, is_code_loc_nb
+from nblite.git import get_unstaged_nb_twins, get_git_root, is_file_staged, has_unstaged_changes
 
 # %%
 import nblite.cli
@@ -442,3 +442,32 @@ def cli_install_hooks(
     
     with open(pre_commit_hook_path, 'w') as f:
         f.write((resources.files("nblite") / "defaults" / "pre-commit.sh").read_text())
+
+
+# %% [markdown]
+# ## `nbl git-add`
+
+# %%
+#|export
+@app.command(name='git-add')
+def cli_git_add(
+    file_paths: Annotated[List[str], Argument(help="The file paths to add to the staging area.")],
+    extra_args: Annotated[List[str], Option("--", help="Extra arguments to pass to git add.")] = [],
+):
+    """
+    Like `git add`, but also stages the twin files of any added notebooks located in code directories.
+    """
+    
+    root_path, config = get_project_root_and_config()
+    
+    for fp in list(file_paths):
+        if not is_code_loc_nb(fp, root_path, config): continue
+        if not Path(fp).exists():
+            typer.echo(f"Error: The file {fp} does not exist.")
+            raise typer.Abort()
+        file_paths.remove(fp)
+        twin_paths = get_nb_twin_paths(fp, root_path)
+        twin_paths = [p for p in twin_paths if has_unstaged_changes(p)]
+        file_paths.extend(twin_paths)
+    
+    subprocess.run(['git', 'add', *file_paths, *extra_args])

@@ -339,7 +339,20 @@ def cli_fill(
             nb_paths.extend(get_code_location_nbs(root_path, cl, ignore_underscores=ignore_underscores))
         
     for nb_path in nb_paths:
-        fill_ipynb(nb_path, cell_exec_timeout, remove_prev_outputs, remove_metadata)
+        msg = f"{nb_path}"
+        padding = '#' * 4
+        typer.echo('#' * (len(msg) + 2 * len(padding) + 2))
+        typer.echo(f"{padding} {msg} {padding}")
+        typer.echo('#' * (len(msg) + 2 * len(padding) + 2))
+        typer.echo()
+        
+        try:
+            fill_ipynb(nb_path, cell_exec_timeout, remove_prev_outputs, remove_metadata)
+        except Exception as e:
+            exc_msg = typer.style("Exception!\n", fg=typer.colors.BRIGHT_MAGENTA, bold=True)
+            typer.echo(exc_msg, err=True)
+            typer.echo(e, err=True)
+            raise typer.Exit(code=1)
 
 
 # %% [markdown]

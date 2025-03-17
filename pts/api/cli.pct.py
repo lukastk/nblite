@@ -356,11 +356,11 @@ def cli_fill(
 
 
 # %% [markdown]
-# ## `nbl validate_staging`
+# ## `nbl validate-staging`
 
 # %%
 #|export
-@app.command(name='validate_staging')
+@app.command(name='validate-staging')
 def cli_validate_staging(
     root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None
 ):
@@ -413,11 +413,11 @@ def cli_validate_staging(
 
 
 # %% [markdown]
-# ## `nbl install_hooks`
+# ## `nbl install-hooks`
 
 # %%
 #|export
-@app.command(name='install_hooks')
+@app.command(name='install-hooks')
 def cli_install_hooks(
     root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None
 ):
@@ -455,7 +455,7 @@ def cli_git_add(
     extra_args: Annotated[List[str], Option("--", help="Extra arguments to pass to git add.")] = [],
 ):
     """
-    Like `git add`, but also stages the twin files of any added notebooks located in code directories.
+    Like `git add`, but also cleans any notebooks that are passed, and stages their twins.
     """
     
     root_path, config = get_project_root_and_config()
@@ -467,6 +467,8 @@ def cli_git_add(
             raise typer.Abort()
         file_paths.remove(fp)
         twin_paths = get_nb_twin_paths(fp, root_path)
+        for twin_path in twin_paths:
+            clean_ipynb(twin_path, remove_outputs=False, remove_metadata=True)
         twin_paths = [p for p in twin_paths if has_unstaged_changes(p)]
         file_paths.extend(twin_paths)
     

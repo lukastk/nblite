@@ -13,5 +13,5 @@ if [ "$NBL_DISABLE_PC_EXPORT" != "true" ]; then
 fi
 
 if [ "$NBL_DISABLE_PC_VALIDATE" != "true" ]; then
-    nbl validate_staging
+    nbl validate-staging
 fi

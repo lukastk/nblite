@@ -1,8 +1,8 @@
 # %% [markdown]
-# # export
+# # export.base
 
 # %%
-#|default_exp export
+#|default_exp export.base
 
 # %%
 #|hide
@@ -24,10 +24,11 @@ from nblite.const import format_to_jupytext_format
 from nblite.utils import get_nb_format_from_path, get_code_location_nbs, get_nb_path_info
 
 # %%
-import nblite.export
+import shutil
+import nblite.export.base
 
 # %%
-show_doc(nblite.export.convert_nb)
+show_doc(nblite.export.base.convert_nb)
 
 
 # %%
@@ -67,7 +68,7 @@ def convert_nb(nb_path:str, dest_path:str, nb_format:str=None, dest_format:str=N
 
 # %%
 
-root_path = Path('../../test_proj/')
+root_path = Path('../../../test_proj/')
 
 (root_path / 'pcts').mkdir(parents=True, exist_ok=True)
 (root_path / 'lgts').mkdir(parents=True, exist_ok=True)
@@ -107,7 +108,7 @@ with tempfile.TemporaryDirectory() as tmpdirname:
     assert Path(root_path / "pcts" / "notebook1.pct.py").read_text() == Path(tempdir / "nb.pct.py").read_text()
 
 # %%
-show_doc(nblite.export.get_nb_module_export_name)
+show_doc(nblite.export.base.get_nb_module_export_name)
 
 
 # %%
@@ -130,10 +131,10 @@ def get_nb_module_export_name(nb_path: str, lib_path: str) -> str:
 
 
 # %%
-get_nb_module_export_name('../../test_proj/nbs/submodule/notebook3.ipynb', '../../test_proj/my_module')
+get_nb_module_export_name(root_path / 'nbs/submodule/notebook3.ipynb', root_path / 'my_module')
 
 # %%
-show_doc(nblite.export.get_nb_module_export_path)
+show_doc(nblite.export.base.get_nb_module_export_path)
 
 
 # %%
@@ -146,10 +147,10 @@ def get_nb_module_export_path(nb_path: str, lib_path: str) -> str:
 
 
 # %%
-get_nb_module_export_path('../../test_proj/nbs/submodule/notebook3.ipynb', '../../test_proj/my_module')
+get_nb_module_export_path(root_path / 'nbs/submodule/notebook3.ipynb', root_path / 'my_module')
 
 # %%
-show_doc(nblite.export.get_nb_twin_paths)
+show_doc(nblite.export.base.get_nb_twin_paths)
 
 
 # %%
@@ -179,10 +180,20 @@ def get_nb_twin_paths(nb_path: str, root_path: str):
 
 
 # %%
-get_nb_twin_paths('../../test_proj/nbs/folder/notebook4.ipynb', '../../test_proj')
+get_nb_twin_paths(root_path / 'nbs/folder/notebook4.ipynb', root_path)
 
 # %%
-show_doc(nblite.export.export_to_lib)
+show_doc(nblite.export.base.get_nb_as_function)
+
+
+# %%
+#|export
+def get_nb_as_function():
+    pass
+
+
+# %%
+show_doc(nblite.export.base.export_to_lib)
 
 
 # %%
@@ -234,7 +245,7 @@ def export_to_lib(nb_path, lib_path, nb_format=None):
 
 
 # %%
-root_path = Path('../../test_proj/')
+root_path = Path(root_path / '')
 
 export_to_lib(
     root_path / 'nbs' / 'notebook1.ipynb',
@@ -258,7 +269,7 @@ export_to_lib(
 )
 
 # %%
-show_doc(nblite.export.export)
+show_doc(nblite.export.base.export)
 
 
 # %%
@@ -323,16 +334,18 @@ def export(root_path:Union[str,None] = None, config_path:Union[str,None] = None,
 
 
 # %%
-# !rm -rf ../../test_proj/my_module ../../test_proj/pcts ../../test_proj/lgts
+shutil.rmtree(root_path / 'my_module', ignore_errors=True)
+shutil.rmtree(root_path / 'pcts', ignore_errors=True)
+shutil.rmtree(root_path / 'lgts', ignore_errors=True)
 
 # %%
-export('../../test_proj')
+export(root_path)
 
 # %%
-export('../../test_proj', nb_paths=['../../test_proj/nbs/notebook1.ipynb'])
+export(root_path, nb_paths=[root_path / 'nbs/notebook1.ipynb'])
 
 # %%
-show_doc(nblite.export.clean_ipynb)
+show_doc(nblite.export.base.clean_ipynb)
 
 
 # %%
@@ -385,10 +398,10 @@ def clean_ipynb(nb_path:str, remove_outputs:bool=False, remove_metadata:bool=Tru
 
 
 # %%
-clean_ipynb('../../test_proj/nbs/notebook1.ipynb', remove_outputs=True, remove_metadata=True)
+clean_ipynb(root_path / 'nbs/notebook1.ipynb', remove_outputs=True, remove_metadata=True)
 
 # %%
-show_doc(nblite.export.fill_ipynb)
+show_doc(nblite.export.base.fill_ipynb)
 
 
 # %%
@@ -478,10 +491,10 @@ def fill_ipynb(
 
 
 # %%
-fill_ipynb('../../test_proj/nbs/notebook1.ipynb')
+fill_ipynb(root_path / 'nbs/notebook1.ipynb')
 
 # %%
-show_doc(nblite.export.generate_readme)
+show_doc(nblite.export.base.generate_readme)
 
 
 # %%

@@ -30,13 +30,13 @@ from nblite.utils import get_code_location_nbs, is_nb_unclean, get_relative_path
 from nblite.git import get_unstaged_nb_twins, get_git_root, is_file_staged, has_unstaged_changes
 
 # %%
-import nblite.cli
+import nblite.cli as this
 
 # %% [markdown]
 # # Helper functions
 
 # %%
-show_doc(nblite.cli.parse_docstring)
+show_doc(this.parse_docstring)
 
 
 # %%
@@ -72,7 +72,7 @@ print(arg_docs)
 print(return_doc)
 
 # %%
-show_doc(nblite.cli.derive_cli_meta)
+show_doc(this.derive_cli_meta)
 
 
 # %%

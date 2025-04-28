@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2025-04-28
+
+### 🚀 Features
+
+- *(cli)* 'nbl fill' now has a dry run mode
+- *(cli)* Nbl test
+- *(export)* Implemented exporting notebooks as functions
+
+### 🚜 Refactor
+
+- *(export)* Modularized 'export'
+- Made the show_doc parts of the notebook simpler
+- Changed 'this' to 'this_module' as the former already exists
+
+### ⚙️ Miscellaneous Tasks
+
+- Updated changelog
+
 ## [0.2.0] - 2025-03-17
 
 ### 🚀 Features
@@ -56,6 +74,7 @@ All notable changes to this project will be documented in this file.
 ### ⚙️ Miscellaneous Tasks
 
 - Generated readme
+- New version
 
 ## [0.1.1] - 2025-03-16
 
@@ -77,10 +96,12 @@ All notable changes to this project will be documented in this file.
 
 ### ⚙️ Miscellaneous Tasks
 
+- Updated version in pyproject.toml
 - Nbdev_clean
 - Cleaned test_proj
 - Cleaned code with new more agressive cleaning
 - Clean notebook1.ipynb
+- New version
 
 ## [0.0.2] - 2025-03-16
 
@@ -110,6 +131,7 @@ All notable changes to this project will be documented in this file.
 
 ### 🐛 Bug Fixes
 
+- String conversion
 - String conversion
 - Root_folder argument is now respected
 - Pre-commit.sh resource was missing

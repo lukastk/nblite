@@ -25,10 +25,10 @@ from nblite.utils import get_nb_format_from_path, get_code_location_nbs, get_nb_
 
 # %%
 import shutil
-import nblite.export.base as this
+import nblite.export.base as this_module
 
 # %%
-show_doc(this.convert_nb)
+show_doc(this_module.convert_nb)
 
 
 # %%
@@ -108,7 +108,7 @@ with tempfile.TemporaryDirectory() as tmpdirname:
     assert Path(root_path / "pcts" / "notebook1.pct.py").read_text() == Path(tempdir / "nb.pct.py").read_text()
 
 # %%
-show_doc(this.get_nb_module_export_name)
+show_doc(this_module.get_nb_module_export_name)
 
 
 # %%
@@ -134,7 +134,7 @@ def get_nb_module_export_name(nb_path: str, lib_path: str) -> str:
 get_nb_module_export_name(root_path / 'nbs/submodule/notebook3.ipynb', root_path / 'my_module')
 
 # %%
-show_doc(this.get_nb_module_export_path)
+show_doc(this_module.get_nb_module_export_path)
 
 
 # %%
@@ -150,7 +150,7 @@ def get_nb_module_export_path(nb_path: str, lib_path: str) -> str:
 get_nb_module_export_path(root_path / 'nbs/submodule/notebook3.ipynb', root_path / 'my_module')
 
 # %%
-show_doc(this.get_nb_twin_paths)
+show_doc(this_module.get_nb_twin_paths)
 
 
 # %%
@@ -183,7 +183,7 @@ def get_nb_twin_paths(nb_path: str, root_path: str):
 get_nb_twin_paths(root_path / 'nbs/folder/notebook4.ipynb', root_path)
 
 # %%
-show_doc(this.get_nb_as_function)
+show_doc(this_module.get_nb_as_function)
 
 
 # %%
@@ -193,7 +193,7 @@ def get_nb_as_function():
 
 
 # %%
-show_doc(this.export_to_lib)
+show_doc(this_module.export_to_lib)
 
 
 # %%
@@ -269,7 +269,7 @@ export_to_lib(
 )
 
 # %%
-show_doc(this.export)
+show_doc(this_module.export)
 
 
 # %%
@@ -345,7 +345,7 @@ export(root_path)
 export(root_path, nb_paths=[root_path / 'nbs/notebook1.ipynb'])
 
 # %%
-show_doc(this.clean_ipynb)
+show_doc(this_module.clean_ipynb)
 
 
 # %%
@@ -401,7 +401,7 @@ def clean_ipynb(nb_path:str, remove_outputs:bool=False, remove_metadata:bool=Tru
 clean_ipynb(root_path / 'nbs/notebook1.ipynb', remove_outputs=True, remove_metadata=True)
 
 # %%
-show_doc(this.fill_ipynb)
+show_doc(this_module.fill_ipynb)
 
 
 # %%
@@ -494,7 +494,7 @@ def fill_ipynb(
 fill_ipynb(root_path / 'nbs/notebook1.ipynb')
 
 # %%
-show_doc(this.generate_readme)
+show_doc(this_module.generate_readme)
 
 
 # %%

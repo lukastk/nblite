@@ -18,10 +18,10 @@ from pathlib import Path
 from nblite.const import code_loc_key_to_default_formats, nb_formats, nblite_config_file_name, format_to_file_exts, format_to_jupytext_format
 
 # %%
-import nblite.config as this
+import nblite.config as this_module
 
 # %%
-show_doc(this.NBLiteConfig)
+show_doc(this_module.NBLiteConfig)
 
 
 # %%
@@ -142,7 +142,7 @@ conf = NBLiteConfig(
 )
 
 # %%
-show_doc(this.parse_config_dict)
+show_doc(this_module.parse_config_dict)
 
 
 # %%
@@ -231,7 +231,7 @@ export_pipeline = """
 parse_config_dict(toml.loads(toml_string)).model_dump()
 
 # %%
-show_doc(this._find_config_file)
+show_doc(this_module._find_config_file)
 
 
 # %%
@@ -252,7 +252,7 @@ def _find_config_file(curr_folder: Path) -> str:
 _find_config_file(Path('../../test_proj'))
 
 # %%
-show_doc(this.read_config)
+show_doc(this_module.read_config)
 
 
 # %%
@@ -266,7 +266,7 @@ def read_config(path) -> NBLiteConfig:
 read_config('../../test_proj/nblite.toml')
 
 # %%
-show_doc(this.get_project_root_and_config)
+show_doc(this_module.get_project_root_and_config)
 
 
 # %%

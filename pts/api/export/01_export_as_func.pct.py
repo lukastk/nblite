@@ -55,7 +55,7 @@ def get_top_exports(nb_path: str, nb_format=None):
     Get the content of the notebook as a python file
     """
     directives = get_nb_directives(nb_path, nb_format)
-    header_codes = [f"# %% func_header_cell\n{d['cell']['source_without_directives']}" for d in directives if d['directive'] == 'top_export']
+    header_codes = [f"# %% top_export\n{d['cell']['source_without_directives']}" for d in directives if d['directive'] == 'top_export']
     return "\n\n".join(header_codes)
 
 

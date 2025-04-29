@@ -19,10 +19,10 @@ from nblite.utils import get_code_location_nbs
 from nblite.export import get_nb_twin_paths
 
 # %%
-import nblite.git
+import nblite.git as this_module
 
 # %%
-show_doc(nblite.git.has_unstaged_changes)
+show_doc(this_module.has_unstaged_changes)
 
 
 # %%
@@ -53,7 +53,7 @@ for fp in fps:
     print(fp, has_unstaged_changes(fp))
 
 # %%
-show_doc(nblite.git.get_git_root)
+show_doc(this_module.get_git_root)
 
 
 # %%
@@ -73,7 +73,7 @@ def get_git_root():
 get_git_root()
 
 # %%
-show_doc(nblite.git.list_staged_files)
+show_doc(this_module.list_staged_files)
 
 
 # %%
@@ -90,7 +90,7 @@ def list_staged_files():
 
 
 # %%
-show_doc(nblite.git.list_unstaged_and_untracked_files)
+show_doc(this_module.list_unstaged_and_untracked_files)
 
 
 # %%
@@ -114,7 +114,7 @@ def list_unstaged_and_untracked_files():
 list_unstaged_and_untracked_files()
 
 # %%
-show_doc(nblite.git.is_file_staged)
+show_doc(this_module.is_file_staged)
 
 
 # %%
@@ -147,7 +147,7 @@ for fp in fps:
     print(fp, is_file_staged(fp))
 
 # %%
-show_doc(nblite.git.get_unstaged_nb_twins)
+show_doc(this_module.get_unstaged_nb_twins)
 
 
 # %%

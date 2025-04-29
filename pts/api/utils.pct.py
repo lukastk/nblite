@@ -18,10 +18,10 @@ from nblite.config import NBLiteConfig, get_project_root_and_config, CodeLocatio
 from nblite.const import file_exts_to_format, nblite_config_file_name
 
 # %%
-import nblite.utils
+import nblite.utils as this_module
 
 # %%
-show_doc(nblite.utils.get_nb_format_from_path)
+show_doc(this_module.get_nb_format_from_path)
 
 
 # %%
@@ -37,7 +37,7 @@ def get_nb_format_from_path(path: str) -> str:
 get_nb_format_from_path('file.pct.py')
 
 # %%
-show_doc(nblite.utils.get_nb_path_info)
+show_doc(this_module.get_nb_path_info)
 
 
 # %%
@@ -71,7 +71,7 @@ root_path, config = get_project_root_and_config(root_path)
 get_nb_path_info('../../test_proj/nbs/notebook1.ipynb', '../../test_proj', config)
 
 # %%
-show_doc(nblite.utils.is_code_loc_nb)
+show_doc(this_module.is_code_loc_nb)
 
 
 # %%
@@ -99,7 +99,7 @@ print(is_code_loc_nb('../../test_proj/nbs/notebook1.pct.py', root_path, config))
 print(is_code_loc_nb('../../test_proj/test.txt', root_path, config))
 
 # %%
-show_doc(nblite.utils.get_code_location_nbs)
+show_doc(this_module.get_code_location_nbs)
 
 
 # %%
@@ -127,7 +127,7 @@ get_code_location_nbs('../../test_proj', CodeLocation(path='nbs', format='ipynb'
 get_code_location_nbs('../../test_proj', CodeLocation(path='nbs', format='ipynb'), ignore_underscores=False)
 
 # %%
-show_doc(nblite.utils.is_nb_unclean)
+show_doc(this_module.is_nb_unclean)
 
 
 # %%
@@ -172,7 +172,7 @@ is_nb_unclean(file_content='{"cells":[]}')
 is_nb_unclean('../../test_proj/nbs/notebook1.ipynb')
 
 # %%
-show_doc(nblite.utils.get_unclean_nbs)
+show_doc(this_module.get_unclean_nbs)
 
 
 # %%
@@ -202,7 +202,7 @@ def get_unclean_nbs(root_path: str = None, ignore_underscores: bool = False):
 get_unclean_nbs('../../test_proj')
 
 # %%
-show_doc(nblite.utils.get_relative_path)
+show_doc(this_module.get_relative_path)
 
 
 # %%

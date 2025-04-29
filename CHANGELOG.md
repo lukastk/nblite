@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2025-04-29
+
+### 🚀 Features
+
+- Changed '#|func_header_export' to '#|top_export'
+
+### ⚙️ Miscellaneous Tasks
+
+- Updated version in pyproject.toml
+- Updated CHANGELOG.md
+- V0.3.1
+
 ## [0.3.0] - 2025-04-28
 
 ### 🚀 Features
@@ -9,6 +21,7 @@ All notable changes to this project will be documented in this file.
 - *(cli)* 'nbl fill' now has a dry run mode
 - *(cli)* Nbl test
 - *(export)* Implemented exporting notebooks as functions
+- *(export)* Modified how to declare the function signature
 
 ### 🚜 Refactor
 

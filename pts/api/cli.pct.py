@@ -22,9 +22,10 @@ import tempfile
 import importlib.resources as resources
 import sys
 import subprocess
+from jinja2 import Template
 
 from nblite.const import nblite_config_file_name
-from nblite.config import get_project_root_and_config, read_config
+from nblite.config import get_project_root_and_config, read_config, get_downstream_module
 from nblite.export import convert_nb, generate_readme, get_nb_twin_paths
 from nblite.utils import get_code_location_nbs, is_nb_unclean, get_relative_path, is_code_loc_nb
 from nblite.git import get_unstaged_nb_twins, get_git_root, is_file_staged, has_unstaged_changes
@@ -189,8 +190,9 @@ def cli_init(
     if root_path is None:
         root_path = Path('.').resolve()
     
-    nblite_toml_template = (resources.files("nblite") / "defaults" / "default_nblite.toml").read_text()
-    nblite_toml_str = nblite_toml_template.format(module_name=module_name)
+    nblite_toml_template_path = (resources.files("nblite") / "defaults" / "default_nblite.toml")
+    nblite_toml_template = Template(nblite_toml_template_path.read_text())
+    nblite_toml_str = nblite_toml_template.render(module_name=module_name)
     
     toml_path = root_path / 'nblite.toml'
     if toml_path.exists():
@@ -229,9 +231,11 @@ def cli_new(
         nb_title = nb_path.stem
 
     nb_format = None
-    for loc in config.code_locations.values():
+    cl_key = None
+    for _cl_key, loc in config.code_locations.items():
         cl_path = (root_path / loc.path).resolve()
         if nb_path.is_relative_to(cl_path):
+            cl_key = _cl_key
             nb_format = loc.format
             if not nb_path.name.endswith(loc.file_ext):
                 nb_path = Path(nb_path.as_posix() + '.' + loc.file_ext)
@@ -252,7 +256,18 @@ def cli_new(
         raise typer.Abort()
 
     with tempfile.NamedTemporaryFile(suffix='.pct.py') as tmp_nb:
-        pct_content = (resources.files("nblite") / "defaults" / "default_nb.pct.py_").read_text().format(nb_title=nb_title, mod_name=mod_name)
+        lib_cl_key = get_downstream_module(config, cl_key)
+        lib_name = Path(config.code_locations[lib_cl_key].path).stem if lib_cl_key is not None else None
+        import_path = None if lib_name is None else f"{lib_name}.{mod_name}"
+            
+        pct_template_path = (resources.files("nblite") / "defaults" / "default_nb.pct.py.jinja")
+        pct_template = Template(pct_template_path.read_text())
+        pct_content = pct_template.render(
+            nb_title=nb_title,
+            mod_name=mod_name,
+            import_path=import_path,
+        )
+        
         tmp_nb.write(pct_content.encode())
         tmp_nb.flush()
         nb_path.parent.mkdir(parents=True, exist_ok=True)

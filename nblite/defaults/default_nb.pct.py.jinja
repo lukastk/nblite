@@ -1,0 +1,26 @@
+# %% [markdown]
+# # {{nb_title}}
+
+# %%
+#|default_exp {{mod_name}}
+
+# %%
+#|hide
+import nblite; from nbdev.showdoc import show_doc; nblite.nbl_export()
+
+{% if import_path %}# %%
+#|export
+# Put your import statements here
+
+# %%
+#|hide
+import {{import_path}} as this_module
+
+# %%
+#|hide
+show_doc(this_module.foo){% endif %}
+
+# %%
+#|export
+def foo():
+    print("Hello")

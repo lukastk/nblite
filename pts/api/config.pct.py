@@ -283,3 +283,46 @@ def get_project_root_and_config(curr_folder:Union[Path, None] = None) -> Path:
 # %%
 root_path, config = get_project_root_and_config('../../test_proj')
 print(root_path)
+
+# %%
+show_doc(this_module.get_downstream_module)
+
+
+# %%
+#|exporti
+def get_downstream_module(config: NBLiteConfig, starting_code_loc_key: str) -> str:
+    """
+    Finds the first downstream code location in the export pipeline that is of format 'module'.
+
+    Args:
+        config (NBLiteConfig): The configuration object containing the export pipeline and code locations.
+        starting_code_loc_key (str): The key of the starting code location.
+
+    Returns:
+        str: The key of the first downstream code location with format 'module', or None if not found.
+
+    Raises:
+        ValueError: If the starting code location key is not found in the configuration.
+    """
+    def get_next_cl(curr_cl: str) -> ExportRule:
+        for rule in config.export_pipeline:
+            if rule.from_key == curr_cl:
+                return rule.to_key
+        return None
+    
+    if not starting_code_loc_key in config.code_locations:
+        raise ValueError(f"Starting code location '{starting_code_loc_key}' not found in config.")
+    
+    curr_cl = starting_code_loc_key
+    while curr_cl is not None:
+        if config.code_locations[curr_cl].format == "module":
+            return curr_cl
+        curr_cl = get_next_cl(curr_cl)
+    
+    return None
+
+
+
+# %%
+config = read_config('../../test_proj/nblite.toml')
+get_downstream_module(config, 'nbs')

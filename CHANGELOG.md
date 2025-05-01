@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.4] - 2025-05-01
+
+### 🚀 Features
+
+- *(export.export_as_func)* Added ability to return
+
+### ⚙️ Miscellaneous Tasks
+
+- Update version in pyproject.toml
+
+## [0.3.3] - 2025-04-30
+
+### 🚀 Features
+
+- Modified 'nbl new' template and also now defined them using jinja
+
+### ⚙️ Miscellaneous Tasks
+
+- Updated changelog
+- 0.3.3
+
 ## [0.3.2] - 2025-04-29
 
 ### 🐛 Bug Fixes

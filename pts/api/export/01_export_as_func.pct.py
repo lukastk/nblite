@@ -86,6 +86,16 @@ def export_to_lib_as_func(nb_path: str, lib_path: str, nb_format: str = None):
     elif func_sig.endswith('pass'): func_sig = func_sig[:-4]
     else: raise Exception('Invalid function signature')
     
+    # Get the return cell from the notebook
+    directive = lookup_directive(get_nb_directives(nb_path, nb_format), 'func_return')
+    if directive is not None:
+        return_cell = directive['cell']['source_without_directives'].strip()
+        if len(return_cell.split('\n')) > 1:
+            raise Exception('Return cell must contain only one line')
+        return_statement = f'return {return_cell}'
+    else:
+        return_statement = 'return'
+     
     # Get the content of the notebook as a python file
     lib_name = Path(lib_path).stem
     py_file_content = get_nb_as_py_file(nb_path, lib_name, nb_format)
@@ -108,6 +118,7 @@ def export_to_lib_as_func(nb_path: str, lib_path: str, nb_format: str = None):
 
 {func_sig}
 {func_body}
+    {return_statement}
     """.strip()
 
     # Check the syntax

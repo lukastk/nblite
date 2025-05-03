@@ -19,12 +19,14 @@ from typing import Union, List
 import json
 import nbformat
 
-from nblite.const import nblite_config_file_name
-from nblite.config import read_config, parse_config_dict, get_project_root_and_config
+from nblite.const import nblite_config_file_name, format_to_file_exts
+from nblite.config import read_config, get_project_root_and_config, get_top_level_code_locations
 from nblite.const import format_to_jupytext_format
-from nblite.utils import get_nb_format_from_path, get_code_location_nbs, get_nb_path_info
+from nblite.utils import get_nb_format_from_path, get_nb_path_info
 
 # %%
+#|hide
+from nblite.export.nb_export import export
 import nblite.export.base as this_module
 
 # %%
@@ -128,6 +130,10 @@ def get_nb_module_export_name(nb_path: str, lib_path: str) -> str:
             return nm
     return None
 
+
+# %%
+#|hide
+export(root_path)
 
 # %%
 get_nb_module_export_name(root_path / 'nbs/submodule/notebook3.ipynb', root_path / 'my_module')
@@ -511,3 +517,69 @@ export_to_lib(
     root_path / 'pcts' / 'notebook2.pct.py',
     root_path / 'my_module',
 )
+
+# %%
+show_doc(this_module.clear_code_location)
+
+
+# %%
+#|export
+def clear_code_location(cl_key: str, root_path: Union[str,None]=None):
+    """
+    Clear the code location of a given key.
+    """
+    if root_path is None:
+        root_path, config = get_project_root_and_config()
+    else:
+        root_path = Path(root_path)
+        config = read_config(root_path / nblite_config_file_name)
+    
+    top_code_locations = get_top_level_code_locations(config)
+    if cl_key in top_code_locations:
+        raise ValueError(f"Error: '{cl_key}' is a top-level code location and cannot be cleared.")
+    
+    cl_path = config.code_locations[cl_key].path
+    cl_format = config.code_locations[cl_key].format
+    file_ext = format_to_file_exts[cl_format]
+    
+    for file in (root_path / cl_path).glob(f'**/*.{file_ext}'):
+        if not file.is_file(): continue
+        if cl_format == 'module' and file.name.startswith('_'): continue # Skip hidden files in module code locations
+        file.unlink()
+        
+    # Remove empty folders
+    for folder in (Path(root_path) / cl_path).glob('**/*'):
+        if folder.is_dir() and not any(folder.iterdir()):  # Check if the directory is empty
+            folder.rmdir()  # Remove the empty directory
+
+
+# %%
+clear_code_location('pcts', root_path)
+
+# %%
+show_doc(this_module.clear_downstream_code_locations)
+
+
+# %%
+#|export
+def clear_downstream_code_locations(root_path: Union[str,None]=None):
+    """"""
+    if root_path is None:
+        root_path, config = get_project_root_and_config()
+    else:
+        root_path = Path(root_path)
+        config = read_config(root_path / nblite_config_file_name)
+    
+    top_code_locations = get_top_level_code_locations(config)
+    non_top_code_locations = [cl_key for cl_key in config.code_locations if cl_key not in top_code_locations]
+    
+    for cl_key in non_top_code_locations:
+        clear_code_location(cl_key, root_path)
+
+
+# %%
+clear_downstream_code_locations(root_path)
+
+# %%
+#|hide
+export(root_path) # Export so to not break tests in other notebooks

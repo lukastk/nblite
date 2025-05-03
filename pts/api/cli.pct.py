@@ -14,7 +14,7 @@ import typer
 from typer import Argument, Option
 from typing_extensions import Annotated
 from types import FunctionType
-from typing import Callable, Union, List
+from typing import Callable, Union, List, Optional
 import inspect
 import re
 from pathlib import Path
@@ -26,7 +26,7 @@ from jinja2 import Template
 
 from nblite.const import nblite_config_file_name
 from nblite.config import get_project_root_and_config, read_config, get_downstream_module
-from nblite.export import convert_nb, generate_readme, get_nb_twin_paths
+from nblite.export import convert_nb, generate_readme, get_nb_twin_paths, clear_code_location, clear_downstream_code_locations
 from nblite.utils import get_code_location_nbs, is_nb_unclean, get_relative_path, is_code_loc_nb
 from nblite.git import get_unstaged_nb_twins, get_git_root, is_file_staged, has_unstaged_changes
 
@@ -512,3 +512,29 @@ def cli_git_add(
         file_paths.extend(twin_paths)
     
     subprocess.run(['git', 'add', *file_paths, *extra_args])
+
+
+# %% [markdown]
+# ## `nbl clear`
+
+# %%
+#|export
+@app.command(name='clear')
+def cli_clear_downstream(
+    code_location: Annotated[Optional[str], Argument(help="The code location to clear downstream from.")] = None,
+    all: Annotated[bool, Option(help="Clear all downstream notebooks.")] = False
+):
+    """
+    Clear a code location or all code locations downstream from the top-level code location.
+    """
+    root_path, config = get_project_root_and_config()
+    
+    if not all and code_location is None:
+        typer.echo("Error: Either --all or a code location must be provided.")
+        raise typer.Abort()
+    
+    if not all:
+        clear_code_location(code_location, root_path)
+    else:
+        clear_downstream_code_locations(root_path)
+

@@ -285,6 +285,24 @@ root_path, config = get_project_root_and_config('../../test_proj')
 print(root_path)
 
 # %%
+show_doc(this_module.get_top_level_code_locations)
+
+
+# %%
+#|export
+def get_top_level_code_locations(config: NBLiteConfig) -> List[str]:
+    """
+    Returns the top level code locations in the export pipeline.
+    """
+    all_to_keys = set([rule.to_key for rule in config.export_pipeline])
+    return [rule.from_key for rule in config.export_pipeline if rule.from_key not in all_to_keys]
+
+
+# %%
+root_path, config = get_project_root_and_config('../../test_proj')
+get_top_level_code_locations(config)
+
+# %%
 show_doc(this_module.get_downstream_module)
 
 

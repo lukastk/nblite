@@ -115,6 +115,7 @@ def get_code_location_nbs(root_path: str, cl: CodeLocation, ignore_underscores: 
     for fp in cl_path.glob('**/*'):
         rel_fp = fp.relative_to(cl_path)
         if fp.is_file() and fp.name.endswith(cl.file_ext):
+            if '.ipynb_checkpoints' in rel_fp.parts: continue
             if ignore_underscores and any(p.startswith('_') for p in rel_fp.parts): continue
             nbs.append(fp)
     return nbs

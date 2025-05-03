@@ -22,6 +22,7 @@ import tempfile
 import importlib.resources as resources
 import sys
 import subprocess
+import importlib.metadata
 from jinja2 import Template
 
 from nblite.const import nblite_config_file_name
@@ -109,7 +110,15 @@ def derive_cli_meta(source_func: FunctionType) -> Callable:
 app = typer.Typer(invoke_without_command=True)
 
 @app.callback()
-def entrypoint(ctx: typer.Context):
+def entrypoint(
+    ctx: typer.Context,
+    version: bool = typer.Option(False, "--version", help="Show the version and exit")
+):
+    if version:
+        version = importlib.metadata.version('nblite')
+        typer.echo(f"nblite version {version}")
+        raise typer.Exit()
+    
     # If no subcommand is provided, show the help
     if ctx.invoked_subcommand is None:
         typer.echo(ctx.get_help())

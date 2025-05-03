@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2025-05-03
+
+### 🚀 Features
+
+- Nbl clear
+- *(export)* Now exports underscored notebooks to non 'module'-type code locations
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- New publish script
+- Uv.lock
+- Update version in pyproject.toml
+
 ## [0.3.4] - 2025-05-01
 
 ### 🚀 Features

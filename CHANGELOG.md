@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.1] - 2025-05-03
+
+### 🚀 Features
+
+- Nbl prepare
+
+### 🐛 Bug Fixes
+
+- No longer includes '.ipynb_checkpoints' in 'utils.get_code_location_nbs'
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update version in pyproject.toml
+
 ## [0.4.0] - 2025-05-03
 
 ### 🚀 Features

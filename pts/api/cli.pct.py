@@ -538,3 +538,18 @@ def cli_clear_downstream(
     else:
         clear_downstream_code_locations(root_path)
 
+
+
+# %% [markdown]
+# ## `nbl prepare`
+
+# %%
+#|export
+@app.command(name='prepare')
+def cli_prepare():
+    """
+    Export, clean, and fill the notebooks in the project.
+    """
+    cli_export()
+    cli_clean()
+    cli_fill()

@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1] - 2025-05-04
+
+### 🐛 Bug Fixes
+
+- 'docs_title' added to nblite.toml template
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update version in pyproject.toml
+
 ## [0.5.0] - 2025-05-04
 
 ### 🚀 Features

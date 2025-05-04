@@ -340,45 +340,32 @@ def fill_ipynb(
 fill_ipynb(root_path / 'nbs/notebook1.ipynb')
 
 # %%
-show_doc(this_module.generate_readme)
+show_doc(this_module.get_cell_with_directives)
+
+
+# %%
+#|exporti
+def remove_directive_lines(code):
+    return "\n".join([ l for l in code.split('\n') if not l.startswith('#|') ])
 
 
 # %%
 #|export
-def generate_readme(root_path:Union[str,None] = None):
+def get_cell_with_directives(cell:dict):
     """
-    Generate a README.md file for the project from the index.ipynb file.
-    
-    Args:
-        root_path: The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.
+    Get the cell with the directives from a cell as metadata.
     """
-    # Hot reloading, to reduce loading time for CLI
-    import jupytext
-    from jupytext.config import JupytextConfiguration
-    from jupytext.formats import long_form_one_format
-    
-    if root_path is None:
-        root_path, config = get_project_root_and_config()
-    else:
-        root_path = Path(root_path)
-        config = read_config(root_path / nblite_config_file_name)
-        
-    if not config.code_locations: return
-        
-    # Get the top-level code location
-    top_level_cl_key = config.export_pipeline[0].from_key
-    top_level_cl = config.code_locations[top_level_cl_key]
-    
-    index_nb_path = root_path / top_level_cl.path / ('index.' + top_level_cl.file_ext)
-    if not index_nb_path.exists(): return
-
-    config = JupytextConfiguration()
-    config.set_default_format_options(long_form_one_format(top_level_cl.format), read=False)
-    config.notebook_metadata_filter = '-all'
-    
-    index_nb = jupytext.read(index_nb_path, fmt=top_level_cl.jupytext_format)
-
-    jupytext.write(index_nb, root_path / 'README.md', fmt='md', config=config)
+    if not 'source' in cell: return cell
+    code = cell['source']
+    cell['directives'] = []
+    cell['source_without_directives'] = remove_directive_lines(code)
+    for code_line in code.split('\n'):
+        if not code_line.startswith('#|'): continue
+        _directive_str = code_line.split('#|', 1)[1].strip()
+        directive = _directive_str.split()[0]
+        directive_args = _directive_str[len(directive):].strip()
+        cell['directives'].append({'directive': directive, 'args': directive_args})
+    return cell
 
 
 # %%
@@ -387,7 +374,7 @@ show_doc(this_module.get_nb_directives)
 
 # %%
 #|export
-def get_nb_directives(nb_path, nb_format=None):
+def get_nb_directives(nb_path, nb_format=None, only_code_cells:bool=True):
     """
     Get the directives from a notebook.
     """
@@ -404,15 +391,10 @@ def get_nb_directives(nb_path, nb_format=None):
         return "\n".join([ l for l in code.split('\n') if not l.startswith('#|') ])
 
     for cell in nb['cells']:
-        if cell['cell_type'] != 'code': continue
-        code = cell['source']
-        cell['source_without_directives'] = remove_directive_lines(code)
-        for code_line in code.split('\n'):
-            if not code_line.startswith('#|'): continue
-            _directive_str = code_line.split('#|', 1)[1].strip()
-            directive = _directive_str.split()[0]
-            directive_args = _directive_str[len(directive):].strip()
-            directives.append({'directive': directive, 'args': directive_args, 'cell': cell})
+        if cell['cell_type'] != 'code' and only_code_cells: continue
+        cell = get_cell_with_directives(cell)
+        for directive in cell['directives']:
+            directives.append({'directive': directive['directive'], 'args': directive['args'], 'cell': cell})
         
     return directives
 
@@ -440,6 +422,60 @@ def lookup_directive(nb_directives, directive):
 
 # %%
 lookup_directive(directives, 'set_func_signature')
+
+# %%
+show_doc(this_module.generate_readme)
+
+
+# %%
+#|export
+def generate_readme(root_path:Union[str,None] = None):
+    """
+    Generate a README.md file for the project from the index.ipynb file.
+    
+    Args:
+        root_path: The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.
+    """
+    # Hot reloading, to reduce loading time for the CLI
+    import jupytext
+    from jupytext.config import JupytextConfiguration
+    from jupytext.formats import long_form_one_format
+    
+    if root_path is None:
+        root_path, config = get_project_root_and_config()
+    else:
+        root_path = Path(root_path)
+        config = read_config(root_path / nblite_config_file_name)
+        
+    if not config.code_locations: return
+        
+    # Get the top-level code location
+    top_level_cl_key = config.export_pipeline[0].from_key
+    top_level_cl = config.code_locations[top_level_cl_key]
+    
+    index_nb_path = root_path / top_level_cl.path / ('index.' + top_level_cl.file_ext)
+    if not index_nb_path.exists(): return
+
+    config = JupytextConfiguration()
+    config.set_default_format_options(long_form_one_format(top_level_cl.format), read=False)
+    config.notebook_metadata_filter = '-all'
+    
+    index_nb = jupytext.read(index_nb_path, fmt=top_level_cl.jupytext_format)
+
+    # Removed cells with the #|hide directive
+    index_nb_cells_with_directives = list(map(get_cell_with_directives, index_nb['cells']))
+    processed_index_nb_cells = []
+    for cell in index_nb_cells_with_directives:
+        if any([d['directive'] == 'hide' for d in cell['directives']]): continue
+        del cell['directives']
+        processed_index_nb_cells.append(cell)
+    index_nb['cells'] = processed_index_nb_cells
+
+    jupytext.write(index_nb, root_path / 'README.md', fmt='md', config=config)
+
+
+# %%
+generate_readme(root_path)
 
 # %%
 show_doc(this_module.export_to_lib)

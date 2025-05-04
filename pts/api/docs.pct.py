@@ -61,6 +61,9 @@ def convert_to_ipynb_and_copy_to_folder(dest_folder: Path, root_path: Path, cl: 
     nbs_folder = root_path / cl.path
     cl_file_ext = format_to_file_exts[cl.format]
     for f in nbs_folder.glob(f"**/*"):
+        if f.is_dir(): continue
+        if f.parent.name.startswith('.'): continue
+        
         rel_path = f.relative_to(nbs_folder)
         if any(p.startswith('_') for p in rel_path.parts): continue
         

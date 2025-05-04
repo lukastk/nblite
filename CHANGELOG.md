@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.5] - 2025-05-04
+
+### 🐛 Bug Fixes
+
+- Missed dependency docstring-parser
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update version in pyproject.toml
+
 ## [0.5.4] - 2025-05-04
 
 ### 🚀 Features

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2] - 2025-05-04
+
+### 🐛 Bug Fixes
+
+- Typo in docstring
+- No longer including any folders that start with '.' in docs rendering
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update version in pyproject.toml
+
 ## [0.5.1] - 2025-05-04
 
 ### 🐛 Bug Fixes

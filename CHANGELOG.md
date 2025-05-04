@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2025-05-04
+
+### 🚀 Features
+
+- *(export)* 'nbl readme' now ignores cells with the #|hide directive
+- *(docs)* Added rendering and previewing of docs using quarto
+
+### 🐛 Bug Fixes
+
+- *(cli)* Nbl init error. wrong path to the config template
+- Updated assets path in const
+
+### 🚜 Refactor
+
+- Moved nblite/defaults to nblite/assets
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update version in pyproject.toml
+
 ## [0.4.2] - 2025-05-03
 
 ### 🚀 Features

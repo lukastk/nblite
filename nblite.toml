@@ -2,6 +2,8 @@ export_pipeline = """
 nbs -> pts
 pts -> lib
 """
+docs_cl='nbs'
+docs_title='nblite'
 
 [cl.lib]
 path="nblite"

@@ -10,6 +10,10 @@ import nblite; from nbdev.showdoc import show_doc; nblite.nbl_export()
 
 # %%
 #|export
+from importlib import resources
+
+# %%
+#|export
 nblite_config_file_name = "nblite.toml"
 
 format_to_file_exts = {
@@ -44,3 +48,7 @@ code_loc_key_to_default_formats = {
     'lib': 'module',
     'test_lib': 'module',
 }
+
+# %%
+#|export
+nblite_assets_path = resources.files("nblite").joinpath("assets")

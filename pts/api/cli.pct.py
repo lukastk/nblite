@@ -25,11 +25,12 @@ import subprocess
 import importlib.metadata
 from jinja2 import Template
 
-from nblite.const import nblite_config_file_name
+from nblite.const import nblite_config_file_name, nblite_assets_path
 from nblite.config import get_project_root_and_config, read_config, get_downstream_module
 from nblite.export import convert_nb, generate_readme, get_nb_twin_paths, clear_code_location, clear_downstream_code_locations
 from nblite.utils import get_code_location_nbs, is_nb_unclean, get_relative_path, is_code_loc_nb
 from nblite.git import get_unstaged_nb_twins, get_git_root, is_file_staged, has_unstaged_changes
+from nblite.docs import render_docs, preview_docs
 
 # %%
 import nblite.cli as this_module
@@ -199,7 +200,7 @@ def cli_init(
     if root_path is None:
         root_path = Path('.').resolve()
     
-    nblite_toml_template_path = (resources.files("nblite") / "defaults" / "default_nblite.toml")
+    nblite_toml_template_path = nblite_assets_path / "default_nblite.toml.jinja"
     nblite_toml_template = Template(nblite_toml_template_path.read_text())
     nblite_toml_str = nblite_toml_template.render(module_name=module_name)
     
@@ -269,7 +270,7 @@ def cli_new(
         lib_name = Path(config.code_locations[lib_cl_key].path).stem if lib_cl_key is not None else None
         import_path = None if lib_name is None else f"{lib_name}.{mod_name}"
             
-        pct_template_path = (resources.files("nblite") / "defaults" / "default_nb.pct.py.jinja")
+        pct_template_path = nblite_assets_path / "default_nb.pct.py.jinja"
         pct_template = Template(pct_template_path.read_text())
         pct_content = pct_template.render(
             nb_title=nb_title,
@@ -484,7 +485,7 @@ def cli_install_hooks(
         raise typer.Abort()
     
     with open(pre_commit_hook_path, 'w') as f:
-        f.write((resources.files("nblite") / "defaults" / "pre-commit.sh").read_text())
+        f.write((nblite_assets_path / "pre-commit.sh").read_text())
         
     # Make the pre-commit hook executable
     pre_commit_hook_path.chmod(pre_commit_hook_path.stat().st_mode | 0o111)
@@ -562,3 +563,36 @@ def cli_prepare():
     cli_export()
     cli_clean()
     cli_fill()
+
+
+# %% [markdown]
+# ## `nbl render-docs`
+
+# %%
+#|export
+@app.command(name='render-docs')
+def cli_render_docs(
+    root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None,
+    docs_cl: Annotated[Optional[str], Option("-d", "--docs-cl", help="The code location to render the documentation for. If not provided, the code location will be retrieved from the nblite.toml file.")] = None,
+    output_folder: Annotated[Optional[str], Option("-o", "--output-folder", help="The folder to output the documentation to. Default is '_docs'.")] = '_docs',
+):
+    """
+    Render the documentation for the project.
+    """
+    render_docs(output_folder, docs_cl, root_path)
+
+
+# %% [markdown]
+# ## `nbl preview-docs`
+
+# %%
+#|export
+@app.command(name='preview-docs')
+def cli_render_docs(
+    root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None,
+    docs_cl: Annotated[Optional[str], Option("-d", "--docs-cl", help="The code location to render the documentation for. If not provided, the code location will be retrieved from the nblite.toml file.")] = None,
+):
+    """
+    Render the documentation for the project.
+    """
+    preview_docs(docs_cl, root_path)

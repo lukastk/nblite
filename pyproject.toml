@@ -33,4 +33,4 @@ nbl = "nblite.cli:main"
 [tool.hatch.build]
 ignore-vcs = true
 packages = ["nblite"]
-include = ["nblite/defaults/**"]
+include = ["nblite/assets/**"]

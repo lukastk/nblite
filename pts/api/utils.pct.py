@@ -215,3 +215,21 @@ def get_relative_path(from_path: str, to_path: str):
 
 # %%
 get_relative_path('.', '/Users/lukastk/')
+
+# %%
+show_doc(this_module._root_path_and_config_helper)
+
+
+# %%
+#|exporti
+def _root_path_and_config_helper(root_path:Union[str,None] = None, config_path:Union[str,None] = None) -> tuple[Path,dict]:
+    if root_path is None:
+        root_path, config = get_project_root_and_config()
+    else:
+        root_path = Path(root_path)
+        config = read_config(root_path / nblite_config_file_name)
+        
+    if config_path: # If config_path is provided, use it instead of the config file in the root folder
+        config = read_config(config_path)
+        
+    return root_path, config

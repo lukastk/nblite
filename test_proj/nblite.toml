@@ -3,6 +3,8 @@ nbs -> pcts
 pcts -> lgts
 lgts -> lib
 """
+docs_cl = "pcts"
+docs_title = "nblite"
 
 [cl.lib]
 path="my_module"

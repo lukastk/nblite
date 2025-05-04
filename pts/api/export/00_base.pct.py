@@ -359,12 +359,12 @@ def get_cell_with_directives(cell:dict):
     code = cell['source']
     cell['directives'] = []
     cell['source_without_directives'] = remove_directive_lines(code)
-    for code_line in code.split('\n'):
+    for code_i, code_line in enumerate(code.split('\n')):
         if not code_line.startswith('#|'): continue
         _directive_str = code_line.split('#|', 1)[1].strip()
         directive = _directive_str.split()[0]
         directive_args = _directive_str[len(directive):].strip()
-        cell['directives'].append({'directive': directive, 'args': directive_args})
+        cell['directives'].append({'directive': directive, 'args': directive_args, 'cell_line': code_i})
     return cell
 
 

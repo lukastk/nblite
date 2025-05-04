@@ -30,6 +30,7 @@ from nblite.config import get_project_root_and_config, read_config, get_downstre
 from nblite.export import convert_nb, generate_readme, get_nb_twin_paths, clear_code_location, clear_downstream_code_locations
 from nblite.utils import get_code_location_nbs, is_nb_unclean, get_relative_path, is_code_loc_nb
 from nblite.git import get_unstaged_nb_twins, get_git_root, is_file_staged, has_unstaged_changes
+from nblite.docs import render_docs, preview_docs
 
 # %%
 import nblite.cli as this_module
@@ -562,3 +563,36 @@ def cli_prepare():
     cli_export()
     cli_clean()
     cli_fill()
+
+
+# %% [markdown]
+# ## `nbl render-docs`
+
+# %%
+#|export
+@app.command(name='render-docs')
+def cli_render_docs(
+    root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None,
+    docs_cl: Annotated[Optional[str], Option("-d", "--docs-cl", help="The code location to render the documentation for. If not provided, the code location will be retrieved from the nblite.toml file.")] = None,
+    output_folder: Annotated[Optional[str], Option("-o", "--output-folder", help="The folder to output the documentation to. Default is '_docs'.")] = '_docs',
+):
+    """
+    Render the documentation for the project.
+    """
+    render_docs(output_folder, docs_cl, root_path)
+
+
+# %% [markdown]
+# ## `nbl preview-docs`
+
+# %%
+#|export
+@app.command(name='preview-docs')
+def cli_render_docs(
+    root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None,
+    docs_cl: Annotated[Optional[str], Option("-d", "--docs-cl", help="The code location to render the documentation for. If not provided, the code location will be retrieved from the nblite.toml file.")] = None,
+):
+    """
+    Render the documentation for the project.
+    """
+    preview_docs(docs_cl, root_path)

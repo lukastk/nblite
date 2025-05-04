@@ -12,7 +12,7 @@ import nblite; from nbdev.showdoc import show_doc; nblite.nbl_export()
 #|export
 import toml
 from pydantic import BaseModel, field_validator
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Optional
 from pathlib import Path
 
 from nblite.const import code_loc_key_to_default_formats, nb_formats, nblite_config_file_name, format_to_file_exts, format_to_jupytext_format
@@ -48,6 +48,9 @@ class NBLiteConfig(BaseModel):
     """
     export_pipeline: List[ExportRule]
     code_locations: Dict[str, CodeLocation]
+    
+    docs_cl: Optional[str] = None
+    docs_title: Optional[str] = None
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -125,6 +128,7 @@ class NBLiteConfig(BaseModel):
 
 # %%
 conf = NBLiteConfig(
+    docs_cl="nbs",
     export_pipeline=[
         ExportRule(from_key="nbs", to_key="pts"),
         ExportRule(from_key="pts", to_key="lib"),
@@ -196,6 +200,7 @@ export_pipeline = """
     pts ->lib
     test_nbs-> test_pts, test_pts->test_lib
 """
+docs_cl = "nbs"
 
 [cl.lib]
 path = "my_module"
@@ -226,6 +231,7 @@ toml_string = '''
 export_pipeline = """
     pts ->lib
 """
+docs_cl = "nbs"
 '''
 
 parse_config_dict(toml.loads(toml_string)).model_dump()

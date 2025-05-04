@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.4] - 2025-05-04
+
+### 🚀 Features
+
+- *(docs)* Functions and classes in exported cells will now have their docs rendered in the cell prior
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update version in pyproject.toml
+
 ## [0.5.3] - 2025-05-04
 
 ### 🚀 Features

@@ -8,7 +8,7 @@
 
 # %%
 #|hide
-import nblite; from nbdev.showdoc import show_doc; nblite.nbl_export()
+import nblite; from nblite import show_doc; nblite.nbl_export()
 
 # %%
 #|export
@@ -28,6 +28,7 @@ import shutil
 import nblite.export.nb_export as this_module
 
 # %%
+#|hide
 show_doc(this_module.export)
 
 

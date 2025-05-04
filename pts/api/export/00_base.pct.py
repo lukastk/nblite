@@ -6,7 +6,7 @@
 
 # %%
 #|hide
-import nblite; from nbdev.showdoc import show_doc; nblite.nbl_export()
+import nblite; from nblite import show_doc; nblite.nbl_export()
 
 # %%
 #|export
@@ -30,6 +30,7 @@ from nblite.export.nb_export import export
 import nblite.export.base as this_module
 
 # %%
+#|hide
 show_doc(this_module.convert_nb)
 
 
@@ -109,6 +110,7 @@ with tempfile.TemporaryDirectory() as tmpdirname:
     assert Path(root_path / "pcts" / "notebook1.pct.py").read_text() == Path(tempdir / "nb.pct.py").read_text()
 
 # %%
+#|hide
 show_doc(this_module.get_nb_module_export_name)
 
 
@@ -142,6 +144,7 @@ get_nb_module_export_name(root_path / 'nbs/submodule/notebook3.ipynb', root_path
 get_nb_module_export_name(root_path / 'pcts/submodule/notebook3.pct.py', root_path / 'my_module')
 
 # %%
+#|hide
 show_doc(this_module.get_nb_module_export_path)
 
 
@@ -158,6 +161,7 @@ def get_nb_module_export_path(nb_path: str, lib_path: str) -> str:
 get_nb_module_export_path(root_path / 'nbs/submodule/notebook3.ipynb', root_path / 'my_module')
 
 # %%
+#|hide
 show_doc(this_module.get_nb_twin_paths)
 
 
@@ -191,6 +195,7 @@ def get_nb_twin_paths(nb_path: str, root_path: str):
 get_nb_twin_paths(root_path / 'nbs/folder/notebook4.ipynb', root_path)
 
 # %%
+#|hide
 show_doc(this_module.clean_ipynb)
 
 
@@ -247,6 +252,7 @@ def clean_ipynb(nb_path:str, remove_outputs:bool=False, remove_metadata:bool=Tru
 clean_ipynb(root_path / 'nbs/notebook1.ipynb', remove_outputs=True, remove_metadata=True)
 
 # %%
+#|hide
 show_doc(this_module.fill_ipynb)
 
 
@@ -340,6 +346,7 @@ def fill_ipynb(
 fill_ipynb(root_path / 'nbs/notebook1.ipynb')
 
 # %%
+#|hide
 show_doc(this_module.get_cell_with_directives)
 
 
@@ -369,6 +376,7 @@ def get_cell_with_directives(cell:dict):
 
 
 # %%
+#|hide
 show_doc(this_module.get_nb_directives)
 
 
@@ -405,6 +413,7 @@ for directive in directives:
     print(f"#|{directive['directive']} {directive['args']}")
 
 # %%
+#|hide
 show_doc(this_module.lookup_directive)
 
 
@@ -424,6 +433,7 @@ def lookup_directive(nb_directives, directive):
 lookup_directive(directives, 'set_func_signature')
 
 # %%
+#|hide
 show_doc(this_module.generate_readme)
 
 
@@ -478,6 +488,7 @@ def generate_readme(root_path:Union[str,None] = None):
 generate_readme(root_path)
 
 # %%
+#|hide
 show_doc(this_module.export_to_lib)
 
 
@@ -555,6 +566,7 @@ export_to_lib(
 )
 
 # %%
+#|hide
 show_doc(this_module.clear_code_location)
 
 
@@ -593,6 +605,7 @@ def clear_code_location(cl_key: str, root_path: Union[str,None]=None):
 clear_code_location('pcts', root_path)
 
 # %%
+#|hide
 show_doc(this_module.clear_downstream_code_locations)
 
 

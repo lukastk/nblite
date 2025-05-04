@@ -6,7 +6,7 @@
 
 # %%
 #|hide
-import nblite; from nbdev.showdoc import show_doc; nblite.nbl_export()
+import nblite; from nblite import show_doc; nblite.nbl_export()
 
 # %%
 #|export
@@ -39,6 +39,7 @@ import nblite.cli as this_module
 # # Helper functions
 
 # %%
+#|hide
 show_doc(this_module.parse_docstring)
 
 
@@ -69,12 +70,14 @@ def parse_docstring(docstring: str) -> tuple:
 
 
 # %%
+#|hide
 func_summary, arg_docs, return_doc = parse_docstring(parse_docstring.__doc__)
 print(func_summary)
 print(arg_docs)
 print(return_doc)
 
 # %%
+#|hide
 show_doc(this_module.derive_cli_meta)
 
 
@@ -287,6 +290,7 @@ def cli_new(
 
 
 # %%
+#|hide
 cli_new(
     '../../test_proj/nbs/test.ipynb',
     root_path='../../test_proj'
@@ -294,6 +298,7 @@ cli_new(
 
 
 # %%
+#|hide
 # !rm ../../test_proj/nbs/test.ipynb
 
 # %% [markdown]

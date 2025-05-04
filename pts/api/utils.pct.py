@@ -6,7 +6,7 @@
 
 # %%
 #|hide
-import nblite; from nbdev.showdoc import show_doc; nblite.nbl_export()
+import nblite; from nblite import show_doc; nblite.nbl_export()
 
 # %%
 #|export
@@ -21,6 +21,7 @@ from nblite.const import file_exts_to_format, nblite_config_file_name
 import nblite.utils as this_module
 
 # %%
+#|hide
 show_doc(this_module.get_nb_format_from_path)
 
 
@@ -37,6 +38,7 @@ def get_nb_format_from_path(path: str) -> str:
 get_nb_format_from_path('file.pct.py')
 
 # %%
+#|hide
 show_doc(this_module.get_nb_path_info)
 
 
@@ -71,6 +73,7 @@ root_path, config = get_project_root_and_config(root_path)
 get_nb_path_info('../../test_proj/nbs/notebook1.ipynb', '../../test_proj', config)
 
 # %%
+#|hide
 show_doc(this_module.is_code_loc_nb)
 
 
@@ -99,6 +102,7 @@ print(is_code_loc_nb('../../test_proj/nbs/notebook1.pct.py', root_path, config))
 print(is_code_loc_nb('../../test_proj/test.txt', root_path, config))
 
 # %%
+#|hide
 show_doc(this_module.get_code_location_nbs)
 
 
@@ -128,6 +132,7 @@ get_code_location_nbs('../../test_proj', CodeLocation(path='nbs', format='ipynb'
 get_code_location_nbs('../../test_proj', CodeLocation(path='nbs', format='ipynb'), ignore_underscores=False)
 
 # %%
+#|hide
 show_doc(this_module.is_nb_unclean)
 
 
@@ -173,6 +178,7 @@ is_nb_unclean(file_content='{"cells":[]}')
 is_nb_unclean('../../test_proj/nbs/notebook1.ipynb')
 
 # %%
+#|hide
 show_doc(this_module.get_unclean_nbs)
 
 
@@ -203,6 +209,7 @@ def get_unclean_nbs(root_path: str = None, ignore_underscores: bool = False):
 get_unclean_nbs('../../test_proj')
 
 # %%
+#|hide
 show_doc(this_module.get_relative_path)
 
 
@@ -217,6 +224,7 @@ def get_relative_path(from_path: str, to_path: str):
 get_relative_path('.', '/Users/lukastk/')
 
 # %%
+#|hide
 show_doc(this_module._root_path_and_config_helper)
 
 

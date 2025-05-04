@@ -6,7 +6,7 @@
 
 # %%
 #|hide
-import nblite; from nbdev.showdoc import show_doc; nblite.nbl_export()
+import nblite; from nblite import show_doc; nblite.nbl_export()
 
 # %%
 #|export
@@ -21,6 +21,7 @@ from nblite.const import code_loc_key_to_default_formats, nb_formats, nblite_con
 import nblite.config as this_module
 
 # %%
+#|hide
 show_doc(this_module.NBLiteConfig)
 
 
@@ -146,6 +147,7 @@ conf = NBLiteConfig(
 )
 
 # %%
+#|hide
 show_doc(this_module.parse_config_dict)
 
 
@@ -237,6 +239,7 @@ docs_cl = "nbs"
 parse_config_dict(toml.loads(toml_string)).model_dump()
 
 # %%
+#|hide
 show_doc(this_module._find_config_file)
 
 
@@ -258,6 +261,7 @@ def _find_config_file(curr_folder: Path) -> str:
 _find_config_file(Path('../../test_proj'))
 
 # %%
+#|hide
 show_doc(this_module.read_config)
 
 
@@ -272,6 +276,7 @@ def read_config(path) -> NBLiteConfig:
 read_config('../../test_proj/nblite.toml')
 
 # %%
+#|hide
 show_doc(this_module.get_project_root_and_config)
 
 
@@ -279,6 +284,7 @@ show_doc(this_module.get_project_root_and_config)
 #|export
 def get_project_root_and_config(curr_folder:Union[Path, None] = None) -> Path:
     curr_folder = Path(curr_folder) if curr_folder is not None else Path('.')
+    if not curr_folder.exists(): raise ValueError(f"Directory '{curr_folder}' does not exist")
     config_path = _find_config_file(curr_folder)
     if config_path is None:
         raise ValueError("No nblite.toml found in the current or any parent directory")
@@ -291,6 +297,8 @@ root_path, config = get_project_root_and_config('../../test_proj')
 print(root_path)
 
 # %%
+#|hide
+#|hide
 show_doc(this_module.get_top_level_code_locations)
 
 
@@ -309,6 +317,7 @@ root_path, config = get_project_root_and_config('../../test_proj')
 get_top_level_code_locations(config)
 
 # %%
+#|hide
 show_doc(this_module.get_downstream_module)
 
 

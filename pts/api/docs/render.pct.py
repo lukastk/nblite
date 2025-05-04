@@ -1,18 +1,17 @@
 # %% [markdown]
-# # docs
+# # docs.render
 
 # %%
-#|default_exp docs
+#|default_exp docs.render
 
 # %%
 #|hide
-import nblite; from nbdev.showdoc import show_doc; nblite.nbl_export()
+import nblite; from nblite import show_doc; nblite.nbl_export()
 
 # %%
 #|export
 from pathlib import Path
 from typing import Union
-from jinja2 import Template
 from tempfile import TemporaryDirectory
 import yaml
 import shutil
@@ -23,14 +22,15 @@ from nblite.const import nblite_assets_path, format_to_file_exts
 from nblite.utils import get_project_root_and_config, read_config, _root_path_and_config_helper
 from nblite.config import CodeLocation, NBLiteConfig
 from nblite.export import convert_nb, get_cell_with_directives
+from nblite.docs.cell_docs import render_cell_doc
 
 # %%
 #|hide
-import nblite.docs as this_module
+import nblite.docs.render as this_module
 
 # %%
 #|hide
-root_path, config = get_project_root_and_config(Path('../../test_proj/'))
+root_path, config = get_project_root_and_config(Path('../../../test_proj/'))
 
 
 # %%
@@ -44,6 +44,14 @@ def process_and_remove_nbdev_directives(nb_path: Path) -> dict:
     for cell in nb['cells']:
         directive_keys = [d['directive'] for d in cell['directives']]
         directive_lines = [d['cell_line'] for d in cell['directives']]
+        
+        if 'export' in directive_keys or 'exporti' in directive_keys: # Add rendered docstring of all function and class definitions in the cell
+            doc_cell = nbformat.notebooknode.NotebookNode({
+                'cell_type': 'markdown',
+                'metadata': {},
+                'source': render_cell_doc(cell['source']),
+            })
+            proc_cells.append(doc_cell)
         if any([d in directive_keys for d in ['hide', 'export', 'exporti']]): continue
         
         lines_to_remove = [i for i,dk in zip(directive_lines, directive_keys) if not dk.endswith(':')] # All quarto directive keys end with ':'
@@ -53,6 +61,7 @@ def process_and_remove_nbdev_directives(nb_path: Path) -> dict:
         proc_cells.append(cell)
         
     nb['cells'] = proc_cells
+    _, nb = nbformat.validator.normalize(nb)
     nbformat.write(nb, nb_path)
 
 
@@ -151,6 +160,7 @@ def prepare_docs(dest_folder:Path, docs_cl:Union[str,None] = None, root_path:Uni
 
 
 # %%
+#|hide
 show_doc(this_module.preview_docs)
 
 
@@ -163,6 +173,7 @@ def preview_docs(docs_cl:Union[str,None] = None, root_path:Union[str,None] = Non
 
 
 # %%
+#|hide
 show_doc(this_module.render_docs)
 
 

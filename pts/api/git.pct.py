@@ -6,7 +6,7 @@
 
 # %%
 #|hide
-import nblite; from nbdev.showdoc import show_doc; nblite.nbl_export()
+import nblite; from nblite import show_doc; nblite.nbl_export()
 
 # %%
 #|export
@@ -22,6 +22,7 @@ from nblite.export import get_nb_twin_paths
 import nblite.git as this_module
 
 # %%
+#|hide
 show_doc(this_module.has_unstaged_changes)
 
 
@@ -53,6 +54,7 @@ for fp in fps:
     print(fp, has_unstaged_changes(fp))
 
 # %%
+#|hide
 show_doc(this_module.get_git_root)
 
 
@@ -73,6 +75,7 @@ def get_git_root():
 get_git_root()
 
 # %%
+#|hide
 show_doc(this_module.list_staged_files)
 
 
@@ -114,6 +117,7 @@ def list_unstaged_and_untracked_files():
 list_unstaged_and_untracked_files()
 
 # %%
+#|hide
 show_doc(this_module.is_file_staged)
 
 
@@ -147,6 +151,7 @@ for fp in fps:
     print(fp, is_file_staged(fp))
 
 # %%
+#|hide
 show_doc(this_module.get_unstaged_nb_twins)
 
 

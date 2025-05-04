@@ -5,3 +5,4 @@ from . import export
 from . import git
 
 from .export import export as nbl_export
+from .docs import show_doc

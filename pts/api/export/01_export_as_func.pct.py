@@ -6,7 +6,7 @@
 
 # %%
 #|hide
-import nblite; from nbdev.showdoc import show_doc; nblite.nbl_export()
+import nblite; from nblite import show_doc; nblite.nbl_export()
 
 # %%
 #|export
@@ -73,6 +73,7 @@ directive = lookup_directive(get_nb_directives(root_path / 'nbs' / 'func_noteboo
 func_signature_str = directive['cell']['source_without_directives'].strip()    
 
 # %%
+#|hide
 show_doc(this_module.export_to_lib_as_func)
 
 

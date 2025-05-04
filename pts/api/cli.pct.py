@@ -577,7 +577,7 @@ def cli_render_docs(
     output_folder: Annotated[Optional[str], Option("-o", "--output-folder", help="The folder to output the documentation to. Default is '_docs'.")] = '_docs',
 ):
     """
-    Render the documentation for the project.
+    Render the documentation for the project using Quarto.
     """
     render_docs(output_folder, docs_cl, root_path)
 
@@ -593,6 +593,6 @@ def cli_render_docs(
     docs_cl: Annotated[Optional[str], Option("-d", "--docs-cl", help="The code location to render the documentation for. If not provided, the code location will be retrieved from the nblite.toml file.")] = None,
 ):
     """
-    Render the documentation for the project.
+    Preview the documentation for the project using Quarto.
     """
     preview_docs(docs_cl, root_path)

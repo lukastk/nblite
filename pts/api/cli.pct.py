@@ -25,7 +25,7 @@ import subprocess
 import importlib.metadata
 from jinja2 import Template
 
-from nblite.const import nblite_config_file_name
+from nblite.const import nblite_config_file_name, nblite_defaults_path
 from nblite.config import get_project_root_and_config, read_config, get_downstream_module
 from nblite.export import convert_nb, generate_readme, get_nb_twin_paths, clear_code_location, clear_downstream_code_locations
 from nblite.utils import get_code_location_nbs, is_nb_unclean, get_relative_path, is_code_loc_nb
@@ -199,7 +199,7 @@ def cli_init(
     if root_path is None:
         root_path = Path('.').resolve()
     
-    nblite_toml_template_path = (resources.files("nblite") / "defaults" / "default_nblite.toml")
+    nblite_toml_template_path = nblite_defaults_path / "default_nblite.toml.jinja"
     nblite_toml_template = Template(nblite_toml_template_path.read_text())
     nblite_toml_str = nblite_toml_template.render(module_name=module_name)
     

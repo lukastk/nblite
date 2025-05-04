@@ -44,7 +44,8 @@ def process_and_remove_nbdev_directives(nb_path: Path) -> dict:
     for cell in nb['cells']:
         directive_keys = [d['directive'] for d in cell['directives']]
         directive_lines = [d['cell_line'] for d in cell['directives']]
-        if 'hide' in directive_keys: continue
+        if any([d in directive_keys for d in ['hide', 'export', 'exporti']]): continue
+        
         lines_to_remove = [i for i,dk in zip(directive_lines, directive_keys) if not dk.endswith(':')] # All quarto directive keys end with ':'
         cell['source'] = '\n'.join([l for i,l in enumerate(cell['source'].split('\n')) if i not in lines_to_remove])
         del cell['source_without_directives']

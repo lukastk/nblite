@@ -25,7 +25,7 @@ import subprocess
 import importlib.metadata
 from jinja2 import Template
 
-from nblite.const import nblite_config_file_name, nblite_defaults_path
+from nblite.const import nblite_config_file_name, nblite_assets_path
 from nblite.config import get_project_root_and_config, read_config, get_downstream_module
 from nblite.export import convert_nb, generate_readme, get_nb_twin_paths, clear_code_location, clear_downstream_code_locations
 from nblite.utils import get_code_location_nbs, is_nb_unclean, get_relative_path, is_code_loc_nb
@@ -199,7 +199,7 @@ def cli_init(
     if root_path is None:
         root_path = Path('.').resolve()
     
-    nblite_toml_template_path = nblite_defaults_path / "default_nblite.toml.jinja"
+    nblite_toml_template_path = nblite_assets_path / "default_nblite.toml.jinja"
     nblite_toml_template = Template(nblite_toml_template_path.read_text())
     nblite_toml_str = nblite_toml_template.render(module_name=module_name)
     
@@ -269,7 +269,7 @@ def cli_new(
         lib_name = Path(config.code_locations[lib_cl_key].path).stem if lib_cl_key is not None else None
         import_path = None if lib_name is None else f"{lib_name}.{mod_name}"
             
-        pct_template_path = (resources.files("nblite") / "defaults" / "default_nb.pct.py.jinja")
+        pct_template_path = nblite_assets_path / "default_nb.pct.py.jinja"
         pct_template = Template(pct_template_path.read_text())
         pct_content = pct_template.render(
             nb_title=nb_title,
@@ -484,7 +484,7 @@ def cli_install_hooks(
         raise typer.Abort()
     
     with open(pre_commit_hook_path, 'w') as f:
-        f.write((resources.files("nblite") / "defaults" / "pre-commit.sh").read_text())
+        f.write((nblite_assets_path / "pre-commit.sh").read_text())
         
     # Make the pre-commit hook executable
     pre_commit_hook_path.chmod(pre_commit_hook_path.stat().st_mode | 0o111)

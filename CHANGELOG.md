@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.8] - 2025-05-05
+
+### 🚀 Features
+
+- Func signature doc splits over several lines if its too long
+- *(docs)* Now also includes the return annotation
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update version in pyproject.toml
+
 ## [0.5.7] - 2025-05-05
 
 ### 🐛 Bug Fixes

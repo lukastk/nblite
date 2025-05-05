@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.6] - 2025-05-05
+
+### 🚀 Features
+
+- Function signature now also includes args and kwargs
+
+### 🐛 Bug Fixes
+
+- Bug in template
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update version in pyproject.toml
+
 ## [0.5.5] - 2025-05-04
 
 ### 🐛 Bug Fixes

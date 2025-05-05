@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.8] - 2025-05-05
+
+### 🚀 Features
+
+- Nbl fill now ignores notebooks that start with or are in folders that start with '.' or '_'
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Docs re-render
+- Update version in pyproject.toml
+
 ## [0.8.8] - 2025-05-05
 
 ### 🚀 Features

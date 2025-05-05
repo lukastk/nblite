@@ -302,7 +302,25 @@ def render_function_doc(func, title_level=2):
     md_lines.append("")
     
     # Signature
-    md_lines.append(f"```python\n{func['full_signature']}\n```")
+    MAX_SIGNATURE_LENGTH = 80  # Define a constant for maximum signature length
+    full_signature = func['full_signature']
+    
+    if len(full_signature) > MAX_SIGNATURE_LENGTH:
+        # Split the signature into multiple lines
+        signature_lines = [f"{func['name']}("]
+        for arg, arg_type in func['args'].items():
+            if arg_type:
+                signature_lines.append(f"   {arg}: {arg_type},")
+            else:
+                signature_lines.append(f"   {arg},")
+        signature_lines[-1] = signature_lines[-1].rstrip(',')  # Remove trailing comma from last argument
+        signature_lines.append(")")
+        if 'return_type' in func and func['return_type']:
+            signature_lines[-1] += f" -> {func['return_type']}"
+        md_lines.append("```python\n" + "\n".join(signature_lines) + "\n```")
+    else:
+        md_lines.append(f"```python\n{full_signature}\n```")
+    
     md_lines.append("")
 
     # Parse docstring
@@ -350,6 +368,13 @@ def render_function_doc(func, title_level=2):
 
 # %%
 function_str = extract_top_level_definitions(code_str)[0]['code']
+Markdown(render_function_doc(extract_function_meta(function_str)))
+
+# %%
+function_str = """
+def foo(argument1: int, argument2: str, argument3, argument4, argument5,*args, **kwargs) -> str:
+    pass
+"""
 Markdown(render_function_doc(extract_function_meta(function_str)))
 
 

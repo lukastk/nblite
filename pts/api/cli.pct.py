@@ -370,6 +370,10 @@ def cli_fill(
             nb_paths.extend(get_code_location_nbs(root_path, cl, ignore_underscores=ignore_underscores))
         
     for nb_path in nb_paths:
+        rel_path = nb_path.relative_to(root_path)
+        if any(p.startswith('_') for p in rel_path.parts): continue
+        if any(p.startswith('.') for p in rel_path.parts): continue
+        
         msg = f"{nb_path}"
         padding = '#' * 4
         typer.echo('#' * (len(msg) + 2 * len(padding) + 2))

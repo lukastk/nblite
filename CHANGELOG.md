@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.7] - 2025-05-05
+
+### 🐛 Bug Fixes
+
+- Show_doc now also works for args and kwargs
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update version in pyproject.toml
+
 ## [0.5.6] - 2025-05-05
 
 ### 🚀 Features

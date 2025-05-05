@@ -167,12 +167,15 @@ def extract_function_meta_from_obj(func):
     """
     Extracts details of a function from a given Python function object.
     """
+    import inspect
+
     if not inspect.isfunction(func) and not inspect.ismethod(func):
         raise TypeError("Expected a function or method object.")
 
     func_name = func.__name__
     sig = inspect.signature(func)
     args = {}
+    sig_parts = []
     for name, param in sig.parameters.items():
         annotation = param.annotation if param.annotation is not inspect.Parameter.empty else None
         # Convert annotation to string if present
@@ -181,12 +184,23 @@ def extract_function_meta_from_obj(func):
             else str(annotation) if annotation is not None
             else None
         )
-        args[name] = annotation_str
+        # Handle *args and **kwargs
+        if param.kind == inspect.Parameter.VAR_POSITIONAL:
+            display_name = f"*{name}"
+        elif param.kind == inspect.Parameter.VAR_KEYWORD:
+            display_name = f"**{name}"
+        else:
+            display_name = name
+        args[display_name] = annotation_str
+        if annotation_str is not None:
+            sig_parts.append(f"{display_name}: {annotation_str}")
+        else:
+            sig_parts.append(f"{display_name}")
 
     docstring = inspect.getdoc(func)
     is_async = inspect.iscoroutinefunction(func)
 
-    full_signature = f"{func_name}({', '.join([f'{k}: {v}' for k, v in args.items()])})"
+    full_signature = f"{func_name}({', '.join(sig_parts)})"
 
     return {
         'name': func_name,
@@ -333,21 +347,6 @@ def render_function_doc(func, title_level=2):
 
     return "\n".join(md_lines)
 
-code = '''
-def foo(a: int, b: Union[str, None], c):
-    """
-    Processes input.
-
-    Args:
-        a (int): The first number.
-        b (Union[str, None]): Optional label.
-        c: Unannotated parameter.
-
-    Returns:
-        bool: True if processed correctly.
-    """
-    pass
-'''
 
 # %%
 function_str = extract_top_level_definitions(code_str)[0]['code']
@@ -434,7 +433,7 @@ def show_doc(obj, title_level=2):
 
 
 # %%
-def foo(a, b, c:str):
+def foo(a, b, c:str, *args, **kwargs):
     "A docstring"
     pass
 

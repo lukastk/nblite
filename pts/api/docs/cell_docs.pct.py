@@ -133,6 +133,8 @@ def extract_function_meta(code_str):
                 kwarg = node.args.kwarg
                 args[f"**{kwarg.arg}"] = ast.get_source_segment(code_str, kwarg.annotation) if kwarg.annotation else None
             docstring = ast.get_docstring(node)
+            # Get return type
+            return_type = ast.get_source_segment(code_str, node.returns) if node.returns else None
             # Build signature string
             sig_parts = []
             for k, v in args.items():
@@ -141,12 +143,15 @@ def extract_function_meta(code_str):
                 else:
                     sig_parts.append(f"{k}")
             full_signature = f"{func_name}({', '.join(sig_parts)})"
+            if return_type is not None:
+                full_signature += f" -> {return_type}"
             function_details.append({
                 'name': func_name,
                 'full_signature': full_signature,
                 'is_async': is_async,
                 'args': args,
-                'docstring': docstring
+                'docstring': docstring,
+                'return_annotation': return_type
             })
     if len(function_details) != 1: raise ValueError("Expected exactly one function definition in the code string.")
     return function_details[0]
@@ -200,16 +205,33 @@ def extract_function_meta_from_obj(func):
     docstring = inspect.getdoc(func)
     is_async = inspect.iscoroutinefunction(func)
 
+    # Get return type
+    return_annotation = sig.return_annotation if sig.return_annotation is not inspect.Signature.empty else None
+    return_annotation_str = (
+        return_annotation.__name__ if isinstance(return_annotation, type)
+        else str(return_annotation) if return_annotation is not None
+        else None
+    )
+
     full_signature = f"{func_name}({', '.join(sig_parts)})"
+    if return_annotation_str is not None:
+        full_signature += f" -> {return_annotation_str}"
 
     return {
         'name': func_name,
         'full_signature': full_signature,
         'is_async': is_async,
         'args': args,
-        'docstring': docstring
+        'docstring': docstring,
+        'return_annotation': return_annotation_str
     }
 
+
+# %%
+def foo(a, b, c:str, *args, **kwargs) -> str:
+    pass
+
+extract_function_meta_from_obj(foo)
 
 # %%
 #|hide
@@ -314,7 +336,10 @@ def render_function_doc(func, title_level=2):
             else:
                 signature_lines.append(f"   {arg},")
         signature_lines[-1] = signature_lines[-1].rstrip(',')  # Remove trailing comma from last argument
-        signature_lines.append(")")
+        if 'return_annotation' in func and func['return_annotation']:
+            signature_lines.append(f") -> {func['return_annotation']}")
+        else:
+            signature_lines.append(")")
         if 'return_type' in func and func['return_type']:
             signature_lines[-1] += f" -> {func['return_type']}"
         md_lines.append("```python\n" + "\n".join(signature_lines) + "\n```")

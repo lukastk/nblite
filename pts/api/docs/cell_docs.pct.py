@@ -61,7 +61,7 @@ def extract_top_level_definitions(code_str: str) -> list:
 
 # %%
 code_str = """
-def foo(a: int, b: Union[str, None], c) -> str:
+def foo(a: int, b: Union[str, None], c, *args, **kwargs) -> str:
     '''
     Processes input.
 
@@ -120,12 +120,30 @@ def extract_function_meta(code_str):
         if isinstance(node, ast.FunctionDef):
             func_name = node.name
             is_async = isinstance(node, ast.AsyncFunctionDef)
-            args = {arg.arg: ast.get_source_segment(code_str, arg.annotation) if arg.annotation else None for arg in node.args.args}
+            args = {}
+            # Regular arguments
+            for arg in node.args.args:
+                args[arg.arg] = ast.get_source_segment(code_str, arg.annotation) if arg.annotation else None
+            # *args
+            if node.args.vararg:
+                vararg = node.args.vararg
+                args[f"*{vararg.arg}"] = ast.get_source_segment(code_str, vararg.annotation) if vararg.annotation else None
+            # **kwargs
+            if node.args.kwarg:
+                kwarg = node.args.kwarg
+                args[f"**{kwarg.arg}"] = ast.get_source_segment(code_str, kwarg.annotation) if kwarg.annotation else None
             docstring = ast.get_docstring(node)
-            return_type = ast.get_source_segment(code_str, node.returns) if node.returns else None
+            # Build signature string
+            sig_parts = []
+            for k, v in args.items():
+                if v is not None:
+                    sig_parts.append(f"{k}: {v}")
+                else:
+                    sig_parts.append(f"{k}")
+            full_signature = f"{func_name}({', '.join(sig_parts)})"
             function_details.append({
                 'name': func_name,
-                'full_signature': f"{func_name}({', '.join([f'{k}: {v}' for k,v in args.items()])}) -> {return_type}",
+                'full_signature': full_signature,
                 'is_async': is_async,
                 'args': args,
                 'docstring': docstring

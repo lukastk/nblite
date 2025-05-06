@@ -370,6 +370,7 @@ def cli_fill(
             if cl.format != 'ipynb': continue
             nb_paths.extend(get_code_location_nbs(root_path, cl, ignore_underscores=ignore_underscores))
     nb_paths = [Path(p).resolve() for p in nb_paths]
+    nb_paths.sort()
         
     nb_exceptions = {}
         

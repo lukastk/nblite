@@ -350,6 +350,7 @@ def cli_fill(
     cell_exec_timeout: Annotated[Union[int,None], Option("-t", "--timeout", help="The timeout for the cell execution.")] = None,
     ignore_underscores: Annotated[bool, Option("-i", "--ignore-underscores", help="Ignore notebooks that begin with an underscore in their filenames or in their parent folders.")] = False,
     dry_run: Annotated[bool, Option(help="Dry run the command.")] = False,
+    n_workers: Annotated[int, Option("-n", "--n-workers", help="The number of workers to use.")] = 4,
 ):
     """
     Clean notebooks in an nblite project by removing outputs and metadata.
@@ -368,26 +369,52 @@ def cli_fill(
         for cl in config.code_locations.values():
             if cl.format != 'ipynb': continue
             nb_paths.extend(get_code_location_nbs(root_path, cl, ignore_underscores=ignore_underscores))
+    nb_paths = [Path(p).resolve() for p in nb_paths]
         
-    for nb_path in nb_paths:
+    nb_exceptions = {}
+        
+    def process_notebook(nb_path):
         rel_path = nb_path.relative_to(root_path)
-        if any(p.startswith('_') for p in rel_path.parts): continue
-        if any(p.startswith('.') for p in rel_path.parts): continue
-        
-        msg = f"{nb_path}"
-        padding = '#' * 4
-        typer.echo('#' * (len(msg) + 2 * len(padding) + 2))
-        typer.echo(f"{padding} {msg} {padding}")
-        typer.echo('#' * (len(msg) + 2 * len(padding) + 2))
-        typer.echo()
+        if any(p.startswith('_') for p in rel_path.parts): return
+        if any(p.startswith('.') for p in rel_path.parts): return
         
         try:
             fill_ipynb(nb_path, cell_exec_timeout, remove_prev_outputs, remove_metadata, dry_run=dry_run)
-        except Exception as e:
-            exc_msg = typer.style("Exception!\n", fg=typer.colors.BRIGHT_MAGENTA, bold=True)
-            typer.echo(exc_msg, err=True)
-            typer.echo(e, err=True)
-            raise typer.Exit(code=1)
+        except BaseException as e:
+            task_statuses[nb_path] = '❌'
+            nb_exceptions[nb_path] = e
+            return
+        task_statuses[nb_path] = '✅'
+    
+    from concurrent.futures import ThreadPoolExecutor
+    import rich
+    from rich.live import Live
+    from rich.table import Table
+    from rich.panel import Panel
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    
+    tasks = nb_paths
+    task_statuses = {task: '…' for task in tasks}
+    
+    def make_table():
+        table = Table(title="Filling notebooks") if not dry_run else Table(title="Filling notebooks (dry run)")
+        table.add_column("Notebook")
+        table.add_column("Status")
+        for nb_path in tasks:
+            table.add_row(nb_path.relative_to(root_path).as_posix(), task_statuses[nb_path])
+        return table
+    
+    with Live(make_table(), refresh_per_second=4) as live:
+        with ThreadPoolExecutor(max_workers=n_workers) as executor:
+            futures = {executor.submit(process_notebook, task): task for task in tasks}
+            for future in as_completed(futures):
+                live.update(make_table())
+               
+    if nb_exceptions: print('\n\n')
+    for nb_path, e in nb_exceptions.items():
+        rich.print(Panel(f"[bold purple]Error in '{nb_path.relative_to(root_path).as_posix()}'", expand=False))
+        typer.echo(e)
+        typer.echo('\n')
 
 
 # %% [markdown]
@@ -569,8 +596,11 @@ def cli_prepare():
     """
     Export, clean, and fill the notebooks in the project.
     """
+    typer.echo("Exporting notebooks...")
     cli_export()
+    typer.echo("Cleaning notebooks...")
     cli_clean()
+    typer.echo("Filling notebooks...")
     cli_fill()
 
 
@@ -588,7 +618,7 @@ def cli_render_docs(
     """
     Render the documentation for the project using Quarto.
     """
-    render_docs(output_folder, docs_cl, root_path)
+    render_docs(output_folder, docs_cl, root_path, verbose=True)
 
 
 # %% [markdown]
@@ -604,4 +634,4 @@ def cli_render_docs(
     """
     Preview the documentation for the project using Quarto.
     """
-    preview_docs(docs_cl, root_path)
+    preview_docs(docs_cl, root_path, verbose=True)

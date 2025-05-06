@@ -166,10 +166,13 @@ show_doc(this_module.preview_docs)
 
 # %%
 #|export
-def preview_docs(docs_cl:Union[str,None] = None, root_path:Union[str,None] = None, config_path:Union[str,None] = None):
+def preview_docs(docs_cl:Union[str,None] = None, root_path:Union[str,None] = None, config_path:Union[str,None] = None, verbose:bool=False):
     with TemporaryDirectory() as tmp_dir:
         prepare_docs(Path(tmp_dir), docs_cl, root_path, config_path)
-        subprocess.run(['quarto', 'preview'], cwd=tmp_dir)
+        if verbose:
+            subprocess.run(['quarto', 'preview'], cwd=tmp_dir)
+        else:
+            subprocess.run(['quarto', 'preview'], cwd=tmp_dir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 # %%
@@ -179,12 +182,15 @@ show_doc(this_module.render_docs)
 
 # %%
 #|export
-def render_docs(output_folder:Union[str,None], docs_cl:Union[str,None] = None, root_path:Union[str,None] = None, config_path:Union[str,None] = None):
+def render_docs(output_folder:Union[str,None], docs_cl:Union[str,None] = None, root_path:Union[str,None] = None, config_path:Union[str,None] = None, verbose:bool=False):
     root_path, _ = _root_path_and_config_helper(root_path, config_path)
     doc_folder_name = Path(output_folder).name # Necessary to get the quarto printouts to be correct
     with TemporaryDirectory() as tmp_dir:
         prepare_docs(Path(tmp_dir), docs_cl, root_path, config_path)
-        subprocess.run(['quarto', 'render', '--output-dir', doc_folder_name], cwd=tmp_dir)
+        if verbose:
+            subprocess.run(['quarto', 'render', '--output-dir', doc_folder_name], cwd=tmp_dir)
+        else:
+            subprocess.run(['quarto', 'render', '--output-dir', doc_folder_name], cwd=tmp_dir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         shutil.copytree(Path(tmp_dir) / doc_folder_name, output_folder, dirs_exist_ok=True)
 
 

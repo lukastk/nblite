@@ -603,6 +603,8 @@ def cli_prepare():
     cli_clean()
     typer.echo("Filling notebooks...")
     cli_fill()
+    typer.echo("Generating README.md...")
+    cli_readme()
 
 
 # %% [markdown]

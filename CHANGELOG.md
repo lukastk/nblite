@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.10] - 2025-05-06
+
+### 🚀 Features
+
+- *(nbl fill)* Alphabetical sorting of notebooks in 'nbl fill'
+- *(nbl prepare)* 'nbl prepare' now also generates readme
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update version in pyproject.toml
+
 ## [0.5.9] - 2025-05-06
 
 ### 🚀 Features

@@ -2,28 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.5.8] - 2025-05-05
+## [0.5.9] - 2025-05-06
 
 ### 🚀 Features
 
-- Nbl fill now ignores notebooks that start with or are in folders that start with '.' or '_'
+- *(nbl fill)* Executes notebooks in parallel by default now in 'nbl fill'
 
 ### ⚙️ Miscellaneous Tasks
 
 - Update CHANGELOG.md
-- Docs re-render
 - Update version in pyproject.toml
 
-## [0.8.8] - 2025-05-05
+## [0.5.8] - 2025-05-05
 
 ### 🚀 Features
 
 - Func signature doc splits over several lines if its too long
 - *(docs)* Now also includes the return annotation
+- Nbl fill now ignores notebooks that start with or are in folders that start with '.' or '_'
 
 ### ⚙️ Miscellaneous Tasks
 
 - Update CHANGELOG.md
+- Update version in pyproject.toml
+- Update CHANGELOG.md
+- Docs re-render
 - Update version in pyproject.toml
 
 ## [0.5.7] - 2025-05-05

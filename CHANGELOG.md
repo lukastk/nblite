@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.11] - 2025-05-09
+
+### 🚀 Features
+
+- Can now disable exporting by setting DISABLE_NBLITE_EXPORT=true. 'nbl fill' disables export by default. Also added cli options to 'nbl prepare'
+
+### 🐛 Bug Fixes
+
+- 'nbl fill' was listing notebooks prefixed with underscores
+
+### 🧪 Testing
+
+- Added tests to see if cells can import and execute code
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Ran nbl prepare. setup pyproject.toml so to as to install the test module properly
+- Update version in pyproject.toml
+
 ## [0.5.10] - 2025-05-06
 
 ### 🚀 Features

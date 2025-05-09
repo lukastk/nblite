@@ -16,8 +16,9 @@ from pathlib import Path
 from typer import Argument
 from typing_extensions import Annotated
 from typing import Union, List
+import os
 
-from nblite.const import nblite_config_file_name
+from nblite.const import nblite_config_file_name, DISABLE_NBLITE_EXPORT_ENV_VAR
 from nblite.config import read_config, parse_config_dict, get_project_root_and_config
 from nblite.const import format_to_jupytext_format
 from nblite.utils import get_nb_format_from_path, get_code_location_nbs, get_nb_path_info
@@ -46,6 +47,11 @@ def export(root_path:Union[str,None] = None, config_path:Union[str,None] = None,
         config_path: Path to the nblite.toml config file. Will be used instead of the config file in the root folder if provided.
         export_pipeline: The export pipeline to use. E.g. 'nbs->pts,pts->lib'.
     """
+    disable_export = os.environ.get(DISABLE_NBLITE_EXPORT_ENV_VAR, False)
+    
+    if disable_export and disable_export.lower() == 'true':
+        print(f"Environment variable {DISABLE_NBLITE_EXPORT_ENV_VAR} is set to True, skipping export.")
+        return
     
     if root_path is None:
         root_path, config = get_project_root_and_config()

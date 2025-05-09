@@ -49,6 +49,8 @@ code_loc_key_to_default_formats = {
     'test_lib': 'module',
 }
 
+DISABLE_NBLITE_EXPORT_ENV_VAR = "DISABLE_NBLITE_EXPORT"
+
 # %%
 #|export
 nblite_assets_path = resources.files("nblite").joinpath("assets")

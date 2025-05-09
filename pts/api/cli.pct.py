@@ -24,8 +24,9 @@ import sys
 import subprocess
 import importlib.metadata
 from jinja2 import Template
+import os
 
-from nblite.const import nblite_config_file_name, nblite_assets_path
+from nblite.const import nblite_config_file_name, nblite_assets_path, DISABLE_NBLITE_EXPORT_ENV_VAR
 from nblite.config import get_project_root_and_config, read_config, get_downstream_module
 from nblite.export import convert_nb, generate_readme, get_nb_twin_paths, clear_code_location, clear_downstream_code_locations
 from nblite.utils import get_code_location_nbs, is_nb_unclean, get_relative_path, is_code_loc_nb
@@ -351,12 +352,17 @@ def cli_fill(
     ignore_underscores: Annotated[bool, Option("-i", "--ignore-underscores", help="Ignore notebooks that begin with an underscore in their filenames or in their parent folders.")] = False,
     dry_run: Annotated[bool, Option(help="Dry run the command.")] = False,
     n_workers: Annotated[int, Option("-n", "--n-workers", help="The number of workers to use.")] = 4,
+    allow_export_during: Annotated[bool, Option("--allow-export-during", help="Allow export during the command.")] = False,
 ):
     """
     Clean notebooks in an nblite project by removing outputs and metadata.
     
     If `nb_path` is not provided, all notebooks in the project will be cleaned.
     """
+    
+    if not allow_export_during:
+        os.environ[DISABLE_NBLITE_EXPORT_ENV_VAR] = 'false' # Disable export for the duration of the command, as it can interfere with the execution of the notebooks
+    
     if root_path is None:
         if nb_paths is not None: root_path = Path(nb_paths[0]).parent
         root_path, config = get_project_root_and_config(root_path)
@@ -593,18 +599,32 @@ def cli_clear_downstream(
 # %%
 #|export
 @app.command(name='prepare')
-def cli_prepare():
+def cli_prepare(
+    root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None,
+    cell_exec_timeout: Annotated[Union[int,None], Option("-t", "--timeout", help="The timeout for the cell execution.")] = None,
+    ignore_underscores: Annotated[bool, Option("-i", "--ignore-underscores", help="Ignore notebooks that begin with an underscore in their filenames or in their parent folders.")] = False,
+    dry_run: Annotated[bool, Option(help="Dry run the command.")] = False,
+    n_workers: Annotated[int, Option("-n", "--n-workers", help="The number of workers to use.")] = 4,
+    allow_export_during: Annotated[bool, Option("--allow-export-during", help="Allow export during the command.")] = False,
+):
     """
     Export, clean, and fill the notebooks in the project.
     """
     typer.echo("Exporting notebooks...")
-    cli_export()
+    cli_export(root_path=root_path)
     typer.echo("Cleaning notebooks...")
-    cli_clean()
+    cli_clean(root_path=root_path)
     typer.echo("Filling notebooks...")
-    cli_fill()
+    cli_fill(
+        root_path=root_path,
+        allow_export_during=allow_export_during,
+        cell_exec_timeout=cell_exec_timeout,
+        ignore_underscores=ignore_underscores,
+        dry_run=dry_run,
+        n_workers=n_workers,
+    )
     typer.echo("Generating README.md...")
-    cli_readme()
+    cli_readme(root_path=root_path)
 
 
 # %% [markdown]

@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.12] - 2025-05-10
+
+### 🚀 Features
+
+- Simplified template as nblite cells can both import and execute
+- 'nbl fill' can now skip notebooks that do not need running. And 'nbl clean' no longe removes top-level metadata.
+
+### 🐛 Bug Fixes
+
+- Changed the behaviour of 'is_nb_unclean' to ignore top-level metadata by default
+- 'get_nb_source_and_output_hash' was including output execution_count and metadata in its hash
+
+### 🚜 Refactor
+
+- Typo
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Nbl prepare
+- Ran 'nbl prepare' with new clean
+- Prepare script
+- Nbl prepare
+- New prepare script
+- Update version in pyproject.toml
+
 ## [0.5.11] - 2025-05-09
 
 ### 🚀 Features

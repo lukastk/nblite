@@ -138,7 +138,7 @@ show_doc(this_module.is_nb_unclean)
 
 # %%
 #|export
-def is_nb_unclean(nb_path:Union[str, None]=None, file_content:Union[str, None]=None):
+def is_nb_unclean(nb_path:Union[str, None]=None, file_content:Union[str, None]=None, include_top_metadata:bool=False):
     import nbformat
     from nbconvert.preprocessors import ExecutePreprocessor
 
@@ -158,7 +158,8 @@ def is_nb_unclean(nb_path:Union[str, None]=None, file_content:Union[str, None]=N
     else:
         nb = nbformat.reads(file_content, as_version=4)
 
-    if nb.metadata: return True
+    if include_top_metadata: # If `include_top_metadata` is True, the notebook will be considered unclean if it has top-level metadata
+        if nb.metadata: return True
 
     for cell in nb.cells:
         if cell['cell_type'] != 'code': continue

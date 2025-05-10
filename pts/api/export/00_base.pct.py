@@ -261,24 +261,36 @@ show_doc(this_module.get_nb_source_and_output_hash)
 
 # %%
 #|export
-def get_nb_source_and_output_hash(nb:Union[str,nbformat.notebooknode.NotebookNode]) -> Tuple[bool, str]:
+def get_nb_source_and_output_hash(nb:Union[str,nbformat.notebooknode.NotebookNode], return_nb:bool=False) -> Tuple[bool, str]:
     """
     Check the source hash of a notebook.
     """
     import hashlib
     if not isinstance(nb, nbformat.notebooknode.NotebookNode):
         nb = nbformat.read(nb, as_version=4)
-    nb_src_and_out = [{'source': c.source, 'outputs': c.outputs} for c in nb.cells if 'outputs' in c and c.outputs]
+        
+    def get_clean_output(output):
+        return { k:v for k,v in output.items() if k not in ['metadata', 'execution_count'] }
+        
+    nb_src_and_out = [{'source': c.source, 'outputs': list(map(get_clean_output, c.outputs))} for c in nb.cells if 'outputs' in c and c.outputs]
     nb_src_and_out_hash = hashlib.sha256(json.dumps(nb_src_and_out).encode('utf-8')).hexdigest()
     if 'nblite_source_hash' in nb.metadata:
         has_changed = nb.metadata['nblite_source_hash'] != nb_src_and_out_hash
     else:
         has_changed = True
-    return nb_src_and_out_hash, has_changed
+        
+    if return_nb:
+        return nb_src_and_out_hash, has_changed, nb, nb_src_and_out
+    else:
+        return nb_src_and_out_hash, has_changed
 
 
 # %%
 nb_src_and_out_hash, has_changed = get_nb_source_and_output_hash(root_path / 'nbs' / 'notebook1.ipynb')
+has_changed
+
+# %%
+nb_src_and_out_hash, has_changed, nb, nb_src_and_out = get_nb_source_and_output_hash(root_path / 'nbs' / 'notebook1.ipynb', return_nb=True)
 has_changed
 
 # %%
@@ -365,24 +377,21 @@ def fill_ipynb(
         cell['cell_type'] = 'code'
 
     if not dry_run:
-        with open(nb_path, "w") as f: nbformat.write(nb, f) # Write the notebook to disk for cleaning
-            
+        # Add the source and output hash to the notebook metadata
+        with open(nb_path, "w") as f: nbformat.write(nb, f)
+        hashed_nb_source, has_changed, nb, _ = get_nb_source_and_output_hash(nb_path, return_nb=True)
+        nb.metadata['nblite_source_hash'] = hashed_nb_source
+        with open(nb_path, "w") as f: nbformat.write(nb, f)
+        
         # Remove metadata from each cell
         if remove_cell_metadata:
             clean_ipynb(nb_path, remove_outputs=False, remove_cell_metadata=remove_cell_metadata)
             
-        # Add the source and output hash to the notebook metadata
-        nb = nbformat.read(nb_path, as_version=4)
-        hashed_nb_source, has_changed = get_nb_source_and_output_hash(nb)
-        nb.metadata['nblite_source_hash'] = hashed_nb_source
-        
-        with open(nb_path, "w") as f: nbformat.write(nb, f)
-        
     return nb
 
 
 # %%
-fill_ipynb(root_path / 'nbs/notebook1.ipynb');
+fill_ipynb(root_path / 'nbs' / 'notebook1.ipynb');
 
 # %%
 #|hide

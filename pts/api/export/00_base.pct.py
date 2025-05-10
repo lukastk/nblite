@@ -267,7 +267,7 @@ def fill_ipynb(
     dry_run:bool=False,
 ):
     """
-    Execute a notebook and fill it with the outputs.
+    Execute a notebook and fills it with the outputs.
     
     Cells can be skipped by adding the following directives to the cell:
     - `#|skip_evals`: Skip current and subsequent cells, until `#|skip_evals_stop` is encountered.

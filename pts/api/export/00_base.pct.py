@@ -15,7 +15,7 @@ import os
 from pathlib import Path
 from typer import Argument
 from typing_extensions import Annotated
-from typing import Union, List
+from typing import Union, List, Tuple
 import json
 import nbformat
 
@@ -202,7 +202,7 @@ show_doc(this_module.clean_ipynb)
 # %%
 
 #|export
-def clean_ipynb(nb_path:str, remove_outputs:bool=False, remove_metadata:bool=True):
+def clean_ipynb(nb_path:str, remove_outputs:bool=False, remove_cell_metadata:bool=True, remove_top_metadata:bool=False):
     """
     Clean a notebook by removing all outputs and metadata.
     
@@ -229,7 +229,7 @@ def clean_ipynb(nb_path:str, remove_outputs:bool=False, remove_metadata:bool=Tru
                 cell.outputs = []
             
     # Remove metadata from each cell
-    if remove_metadata:
+    if remove_cell_metadata:
         for cell in nb.cells:
             if cell['cell_type'] == 'code':
                 cell['execution_count'] = None
@@ -243,13 +243,43 @@ def clean_ipynb(nb_path:str, remove_outputs:bool=False, remove_metadata:bool=Tru
         
     with open(nb_path) as f:
         nb_json = json.load(f)
-    nb_json['metadata'] = {}
+        
+    if remove_top_metadata:
+        nb_json['metadata'] = {}
+        
     with open(nb_path, "w") as f:
         json.dump(nb_json, f, indent=4)
 
 
 # %%
-clean_ipynb(root_path / 'nbs/notebook1.ipynb', remove_outputs=True, remove_metadata=True)
+clean_ipynb(root_path / 'nbs/notebook1.ipynb', remove_outputs=True, remove_cell_metadata=True)
+
+# %%
+#|hide
+show_doc(this_module.get_nb_source_and_output_hash)
+
+
+# %%
+#|export
+def get_nb_source_and_output_hash(nb:Union[str,nbformat.notebooknode.NotebookNode]) -> Tuple[bool, str]:
+    """
+    Check the source hash of a notebook.
+    """
+    import hashlib
+    if not isinstance(nb, nbformat.notebooknode.NotebookNode):
+        nb = nbformat.read(nb, as_version=4)
+    nb_src_and_out = [{'source': c.source, 'outputs': c.outputs} for c in nb.cells if 'outputs' in c and c.outputs]
+    nb_src_and_out_hash = hashlib.sha256(json.dumps(nb_src_and_out).encode('utf-8')).hexdigest()
+    if 'nblite_source_hash' in nb.metadata:
+        has_changed = nb.metadata['nblite_source_hash'] != nb_src_and_out_hash
+    else:
+        has_changed = True
+    return nb_src_and_out_hash, has_changed
+
+
+# %%
+nb_src_and_out_hash, has_changed = get_nb_source_and_output_hash(root_path / 'nbs' / 'notebook1.ipynb')
+has_changed
 
 # %%
 #|hide
@@ -262,10 +292,10 @@ def fill_ipynb(
     nb_path:str,
     cell_exec_timeout=None,
     remove_pre_existing_outputs:bool=True,
-    remove_metadata:bool=True,
+    remove_cell_metadata:bool=True,
     working_dir:Union[str,None]=None,
     dry_run:bool=False,
-):
+) -> nbformat.notebooknode.NotebookNode:
     """
     Execute a notebook and fills it with the outputs.
     
@@ -282,6 +312,7 @@ def fill_ipynb(
     """
     import nbformat
     from nbconvert.preprocessors import ExecutePreprocessor
+    import hashlib
 
     nb_path = Path(nb_path)
     if not nb_path.as_posix().endswith('.ipynb'):
@@ -334,16 +365,24 @@ def fill_ipynb(
         cell['cell_type'] = 'code'
 
     if not dry_run:
-        with open(nb_path, "w") as f:
-            nbformat.write(nb, f)
+        with open(nb_path, "w") as f: nbformat.write(nb, f) # Write the notebook to disk for cleaning
             
         # Remove metadata from each cell
-        if remove_metadata:
-            clean_ipynb(nb_path, remove_outputs=False, remove_metadata=True)
+        if remove_cell_metadata:
+            clean_ipynb(nb_path, remove_outputs=False, remove_cell_metadata=remove_cell_metadata)
+            
+        # Add the source and output hash to the notebook metadata
+        nb = nbformat.read(nb_path, as_version=4)
+        hashed_nb_source, has_changed = get_nb_source_and_output_hash(nb)
+        nb.metadata['nblite_source_hash'] = hashed_nb_source
+        
+        with open(nb_path, "w") as f: nbformat.write(nb, f)
+        
+    return nb
 
 
 # %%
-fill_ipynb(root_path / 'nbs/notebook1.ipynb')
+fill_ipynb(root_path / 'nbs/notebook1.ipynb');
 
 # %%
 #|hide

@@ -28,7 +28,7 @@ import os
 
 from nblite.const import nblite_config_file_name, nblite_assets_path, DISABLE_NBLITE_EXPORT_ENV_VAR
 from nblite.config import get_project_root_and_config, read_config, get_downstream_module
-from nblite.export import convert_nb, generate_readme, get_nb_twin_paths, clear_code_location, clear_downstream_code_locations
+from nblite.export import convert_nb, generate_readme, get_nb_twin_paths, clear_code_location, clear_downstream_code_locations, get_nb_source_and_output_hash
 from nblite.utils import get_code_location_nbs, is_nb_unclean, get_relative_path, is_code_loc_nb
 from nblite.git import get_unstaged_nb_twins, get_git_root, is_file_staged, has_unstaged_changes
 from nblite.docs import render_docs, preview_docs
@@ -311,7 +311,8 @@ cli_new(
 def cli_clean(
     nb_paths: Annotated[Union[List[str], None], Argument(help="Specify the jupyter notebooks to clean. If omitted, all ipynb files in the project's code locations will be cleaned.")] = None,
     remove_outputs: Annotated[bool, Option(help="Remove the outputs from the notebook.")]=False,
-    remove_metadata: Annotated[bool, Option(help="Remove the metadata from the notebook.")]=True,
+    remove_cell_metadata: Annotated[bool, Option(help="Remove the metadata from the notebook.")]=True,
+    remove_top_metadata: Annotated[bool, Option(help="Remove the top-level metadata from the notebook.")]=False,
     root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None,
     ignore_underscores: Annotated[bool, Option("-i", "--ignore-underscores", help="Ignore notebooks that begin with an underscore in their filenames or in their parent folders.")] = False,
 ):
@@ -334,7 +335,7 @@ def cli_clean(
             nb_paths.extend(get_code_location_nbs(root_path, cl, ignore_underscores=ignore_underscores))
 
     for nb_path in nb_paths:
-        clean_ipynb(nb_path, remove_outputs, remove_metadata)
+        clean_ipynb(nb_path=nb_path, remove_outputs=remove_outputs, remove_cell_metadata=remove_cell_metadata, remove_top_metadata=remove_top_metadata)
 
 
 # %% [markdown]
@@ -346,13 +347,14 @@ def cli_clean(
 def cli_fill(
     nb_paths: Annotated[Union[List[str], None], Argument(help="Specify the jupyter notebooks to fill. If omitted, all ipynb files in the project's code locations will be filled.")] = None,
     remove_prev_outputs: Annotated[bool, Option("-r", "--remove-prev-outputs", help="Remove the pre-existing outputs from the notebooks.")]=False,
-    remove_metadata: Annotated[bool, Option("-m", "--remove-metadata", help="Remove the metadata from the notebooks.")]=True,
+    remove_cell_metadata: Annotated[bool, Option("-m", "--remove-metadata", help="Remove the metadata from notebook cells.")]=True,
     root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None,
     cell_exec_timeout: Annotated[Union[int,None], Option("-t", "--timeout", help="The timeout for the cell execution.")] = None,
     ignore_underscores: Annotated[bool, Option("-i", "--ignore-underscores", help="Ignore notebooks that begin with an underscore in their filenames or in their parent folders.")] = False,
     dry_run: Annotated[bool, Option(help="Dry run the command.")] = False,
     n_workers: Annotated[int, Option("-n", "--n-workers", help="The number of workers to use.")] = 4,
     allow_export_during: Annotated[bool, Option("--allow-export-during", help="Allow export during the command.")] = False,
+    fill_unchanged: Annotated[bool, Option("-f", "--fill-unchanged", help="Fill the notebook even if the source has not changed.")] = False,
 ):
     """
     Clean notebooks in an nblite project by removing outputs and metadata.
@@ -383,15 +385,16 @@ def cli_fill(
     nb_exceptions = {}
         
     def process_notebook(nb_path):
+        task_statuses[nb_path] = ('▶️', 'Executing')
         rel_path = nb_path.relative_to(root_path)
         
         try:
-            fill_ipynb(nb_path, cell_exec_timeout, remove_prev_outputs, remove_metadata, dry_run=dry_run)
+            fill_ipynb(nb_path, cell_exec_timeout, remove_prev_outputs, remove_cell_metadata, dry_run=dry_run)
         except BaseException as e:
-            task_statuses[nb_path] = '❌'
+            task_statuses[nb_path] = ('❌', 'Error')
             nb_exceptions[nb_path] = e
             return
-        task_statuses[nb_path] = '✅'
+        task_statuses[nb_path] = ('✅', 'Filled')
     
     from concurrent.futures import ThreadPoolExecutor
     import rich
@@ -400,15 +403,24 @@ def cli_fill(
     from rich.panel import Panel
     from concurrent.futures import ThreadPoolExecutor, as_completed
     
-    tasks = nb_paths
-    task_statuses = {task: '…' for task in tasks}
+    tasks = nb_paths.copy()
+    task_statuses = {task: ('…', 'In queue') for task in tasks}
+    
+    # Remove notebooks that have not changed
+    if not fill_unchanged:
+        for nb_path in nb_paths:
+            _, has_changed = get_nb_source_and_output_hash(nb_path)
+            if not has_changed:
+                task_statuses[nb_path] = ('⏭️', 'Skipped (unchanged)')
+                tasks.remove(nb_path)
     
     def make_table():
         table = Table(title="Filling notebooks") if not dry_run else Table(title="Filling notebooks (dry run)")
         table.add_column("Notebook")
         table.add_column("Status")
-        for nb_path in tasks:
-            table.add_row(nb_path.relative_to(root_path).as_posix(), task_statuses[nb_path])
+        table.add_column("Status (desc)")
+        for nb_path in nb_paths:
+            table.add_row(nb_path.relative_to(root_path).as_posix(), *task_statuses[nb_path])
         return table
     
     with Live(make_table(), refresh_per_second=4) as live:
@@ -606,6 +618,7 @@ def cli_prepare(
     dry_run: Annotated[bool, Option(help="Dry run the command.")] = False,
     n_workers: Annotated[int, Option("-n", "--n-workers", help="The number of workers to use.")] = 4,
     allow_export_during: Annotated[bool, Option("--allow-export-during", help="Allow export during the command.")] = False,
+    fill_unchanged: Annotated[bool, Option("-f", "--fill-unchanged", help="Fill the notebook even if the source has not changed.")] = False,
 ):
     """
     Export, clean, and fill the notebooks in the project.
@@ -622,6 +635,7 @@ def cli_prepare(
         ignore_underscores=ignore_underscores,
         dry_run=dry_run,
         n_workers=n_workers,
+        fill_unchanged=fill_unchanged,
     )
     typer.echo("Generating README.md...")
     cli_readme(root_path=root_path)

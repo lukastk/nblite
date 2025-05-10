@@ -1,3 +1,4 @@
+uvx --from nblite nbl export
 cd test_proj
 nbl prepare
 cd ..

@@ -145,7 +145,6 @@ fps = [
     '../../test_proj/nbs/notebook1.ipynb',
     '../../test_proj/nbs/notebook2.ipynb',
     '../../test_proj/nbs/submodule/notebook3.ipynb',
-    '../../test_proj/nbs/asdadads',
 ]
 for fp in fps:
     print(fp, is_file_staged(fp))

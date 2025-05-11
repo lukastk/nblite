@@ -271,8 +271,14 @@ def get_nb_source_and_output_hash(nb:Union[str,nbformat.notebooknode.NotebookNod
         
     def get_clean_output(output):
         return { k:v for k,v in output.items() if k not in ['metadata', 'execution_count'] }
+    
+    def get_clean_cell(cell):
+        _cell = { 'source': cell.source }
+        if 'outputs' in cell:
+            _cell['outputs'] = list(map(get_clean_output, cell.outputs))
+        return _cell
         
-    nb_src_and_out = [{'source': c.source, 'outputs': list(map(get_clean_output, c.outputs))} for c in nb.cells if 'outputs' in c and c.outputs]
+    nb_src_and_out = list(map(get_clean_cell, nb.cells))
     nb_src_and_out_hash = hashlib.sha256(json.dumps(nb_src_and_out).encode('utf-8')).hexdigest()
     if 'nblite_source_hash' in nb.metadata:
         has_changed = nb.metadata['nblite_source_hash'] != nb_src_and_out_hash

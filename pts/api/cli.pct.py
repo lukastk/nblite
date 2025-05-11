@@ -396,7 +396,6 @@ def cli_fill(
             return
         task_statuses[nb_path] = ('✅', 'Filled')
     
-    from concurrent.futures import ThreadPoolExecutor
     import rich
     from rich.live import Live
     from rich.table import Table

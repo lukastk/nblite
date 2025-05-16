@@ -251,13 +251,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#code-locations" id="toc-code-locations" class="nav-link" data-scroll-target="#code-locations">Code Locations</a></li>
   <li><a href="#export-pipeline" id="toc-export-pipeline" class="nav-link" data-scroll-target="#export-pipeline">Export Pipeline</a></li>
-  <li><a href="#notebook-twins" id="toc-notebook-twins" class="nav-link" data-scroll-target="#notebook-twins">Notebook Twins</a></li>
+  <li><a href="#notebook-twins" id="toc-notebook-twins" class="nav-link" data-scroll-target="#notebook-twins">Notebook ‘twins’</a></li>
   <li><a href="#why-store-plaintext-versions" id="toc-why-store-plaintext-versions" class="nav-link" data-scroll-target="#why-store-plaintext-versions">Why Store Plaintext Versions?</a></li>
   </ul></li>
   <li><a href="#key-features" id="toc-key-features" class="nav-link" data-scroll-target="#key-features">Key Features</a></li>
   <li><a href="#quick-start" id="toc-quick-start" class="nav-link" data-scroll-target="#quick-start">Quick Start</a>
   <ul class="collapse">
   <li><a href="#initialize-a-project" id="toc-initialize-a-project" class="nav-link" data-scroll-target="#initialize-a-project">Initialize a project</a></li>
+  <li><a href="#set-up-git-hooks" id="toc-set-up-git-hooks" class="nav-link" data-scroll-target="#set-up-git-hooks">Set up Git hooks</a></li>
   <li><a href="#create-a-new-notebook" id="toc-create-a-new-notebook" class="nav-link" data-scroll-target="#create-a-new-notebook">Create a new notebook</a></li>
   <li><a href="#fill-notebooks-with-outputs" id="toc-fill-notebooks-with-outputs" class="nav-link" data-scroll-target="#fill-notebooks-with-outputs">Fill Notebooks with Outputs</a></li>
   <li><a href="#prepare-your-project" id="toc-prepare-your-project" class="nav-link" data-scroll-target="#prepare-your-project">Prepare your project</a></li>
@@ -300,7 +301,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>A lightweight wrapper around <a href="https://github.com/AnswerDotAI/nbdev">nbdev</a> for streamlined notebook-driven development</p>
 </blockquote>
 <p>nblite simplifies the workflow between Jupyter notebooks, Python scripts, and module code, enhancing the notebook-driven development process.</p>
-<p><strong>Note:</strong> <code>nblite</code> is merely a wrapper around <a href="https://github.com/AnswerDotAI/nbdev">nbdev</a>, with some adjustments adapted to the workflow of the <a href="https://adu.autonomy.work/">Autonomy Data Unit</a>. Full credit of the concept and implementation of notebook-driven development using Jupyter notebooks should go to the creators of <a href="https://github.com/AnswerDotAI/nbdev">nbdev</a>.</p>
+<p><strong>Note:</strong> <code>nblite</code> is merely a wrapper around <a href="https://github.com/AnswerDotAI/nbdev">nbdev</a> with some adjustments and additions adapted to the needs of the <a href="https://adu.autonomy.work/">Autonomy Data Unit</a>. Full credit of the concept and implementation of notebook-driven development using Jupyter notebooks should go to the creators of <a href="https://github.com/AnswerDotAI/nbdev">nbdev</a>.</p>
 <section id="installation" class="level2">
 <h2 class="anchored" data-anchor-id="installation">Installation</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install nblite</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -324,7 +325,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>This means: 1. Start with notebooks (<code>.ipynb</code>) as the source 2. Convert them to percent scripts (<code>.pct.py</code>) 3. Finally export to Python library modules (<code>.py</code>)</p>
 </section>
 <section id="notebook-twins" class="level3">
-<h3 class="anchored" data-anchor-id="notebook-twins">Notebook Twins</h3>
+<h3 class="anchored" data-anchor-id="notebook-twins">Notebook ‘twins’</h3>
 <p>Corresponding versions of the same content in different formats. When you write a notebook <code>my_notebook.ipynb</code>, nblite can create twins like: - <code>my_notebook.pct.py</code> (percent script) - <code>my_notebook.lgt.py</code> (light script) - <code>my_module/my_notebook.py</code> (Python module)</p>
 <p>These twins contain the same logical content but in different formats, allowing you to use the format that’s most appropriate for the task at hand.</p>
 </section>
@@ -358,42 +359,48 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a new nblite project</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nbl</span> init <span class="at">--module-name</span> my_project</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
+<section id="set-up-git-hooks" class="level3">
+<h3 class="anchored" data-anchor-id="set-up-git-hooks">Set up Git hooks</h3>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install pre-commit hooks for automatic notebook cleaning</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nbl</span> install-hooks</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Git hooks ensure that notebooks are properly cleaned before committing. The pre-commit hook automatically: - Validates that notebooks are clean (removes metadata and outputs) - Ensures that all notebook twins are consistent - Prevents accidental commits of unclean notebooks</p>
+</section>
 <section id="create-a-new-notebook" class="level3">
 <h3 class="anchored" data-anchor-id="create-a-new-notebook">Create a new notebook</h3>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a new notebook in a code location</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nbl</span> new nbs/my_notebook.ipynb</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a new notebook in a code location</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nbl</span> new nbs/my_notebook.ipynb</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="fill-notebooks-with-outputs" class="level3">
 <h3 class="anchored" data-anchor-id="fill-notebooks-with-outputs">Fill Notebooks with Outputs</h3>
 <p>The <code>nbl fill</code> command is used to execute all the cells in all <code>.ipynb</code> notebooks.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nbl</span> fill</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nbl</span> fill</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>This command also works as a testing command.</p>
 </section>
 <section id="prepare-your-project" class="level3">
 <h3 class="anchored" data-anchor-id="prepare-your-project">Prepare your project</h3>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Export, clean, and fill notebooks in one command</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nbl</span> prepare</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Export, clean, and fill notebooks in one command</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nbl</span> prepare</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 </section>
 <section id="configuration" class="level2">
 <h2 class="anchored" data-anchor-id="configuration">Configuration</h2>
 <p>nblite uses a TOML configuration file (<code>nblite.toml</code>) at the project root:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">export_pipeline</span> <span class="op">=</span> <span class="st">"""</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="st">nbs -&gt; pts</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="st">pts -&gt; lib</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="dt">docs_cl</span> <span class="op">=</span> <span class="st">"nbs"</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="dt">docs_title</span> <span class="op">=</span> <span class="st">"My Project"</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="kw">[cl.lib]</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="dt">path</span> <span class="op">=</span> <span class="st">"my_module"</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="dt">format</span> <span class="op">=</span> <span class="st">"module"</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="kw">[cl.nbs]</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="dt">format</span> <span class="op">=</span> <span class="st">"ipynb"</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="kw">[cl.pts]</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="dt">format</span> <span class="op">=</span> <span class="st">"percent"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="dt">export_pipeline</span> <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="st">nbs -&gt; pts</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="st">pts -&gt; lib</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="dt">docs_cl</span> <span class="op">=</span> <span class="st">"nbs"</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="dt">docs_title</span> <span class="op">=</span> <span class="st">"My Project"</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="kw">[cl.lib]</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="dt">path</span> <span class="op">=</span> <span class="st">"my_module"</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="dt">format</span> <span class="op">=</span> <span class="st">"module"</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="kw">[cl.nbs]</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="dt">format</span> <span class="op">=</span> <span class="st">"ipynb"</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="kw">[cl.pts]</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="dt">format</span> <span class="op">=</span> <span class="st">"percent"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="common-commands" class="level2">
 <h2 class="anchored" data-anchor-id="common-commands">Common Commands</h2>

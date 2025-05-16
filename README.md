@@ -5,7 +5,7 @@
 
 nblite simplifies the workflow between Jupyter notebooks, Python scripts, and module code, enhancing the notebook-driven development process.
 
-**Note:** `nblite` is merely a wrapper around [nbdev](https://github.com/AnswerDotAI/nbdev), with some adjustments adapted to the workflow of the [Autonomy Data Unit](https://adu.autonomy.work/). Full credit of the concept and implementation of notebook-driven development using Jupyter notebooks should go to the creators of [nbdev](https://github.com/AnswerDotAI/nbdev).
+**Note:** `nblite` is merely a wrapper around [nbdev](https://github.com/AnswerDotAI/nbdev) with some adjustments and additions adapted to the needs of the [Autonomy Data Unit](https://adu.autonomy.work/). Full credit of the concept and implementation of notebook-driven development using Jupyter notebooks should go to the creators of [nbdev](https://github.com/AnswerDotAI/nbdev).
 
 <!-- #region -->
 ## Installation
@@ -35,7 +35,8 @@ This means:
 2. Convert them to percent scripts (`.pct.py`)
 3. Finally export to Python library modules (`.py`)
 
-### Notebook Twins
+### Notebook 'twins'
+
 Corresponding versions of the same content in different formats. When you write a notebook `my_notebook.ipynb`, nblite can create twins like:
 - `my_notebook.pct.py` (percent script)
 - `my_notebook.lgt.py` (light script)
@@ -72,6 +73,18 @@ The export pipeline ensures that changes made in one format are propagated to al
 # Create a new nblite project
 nbl init --module-name my_project
 ```
+
+### Set up Git hooks
+
+```bash
+# Install pre-commit hooks for automatic notebook cleaning
+nbl install-hooks
+```
+
+Git hooks ensure that notebooks are properly cleaned before committing. The pre-commit hook automatically:
+- Validates that notebooks are clean (removes metadata and outputs)
+- Ensures that all notebook twins are consistent
+- Prevents accidental commits of unclean notebooks
 
 ### Create a new notebook
 

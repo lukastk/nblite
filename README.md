@@ -15,20 +15,87 @@ pip install nblite
 ```
 <!-- #endregion -->
 
+<!-- #region -->
 ## Core Concepts
 
-### Code Locations
-Directories containing code in different formats (notebooks, scripts, modules). Each code location is defined in the `nblite.toml` configuration file and represents a specific representation of your code:
+### Code locations
+Directories containing code in different formats (notebooks, scripts, modules). Each code location is defined in the `nblite.toml` configuration file and will store different representations of your code. Available formats are:
 
-- **Notebooks Location**: Usually contains `.ipynb` files where you write and develop your code
-- **Percent Scripts Location**: Contains `.pct.py` files (notebooks converted to percent format)
-- **Light Scripts Location**: Contains `.lgt.py` files (simplified percent scripts)
-- **Library Location**: Contains regular Python modules exported from notebooks
+<table>
+    <thead>
+        <tr>
+            <th>Format</th>
+            <th>Format key</th>
+            <th>File Extension</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Python module</td>
+            <td><code>module</code></code></td>
+            <td><code>py</code></td>
+        </tr>
+        <tr>
+            <td>Jupyter notebook</td>
+            <td><code>ipynb</code></td>
+            <td><code>ipynb</code></td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/mwouts/jupytext/blob/main/demo/World%20population.pct.py">Percent</a></td>
+            <td><code>percent</code></td>
+            <td><code>pct.py</code></td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/mwouts/jupytext/blob/main/demo/World%20population.lgt.py">Light</a></td>
+            <td><code>light</code></td>
+            <td><code>lgt.py</code></td>
+        </tr>
+        <tr>
+            <td>
+                <a href="https://github.com/mwouts/jupytext/blob/main/demo/World%20population.spx.py">Sphinx</a>
+            </td>
+            <td><code>sphinx</code></td>
+            <td><code>spx.py</code></td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/mwouts/jupytext/blob/main/demo/World%20population.myst.md">Myst</a></td>
+            <td><code>myst</code></td>
+            <td><code>myst.md</code></td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/mwouts/jupytext/blob/main/demo/World%20population.pandoc.md">Pandoc</a></td>
+            <td><code>pandoc</code></td>
+            <td><code>pandoc.md</code></td>
+    </tr>
+    </tbody>
+</table>
 
-### Export Pipeline
+
+In the `nblite.toml` you define the code locations and the formats of the code within them:
+
+```toml
+[cl.nbs]
+format="ipynb"
+path="notebooks"
+
+[cl.pts]
+format="percent"
+path="percent_notebooks"
+
+[cl.lib]
+format="module"
+path="nblite"
+```
+
+Here we have defined three code locations (`nbs`, `pts` and `lib`) and specified their paths (relative to the project root) and their formats. Read more about plaintext notebook formats [here](https://jupytext.readthedocs.io/en/latest/formats-scripts.html#the-percent-format).
+<!-- #endregion -->
+
+
+### Export pipeline
 Defines the flow of code conversion between different code locations. For example, a typical pipeline might be:
 ```
-nbs -> pts -> lib
+nbs -> pts
+pts -> lib
 ```
 This means:
 1. Start with notebooks (`.ipynb`) as the source
@@ -44,7 +111,7 @@ Corresponding versions of the same content in different formats. When you write 
 
 These twins contain the same logical content but in different formats, allowing you to use the format that's most appropriate for the task at hand.
 
-### Why Store Plaintext Versions?
+### Why store plaintext versions?
 
 While Jupyter notebooks (`.ipynb`) are excellent for interactive development, they pose challenges for version control systems like Git:
 

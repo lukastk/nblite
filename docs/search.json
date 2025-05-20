@@ -1,0 +1,1340 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "nblite",
+    "section": "",
+    "text": "A lightweight wrapper around nbdev for streamlined notebook-driven development\nnblite simplifies the workflow between Jupyter notebooks, Python scripts, and module code, enhancing the notebook-driven development process.\nNote: nblite is merely a wrapper around nbdev with some adjustments and additions adapted to the needs of the Autonomy Data Unit. Full credit of the concept and implementation of notebook-driven development using Jupyter notebooks should go to the creators of nbdev."
+  },
+  {
+    "objectID": "index.html#installation",
+    "href": "index.html#installation",
+    "title": "nblite",
+    "section": "Installation",
+    "text": "Installation\npip install nblite"
+  },
+  {
+    "objectID": "index.html#core-concepts",
+    "href": "index.html#core-concepts",
+    "title": "nblite",
+    "section": "Core Concepts",
+    "text": "Core Concepts\n\nCode locations\nDirectories containing code in different formats (notebooks, scripts, modules). Each code location is defined in the nblite.toml configuration file and will store different representations of your code. Available formats are:\n\n\n\n\nFormat\n\n\nFormat key\n\n\nFile Extension\n\n\n\n\n\n\nPython module\n\n\nmodule\n\n\npy\n\n\n\n\nJupyter notebook\n\n\nipynb\n\n\nipynb\n\n\n\n\nPercent\n\n\npercent\n\n\npct.py\n\n\n\n\nLight\n\n\nlight\n\n\nlgt.py\n\n\n\n\nSphinx\n\n\nsphinx\n\n\nspx.py\n\n\n\n\nMyst\n\n\nmyst\n\n\nmyst.md\n\n\n\n\nPandoc\n\n\npandoc\n\n\npandoc.md\n\n\n\n\nIn the nblite.toml you define the code locations and the formats of the code within them:\n[cl.nbs]\nformat=\"ipynb\"\npath=\"notebooks\"\n\n[cl.pts]\nformat=\"percent\"\npath=\"percent_notebooks\"\n\n[cl.lib]\nformat=\"module\"\npath=\"nblite\"\nHere we have defined three code locations (nbs, pts and lib) and specified their paths (relative to the project root) and their formats. Read more about plaintext notebook formats here.\n\n\nExport pipeline\nDefines the flow of code conversion between different code locations. For example, a typical pipeline might be:\nnbs -&gt; pts\npts -&gt; lib\nThis means: 1. Start with notebooks (.ipynb) as the source 2. Convert them to percent scripts (.pct.py) 3. Finally export to Python library modules (.py)\n\n\nNotebook ‘twins’\nCorresponding versions of the same content in different formats. When you write a notebook my_notebook.ipynb, nblite can create twins like: - my_notebook.pct.py (percent script) - my_notebook.lgt.py (light script) - my_module/my_notebook.py (Python module)\nThese twins contain the same logical content but in different formats, allowing you to use the format that’s most appropriate for the task at hand.\n\n\nWhy store plaintext versions?\nWhile Jupyter notebooks (.ipynb) are excellent for interactive development, they pose challenges for version control systems like Git:\n\nGit-Friendly: Plaintext formats (.pct.py, .lgt.py, .py) are better handled by Git, making diffs and merge conflicts easier to resolve.\nGitHub UI: GitHub’s interface more effectively displays changes in plaintext Python files compared to JSON-formatted notebook files.\nCode Review: Reviewing code changes is more straightforward with plaintext formats.\nCleaner History: By cleaning notebook outputs before committing, you avoid polluting your Git history with large output cells and changing execution counts.\nCollaboration: Team members can work with the format they prefer—notebooks for exploration, Python files for implementation.\n\nThe export pipeline ensures that changes made in one format are propagated to all twins, maintaining consistency across representations."
+  },
+  {
+    "objectID": "index.html#key-features",
+    "href": "index.html#key-features",
+    "title": "nblite",
+    "section": "Key Features",
+    "text": "Key Features\n\nExport Pipeline: Convert notebooks between different formats (.ipynb, percent scripts, light scripts, and Python modules)\nDocumentation: Generate documentation from notebooks using Quarto\nGit Integration: Clean notebooks and enforce consistent git commits\nParallel Execution: Execute notebooks in parallel for faster workflow\nExport as Functions: Notebooks can be exported as functions"
+  },
+  {
+    "objectID": "index.html#quick-start",
+    "href": "index.html#quick-start",
+    "title": "nblite",
+    "section": "Quick Start",
+    "text": "Quick Start\n\nInitialize a project\n# Create a new nblite project\nnbl init --module-name my_project\n\n\nSet up Git hooks\n# Install pre-commit hooks for automatic notebook cleaning\nnbl install-hooks\nGit hooks ensure that notebooks are properly cleaned before committing. The pre-commit hook automatically: - Validates that notebooks are clean (removes metadata and outputs) - Ensures that all notebook twins are consistent - Prevents accidental commits of unclean notebooks\n\n\nCreate a new notebook\n# Create a new notebook in a code location\nnbl new nbs/my_notebook.ipynb\n\n\nFill Notebooks with Outputs\nThe nbl fill command is used to execute all the cells in all .ipynb notebooks.\nnbl fill\nThis command also works as a testing command.\n\n\nPrepare your project\n# Export, clean, and fill notebooks in one command\nnbl prepare"
+  },
+  {
+    "objectID": "index.html#configuration",
+    "href": "index.html#configuration",
+    "title": "nblite",
+    "section": "Configuration",
+    "text": "Configuration\nnblite uses a TOML configuration file (nblite.toml) at the project root:\nexport_pipeline = \"\"\"\nnbs -&gt; pts\npts -&gt; lib\n\"\"\"\ndocs_cl = \"nbs\"\ndocs_title = \"My Project\"\n\n[cl.lib]\npath = \"my_module\"\nformat = \"module\"\n\n[cl.nbs]\nformat = \"ipynb\"\n\n[cl.pts]\nformat = \"percent\""
+  },
+  {
+    "objectID": "index.html#common-commands",
+    "href": "index.html#common-commands",
+    "title": "nblite",
+    "section": "Common Commands",
+    "text": "Common Commands\nRun nbl to see all available commands.\n\nExport and Conversion\n\nnbl export: Export notebooks according to the export pipeline\nnbl convert &lt;nb_path&gt; &lt;dest_path&gt;: Convert a notebook between formats\nnbl clear: Clear downstream code locations\n\n\n\nNotebook Management\n\nnbl clean: Clean notebooks by removing outputs and metadata\nnbl fill: Execute notebooks and fill with outputs\nnbl test: Test that notebooks execute without errors (dry run of fill)\n\n\n\nDocumentation\n\nnbl readme: Generate README.md from index.ipynb\nnbl render-docs: Render project documentation using Quarto\nnbl preview-docs: Preview documentation\n\n\n\nGit Integration\n\nnbl git-add: Add files to git staging with proper cleaning\nnbl validate-staging: Validate that staged notebooks are clean\nnbl install-hooks: Install git hooks for the project"
+  },
+  {
+    "objectID": "index.html#development-workflow",
+    "href": "index.html#development-workflow",
+    "title": "nblite",
+    "section": "Development Workflow",
+    "text": "Development Workflow\n\nWrite code in Jupyter notebooks (.ipynb)\nRun nbl export to convert to other formats\nRun nbl clean before committing to git\nUse nbl fill (or nbl test if outputs are not to be rendered) to verify your notebooks execute correctly\nUse nbl render-docs to generate documentation, or use nbl preview-docs to preview the documentation."
+  },
+  {
+    "objectID": "api/export/01_export_as_func.html",
+    "href": "api/export/01_export_as_func.html",
+    "title": "export.export_as_func",
+    "section": "",
+    "text": "import nblite.export.export_as_func as this_module\nfrom nblite.export.export_as_func import get_nb_as_py_file, get_top_exports\nshow_doc(get_nb_as_py_file)\n\nget_nb_as_py_file\nget_nb_as_py_file(nb_path: str, lib_name: str, nb_format)",
+    "crumbs": [
+      "api",
+      "export",
+      "export.export_as_func"
+    ]
+  },
+  {
+    "objectID": "api/export/01_export_as_func.html#get_nb_as_py_file",
+    "href": "api/export/01_export_as_func.html#get_nb_as_py_file",
+    "title": "export.export_as_func",
+    "section": "get_nb_as_py_file",
+    "text": "get_nb_as_py_file\nget_nb_as_py_file(nb_path: str, lib_name: str, nb_format)",
+    "crumbs": [
+      "api",
+      "export",
+      "export.export_as_func"
+    ]
+  },
+  {
+    "objectID": "api/export/01_export_as_func.html#get_nb_as_py_file-1",
+    "href": "api/export/01_export_as_func.html#get_nb_as_py_file-1",
+    "title": "export.export_as_func",
+    "section": "get_nb_as_py_file",
+    "text": "get_nb_as_py_file\nget_nb_as_py_file(nb_path: str, lib_name: str, nb_format)\n\n\nroot_path = Path('../../../test_proj/')\npy_content = get_nb_as_py_file(root_path / 'nbs' / 'func_notebook.ipynb', 'my_module')\nprint(py_content)\n\n# AUTOGENERATED! DO NOT EDIT! File to edit: ../../../../../../../../Users/lukastk/dev-proj/nblite/test_proj/nbs/func_notebook.ipynb.\n\n# %% auto 0\n__all__ = ['my_val']\n\n# %% ../../../../../../../../Users/lukastk/dev-proj/nblite/test_proj/nbs/func_notebook.ipynb 4\nprint(\"This will be in the body of the function.\")\nmy_val = \"Hello, world!\"\n\n\n\n\nshow_doc(get_top_exports)\n\nget_top_exports\nget_top_exports(nb_path: str, nb_format)\nGet the content of the notebook as a python file",
+    "crumbs": [
+      "api",
+      "export",
+      "export.export_as_func"
+    ]
+  },
+  {
+    "objectID": "api/export/01_export_as_func.html#get_top_exports",
+    "href": "api/export/01_export_as_func.html#get_top_exports",
+    "title": "export.export_as_func",
+    "section": "get_top_exports",
+    "text": "get_top_exports\nget_top_exports(nb_path: str, nb_format)\nGet the content of the notebook as a python file",
+    "crumbs": [
+      "api",
+      "export",
+      "export.export_as_func"
+    ]
+  },
+  {
+    "objectID": "api/export/01_export_as_func.html#get_top_exports-1",
+    "href": "api/export/01_export_as_func.html#get_top_exports-1",
+    "title": "export.export_as_func",
+    "section": "get_top_exports",
+    "text": "get_top_exports\nget_top_exports(nb_path: str, nb_format)\nGet the content of the notebook as a python file\n\n\npy_header_content = get_top_exports(root_path / 'nbs' / 'func_notebook.ipynb')\nprint(py_header_content)\n\n# %% top_export\ndef a_decorator(func):\n    def wrapper(*args, **kwargs):\n        print(\"Function is being called\")\n        result = func(*args, **kwargs)\n        print(\"Function has been called\")\n        return result\n    return wrapper\n\n\n\ndirectives = get_nb_directives(root_path / 'nbs' / 'func_notebook.ipynb')\nfor directive in directives:\n    print(f\"#|{directive['directive']} {directive['args']}\")\n\n#|default_exp test_func_nb\n#|export_as_func true\n#|top_export \n#|set_func_signature \n#|export \n#|func_return \n\n\n\ndirective = lookup_directive(get_nb_directives(root_path / 'nbs' / 'func_notebook.ipynb'), 'set_func_signature')\nfunc_signature_str = directive['cell']['source_without_directives'].strip()",
+    "crumbs": [
+      "api",
+      "export",
+      "export.export_as_func"
+    ]
+  },
+  {
+    "objectID": "api/export/01_export_as_func.html#export_to_lib_as_func",
+    "href": "api/export/01_export_as_func.html#export_to_lib_as_func",
+    "title": "export.export_as_func",
+    "section": "export_to_lib_as_func",
+    "text": "export_to_lib_as_func\nexport_to_lib_as_func(nb_path: str, lib_path: str, nb_format: str)\n\n\nexport_to_lib_as_func(root_path / 'nbs' / 'func_notebook.ipynb', root_path / 'my_module');",
+    "crumbs": [
+      "api",
+      "export",
+      "export.export_as_func"
+    ]
+  },
+  {
+    "objectID": "api/config.html",
+    "href": "api/config.html",
+    "title": "config",
+    "section": "",
+    "text": "import nblite.config as this_module",
+    "crumbs": [
+      "api",
+      "config"
+    ]
+  },
+  {
+    "objectID": "api/config.html#exportrule",
+    "href": "api/config.html#exportrule",
+    "title": "config",
+    "section": "ExportRule",
+    "text": "ExportRule\nInherits from: BaseModel",
+    "crumbs": [
+      "api",
+      "config"
+    ]
+  },
+  {
+    "objectID": "api/config.html#codelocation",
+    "href": "api/config.html#codelocation",
+    "title": "config",
+    "section": "CodeLocation",
+    "text": "CodeLocation\nInherits from: BaseModel\n\n\nMethods\n\n\nfile_ext\nfile_ext(self) -&gt; str\n\n\n\njupytext_format\njupytext_format(self) -&gt; str",
+    "crumbs": [
+      "api",
+      "config"
+    ]
+  },
+  {
+    "objectID": "api/config.html#nbliteconfig",
+    "href": "api/config.html#nbliteconfig",
+    "title": "config",
+    "section": "NBLiteConfig",
+    "text": "NBLiteConfig\nInherits from: BaseModel\n\n\nMethods\n\n\ninit\n__init__(self, **kwargs)\n\n\n\n_has_cycle\n_has_cycle(cls, rules: List[ExportRule]) -&gt; bool\n\n\n\n_order_pipeline\n_order_pipeline(cls, pipeline: List[ExportRule]) -&gt; List[ExportRule]\n\n\n\n__post_process\n__post_process(self)\n\n\nconf = NBLiteConfig(\n    docs_cl=\"nbs\",\n    export_pipeline=[\n        ExportRule(from_key=\"nbs\", to_key=\"pts\"),\n        ExportRule(from_key=\"pts\", to_key=\"lib\"),\n        ExportRule(from_key=\"test_nbs\", to_key=\"test_pts\"),\n        ExportRule(from_key=\"test_pts\", to_key=\"test_lib\"),\n    ],\n    code_locations={\n        \"nbs\": CodeLocation(path=\"nbs\", format=\"ipynb\"),\n        \"pts\": CodeLocation(path=\"pts\", format=\"percent\"),\n        \"test_nbs\": CodeLocation(path=\"test_nbs\", format=\"ipynb\"),\n        \"test_pts\": CodeLocation(path=\"test_pts\", format=\"percent\"),\n        \"lib\": CodeLocation(path=\"my_module\", format=\"module\"),\n        \"test_lib\": CodeLocation(path=\"test_module\", format=\"module\"),\n    }\n)",
+    "crumbs": [
+      "api",
+      "config"
+    ]
+  },
+  {
+    "objectID": "api/config.html#parse_config_dict",
+    "href": "api/config.html#parse_config_dict",
+    "title": "config",
+    "section": "parse_config_dict",
+    "text": "parse_config_dict\nparse_config_dict(config_dict) -&gt; NBLiteConfig\n\n\ntoml_string = '''\nexport_pipeline = \"\"\"\n    #nbs-&gt;pts\n    pts -&gt;lib\n    test_nbs-&gt; test_pts, test_pts-&gt;test_lib\n\"\"\"\ndocs_cl = \"nbs\"\n\n[cl.lib]\npath = \"my_module\"\nformat = \"module\"\n\n[cl.test_lib]\npath = \"test\"\n\n[cl.nbs]\nformat = \"ipynb\"\n\n[cl.pts]\nformat = \"percent\"\n\n[cl.test]\nformat = \"module\"\n\n[cl.test_nbs]\nformat = \"ipynb\"\n\n[cl.test_pts]\n'''\n\nparse_config_dict(toml.loads(toml_string)).model_dump()\n\n{'export_pipeline': [{'from_key': 'pts', 'to_key': 'lib'},\n  {'from_key': 'test_nbs', 'to_key': 'test_pts'},\n  {'from_key': 'test_pts', 'to_key': 'test_lib'}],\n 'code_locations': {'lib': {'path': 'my_module', 'format': 'module'},\n  'test_lib': {'path': 'test', 'format': 'module'},\n  'nbs': {'path': 'nbs', 'format': 'ipynb'},\n  'pts': {'path': 'pts', 'format': 'percent'},\n  'test': {'path': 'test', 'format': 'module'},\n  'test_nbs': {'path': 'test_nbs', 'format': 'ipynb'},\n  'test_pts': {'path': 'test_pts', 'format': 'percent'}},\n 'docs_cl': 'nbs',\n 'docs_title': None}\n\n\n\ntoml_string = '''\nexport_pipeline = \"\"\"\n    pts -&gt;lib\n\"\"\"\ndocs_cl = \"nbs\"\n'''\n\nparse_config_dict(toml.loads(toml_string)).model_dump()\n\n{'export_pipeline': [{'from_key': 'pts', 'to_key': 'lib'}],\n 'code_locations': {'pts': {'path': 'pts', 'format': 'percent'},\n  'lib': {'path': 'lib', 'format': 'module'}},\n 'docs_cl': 'nbs',\n 'docs_title': None}",
+    "crumbs": [
+      "api",
+      "config"
+    ]
+  },
+  {
+    "objectID": "api/config.html#find_config_file",
+    "href": "api/config.html#find_config_file",
+    "title": "config",
+    "section": "_find_config_file",
+    "text": "_find_config_file\n_find_config_file(curr_folder: Path) -&gt; str\n\n\n_find_config_file(Path('../../test_proj'))\n\nPath('/Users/lukastk/dev-proj/nblite/test_proj/nblite.toml')",
+    "crumbs": [
+      "api",
+      "config"
+    ]
+  },
+  {
+    "objectID": "api/config.html#read_config",
+    "href": "api/config.html#read_config",
+    "title": "config",
+    "section": "read_config",
+    "text": "read_config\nread_config(path) -&gt; NBLiteConfig\n\n\nread_config('../../test_proj/nblite.toml')\n\nNBLiteConfig(export_pipeline=[ExportRule(from_key='nbs', to_key='pcts'), ExportRule(from_key='pcts', to_key='lgts'), ExportRule(from_key='lgts', to_key='lib')], code_locations={'lib': CodeLocation(path='my_module', format='module'), 'pcts': CodeLocation(path='pcts', format='percent'), 'lgts': CodeLocation(path='lgts', format='light'), 'nbs': CodeLocation(path='nbs', format='ipynb')}, docs_cl='pcts', docs_title='nblite')",
+    "crumbs": [
+      "api",
+      "config"
+    ]
+  },
+  {
+    "objectID": "api/config.html#get_project_root_and_config",
+    "href": "api/config.html#get_project_root_and_config",
+    "title": "config",
+    "section": "get_project_root_and_config",
+    "text": "get_project_root_and_config\nget_project_root_and_config(curr_folder: Union[Path, None]) -&gt; Path\n\n\nroot_path, config = get_project_root_and_config('../../test_proj')\nprint(root_path)\n\n/Users/lukastk/dev-proj/nblite/test_proj",
+    "crumbs": [
+      "api",
+      "config"
+    ]
+  },
+  {
+    "objectID": "api/config.html#get_top_level_code_locations",
+    "href": "api/config.html#get_top_level_code_locations",
+    "title": "config",
+    "section": "get_top_level_code_locations",
+    "text": "get_top_level_code_locations\nget_top_level_code_locations(config: NBLiteConfig) -&gt; List[str]\nReturns the top level code locations in the export pipeline.\n\n\nroot_path, config = get_project_root_and_config('../../test_proj')\nget_top_level_code_locations(config)\n\n['nbs']",
+    "crumbs": [
+      "api",
+      "config"
+    ]
+  },
+  {
+    "objectID": "api/config.html#get_downstream_module",
+    "href": "api/config.html#get_downstream_module",
+    "title": "config",
+    "section": "get_downstream_module",
+    "text": "get_downstream_module\nget_downstream_module(config: NBLiteConfig, starting_code_loc_key: str) -&gt; str\nFinds the first downstream code location in the export pipeline that is of format ‘module’.\nArguments: - config (NBLiteConfig): The configuration object containing the export pipeline and code locations. - starting_code_loc_key (str): The key of the starting code location.\nReturns: str: The key of the first downstream code location with format ‘module’, or None if not found.\n\n\nconfig = read_config('../../test_proj/nblite.toml')\nget_downstream_module(config, 'nbs')\n\n'lib'",
+    "crumbs": [
+      "api",
+      "config"
+    ]
+  },
+  {
+    "objectID": "api/docs/render.html",
+    "href": "api/docs/render.html",
+    "title": "docs.render",
+    "section": "",
+    "text": "process_and_remove_nbdev_directives(nb_path: Path) -&gt; dict\nProcesses and removes nbdev directives from a notebook.",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.render"
+    ]
+  },
+  {
+    "objectID": "api/docs/render.html#process_and_remove_nbdev_directives",
+    "href": "api/docs/render.html#process_and_remove_nbdev_directives",
+    "title": "docs.render",
+    "section": "",
+    "text": "process_and_remove_nbdev_directives(nb_path: Path) -&gt; dict\nProcesses and removes nbdev directives from a notebook.",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.render"
+    ]
+  },
+  {
+    "objectID": "api/docs/render.html#convert_to_ipynb_and_copy_to_folder",
+    "href": "api/docs/render.html#convert_to_ipynb_and_copy_to_folder",
+    "title": "docs.render",
+    "section": "convert_to_ipynb_and_copy_to_folder",
+    "text": "convert_to_ipynb_and_copy_to_folder\nconvert_to_ipynb_and_copy_to_folder(\n   dest_folder: Path,\n   root_path: Path,\n   cl: CodeLocation\n) -&gt; Path",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.render"
+    ]
+  },
+  {
+    "objectID": "api/docs/render.html#process_subfolder",
+    "href": "api/docs/render.html#process_subfolder",
+    "title": "docs.render",
+    "section": "__process_subfolder",
+    "text": "__process_subfolder\n__process_subfolder(folder_path: Path, rel_path: Path) -&gt; dict",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.render"
+    ]
+  },
+  {
+    "objectID": "api/docs/render.html#build_sidebar_section",
+    "href": "api/docs/render.html#build_sidebar_section",
+    "title": "docs.render",
+    "section": "build_sidebar_section",
+    "text": "build_sidebar_section\nbuild_sidebar_section(parent_path: Path) -&gt; dict\nRecursively build sidebar YAML structure for Quarto from a directory tree.\n\n\nbuild_sidebar_section(root_path / 'nbs')\n\n[{'auto': '/*'},\n {'section': 'submodule', 'contents': 'submodule/*'},\n {'section': 'folder',\n  'contents': [{'auto': 'folder/*'},\n   {'section': 'subfolder', 'contents': 'folder/subfolder/*'}]}]",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.render"
+    ]
+  },
+  {
+    "objectID": "api/docs/render.html#generate_quarto_yml",
+    "href": "api/docs/render.html#generate_quarto_yml",
+    "title": "docs.render",
+    "section": "generate_quarto_yml",
+    "text": "generate_quarto_yml\ngenerate_quarto_yml(\n   docs_nbs_path: Path,\n   src_path: Path,\n   config: NBLiteConfig\n) -&gt; dict\n\n\nwith TemporaryDirectory() as tmp_dir:\n    tmp_dir = Path(tmp_dir)\n    convert_to_ipynb_and_copy_to_folder(tmp_dir, root_path, config.code_locations['nbs'])\n    generate_quarto_yml(tmp_dir, root_path / 'nbs', config)",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.render"
+    ]
+  },
+  {
+    "objectID": "api/docs/render.html#prepare_docs",
+    "href": "api/docs/render.html#prepare_docs",
+    "title": "docs.render",
+    "section": "prepare_docs",
+    "text": "prepare_docs\nprepare_docs(\n   dest_folder: Path,\n   docs_cl: Union[str,None],\n   root_path: Union[str,None],\n   config_path: Union[str,None]\n)",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.render"
+    ]
+  },
+  {
+    "objectID": "api/docs/render.html#preview_docs",
+    "href": "api/docs/render.html#preview_docs",
+    "title": "docs.render",
+    "section": "preview_docs",
+    "text": "preview_docs\npreview_docs(\n   docs_cl: Union[str,None],\n   root_path: Union[str,None],\n   config_path: Union[str,None],\n   verbose: bool\n)",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.render"
+    ]
+  },
+  {
+    "objectID": "api/docs/render.html#render_docs",
+    "href": "api/docs/render.html#render_docs",
+    "title": "docs.render",
+    "section": "render_docs",
+    "text": "render_docs\nrender_docs(\n   output_folder: Union[str,None],\n   docs_cl: Union[str,None],\n   root_path: Union[str,None],\n   config_path: Union[str,None],\n   verbose: bool\n)",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.render"
+    ]
+  },
+  {
+    "objectID": "api/docs/render.html#foo",
+    "href": "api/docs/render.html#foo",
+    "title": "docs.render",
+    "section": "foo",
+    "text": "foo\nfoo()",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.render"
+    ]
+  },
+  {
+    "objectID": "api/docs/render.html#bar",
+    "href": "api/docs/render.html#bar",
+    "title": "docs.render",
+    "section": "bar",
+    "text": "bar\nbar()",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.render"
+    ]
+  },
+  {
+    "objectID": "api/docs/render.html#baz-async",
+    "href": "api/docs/render.html#baz-async",
+    "title": "docs.render",
+    "section": "baz (async)",
+    "text": "baz (async)\nbaz()",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.render"
+    ]
+  },
+  {
+    "objectID": "api/docs/render.html#baz2-async",
+    "href": "api/docs/render.html#baz2-async",
+    "title": "docs.render",
+    "section": "baz2 (async)",
+    "text": "baz2 (async)\nbaz2()\n\n\nrender_docs(root_path / '_docs', root_path=root_path, docs_cl='pcts')\n\n/var/folders/22/k6clk3m10258k07mjcnlswt40000gn/T/ipykernel_56044/3324370426.py:28: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n  _, nb = nbformat.validator.normalize(nb)\n\n\n\nrender_docs(root_path / '_docs', root_path=root_path, docs_cl='nbs')",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.render"
+    ]
+  },
+  {
+    "objectID": "api/utils.html",
+    "href": "api/utils.html",
+    "title": "utils",
+    "section": "",
+    "text": "import nblite.utils as this_module",
+    "crumbs": [
+      "api",
+      "utils"
+    ]
+  },
+  {
+    "objectID": "api/utils.html#get_nb_format_from_path",
+    "href": "api/utils.html#get_nb_format_from_path",
+    "title": "utils",
+    "section": "get_nb_format_from_path",
+    "text": "get_nb_format_from_path\nget_nb_format_from_path(path: str) -&gt; str\n\n\nget_nb_format_from_path('file.pct.py')\n\n'module'",
+    "crumbs": [
+      "api",
+      "utils"
+    ]
+  },
+  {
+    "objectID": "api/utils.html#get_nb_path_info",
+    "href": "api/utils.html#get_nb_path_info",
+    "title": "utils",
+    "section": "get_nb_path_info",
+    "text": "get_nb_path_info\nget_nb_path_info(nb_path: str, root_path: str, config: NBLiteConfig)\n\n\nroot_path = '../../test_proj'\nroot_path, config = get_project_root_and_config(root_path)\nget_nb_path_info('../../test_proj/nbs/notebook1.ipynb', '../../test_proj', config)\n\n{'name': Path('nbs/notebook1'),\n 'cl_name': Path('notebook1'),\n 'basename': 'notebook1',\n 'format': 'ipynb',\n 'file_ext': 'ipynb',\n 'cl_path': 'nbs'}",
+    "crumbs": [
+      "api",
+      "utils"
+    ]
+  },
+  {
+    "objectID": "api/utils.html#is_code_loc_nb",
+    "href": "api/utils.html#is_code_loc_nb",
+    "title": "utils",
+    "section": "is_code_loc_nb",
+    "text": "is_code_loc_nb\nis_code_loc_nb(nb_path: str, root_path: str, config: NBLiteConfig)\nReturns True if the notebook is a notebook associated with a code location.\n\n\nroot_path = '../../test_proj'\nprint(is_code_loc_nb('../../test_proj/nbs/notebook1.ipynb', root_path, config))\nprint(is_code_loc_nb('../../test_proj/nbs/notebook1.pct.py', root_path, config))\nprint(is_code_loc_nb('../../test_proj/test.txt', root_path, config))\n\nTrue\nFalse\nFalse",
+    "crumbs": [
+      "api",
+      "utils"
+    ]
+  },
+  {
+    "objectID": "api/utils.html#get_code_location_nbs",
+    "href": "api/utils.html#get_code_location_nbs",
+    "title": "utils",
+    "section": "get_code_location_nbs",
+    "text": "get_code_location_nbs\nget_code_location_nbs(\n   root_path: str,\n   cl: CodeLocation,\n   ignore_underscores: bool\n)\nReturns all notebooks in a code location. If ignore_underscores is True,\nnotebooks with underscores in their names, or notebooks in folders that start with underscores, are ignored.\n\n\nget_code_location_nbs('../../test_proj', CodeLocation(path='nbs', format='ipynb'))\n\n[Path('../../test_proj/nbs/notebook2.ipynb'),\n Path('../../test_proj/nbs/notebook1.ipynb'),\n Path('../../test_proj/nbs/func_notebook.ipynb'),\n Path('../../test_proj/nbs/index.ipynb'),\n Path('../../test_proj/nbs/submodule/notebook3.ipynb'),\n Path('../../test_proj/nbs/folder/notebook4.ipynb'),\n Path('../../test_proj/nbs/folder/subfolder/notebook7.ipynb')]\n\n\n\nget_code_location_nbs('../../test_proj', CodeLocation(path='nbs', format='ipynb'), ignore_underscores=False)\n\n[Path('../../test_proj/nbs/notebook2.ipynb'),\n Path('../../test_proj/nbs/notebook1.ipynb'),\n Path('../../test_proj/nbs/func_notebook.ipynb'),\n Path('../../test_proj/nbs/_notebook6.ipynb'),\n Path('../../test_proj/nbs/index.ipynb'),\n Path('../../test_proj/nbs/submodule/notebook3.ipynb'),\n Path('../../test_proj/nbs/folder/notebook4.ipynb'),\n Path('../../test_proj/nbs/folder/subfolder/notebook7.ipynb'),\n Path('../../test_proj/nbs/_scratch/notebook5.ipynb')]",
+    "crumbs": [
+      "api",
+      "utils"
+    ]
+  },
+  {
+    "objectID": "api/utils.html#is_nb_unclean",
+    "href": "api/utils.html#is_nb_unclean",
+    "title": "utils",
+    "section": "is_nb_unclean",
+    "text": "is_nb_unclean\nis_nb_unclean(\n   nb_path: Union[str, None],\n   file_content: Union[str, None],\n   include_top_metadata: bool\n)\n\n\nis_nb_unclean(file_content='{\"cells\":[]}')\n\nFalse\n\n\n\nis_nb_unclean('../../test_proj/nbs/notebook1.ipynb')\n\nFalse",
+    "crumbs": [
+      "api",
+      "utils"
+    ]
+  },
+  {
+    "objectID": "api/utils.html#get_unclean_nbs",
+    "href": "api/utils.html#get_unclean_nbs",
+    "title": "utils",
+    "section": "get_unclean_nbs",
+    "text": "get_unclean_nbs\nget_unclean_nbs(root_path: str, ignore_underscores: bool)\nGet all notebooks that have metadata or execution count.\nReturns: bool: True if all notebooks are clean, False otherwise.\n\n\nget_unclean_nbs('../../test_proj')\n\n[]",
+    "crumbs": [
+      "api",
+      "utils"
+    ]
+  },
+  {
+    "objectID": "api/utils.html#get_relative_path",
+    "href": "api/utils.html#get_relative_path",
+    "title": "utils",
+    "section": "get_relative_path",
+    "text": "get_relative_path\nget_relative_path(from_path: str, to_path: str)\nReturns the relative path to the root path.\n\n\nget_relative_path('.', '/Users/lukastk/')\n\nPath('../../../..')",
+    "crumbs": [
+      "api",
+      "utils"
+    ]
+  },
+  {
+    "objectID": "api/utils.html#root_path_and_config_helper",
+    "href": "api/utils.html#root_path_and_config_helper",
+    "title": "utils",
+    "section": "_root_path_and_config_helper",
+    "text": "_root_path_and_config_helper\n_root_path_and_config_helper(\n   root_path: Union[str,None],\n   config_path: Union[str,None]\n) -&gt; tuple[Path,dict]",
+    "crumbs": [
+      "api",
+      "utils"
+    ]
+  },
+  {
+    "objectID": "api/cli.html",
+    "href": "api/cli.html",
+    "title": "cli",
+    "section": "",
+    "text": "import nblite.cli as this_module",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#parse_docstring",
+    "href": "api/cli.html#parse_docstring",
+    "title": "cli",
+    "section": "parse_docstring",
+    "text": "parse_docstring\nparse_docstring(docstring: str) -&gt; tuple\nParses a docstring to extract argument descriptions and return value description.\nArguments: - docstring: The docstring to parse.\nReturns:: A tuple containing three elements: 1. The function summary as a string. 2. A dictionary of argument descriptions. 3. The return value description as a string.",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#derive_cli_meta",
+    "href": "api/cli.html#derive_cli_meta",
+    "title": "cli",
+    "section": "derive_cli_meta",
+    "text": "derive_cli_meta\nderive_cli_meta(source_func: FunctionType) -&gt; Callable\nA decorator factory that transfers docstring and argument annotations from a source functio and turns\nthem into a typer annotations for the target function.\nArguments: - source_func: The function from which to derive the docstring and argument annotations.",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#entrypoint",
+    "href": "api/cli.html#entrypoint",
+    "title": "cli",
+    "section": "entrypoint",
+    "text": "entrypoint\nentrypoint(ctx: typer.Context, version: bool)",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#main",
+    "href": "api/cli.html#main",
+    "title": "cli",
+    "section": "main",
+    "text": "main\nmain()",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#nbl-export",
+    "href": "api/cli.html#nbl-export",
+    "title": "cli",
+    "section": "nbl export",
+    "text": "nbl export",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#cli_export",
+    "href": "api/cli.html#cli_export",
+    "title": "cli",
+    "section": "cli_export",
+    "text": "cli_export\ncli_export(\n   root_path: Annotated[Union[str,None], Option(help=\"Path to the root folder of the nblite project.\")],\n   config_path: Annotated[Union[str,None], Option(help=\"Path to the nblite.toml config file. Will be used instead of the config file in the root folder if provided.\")],\n   export_pipeline: Annotated[Union[str,None], Option(help=\" The export pipeline to use. E.g. 'nbs-&gt;pts,pts-&gt;lib'.\")],\n   nb_paths: Annotated[Union[List[str],None], Option(help=\"If provided, only the notebooks specified in the paths will be exported.\")]\n)\nExport notebooks in an nblite project, as specified in the nblite.toml config file.\nIf the root_path is not provided, nblite will search for a nblite.toml file in the current directory and all parent directories, and use the directory containing the nblite.toml file as the root folder.",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#nbl-readme",
+    "href": "api/cli.html#nbl-readme",
+    "title": "cli",
+    "section": "nbl readme",
+    "text": "nbl readme",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#cli_readme",
+    "href": "api/cli.html#cli_readme",
+    "title": "cli",
+    "section": "cli_readme",
+    "text": "cli_readme\ncli_readme(root_path)",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#nbl-convert",
+    "href": "api/cli.html#nbl-convert",
+    "title": "cli",
+    "section": "nbl convert",
+    "text": "nbl convert",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#cli_convert",
+    "href": "api/cli.html#cli_convert",
+    "title": "cli",
+    "section": "cli_convert",
+    "text": "cli_convert\ncli_convert(nb_path, dest_path, nb_format, dest_format)",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#nbl-init",
+    "href": "api/cli.html#nbl-init",
+    "title": "cli",
+    "section": "nbl init",
+    "text": "nbl init",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#cli_init",
+    "href": "api/cli.html#cli_init",
+    "title": "cli",
+    "section": "cli_init",
+    "text": "cli_init\ncli_init(\n   module_name: Annotated[Union[str,None], Option(help=\"The name of the module to create\")],\n   root_path: Annotated[Union[str,None], Option(help=\"The root path of the project\")],\n   use_defaults: Annotated[bool, Option(help=\"Use default values for module name and root path\")]\n)\nInitialize a new nblite project.",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#nbl-new",
+    "href": "api/cli.html#nbl-new",
+    "title": "cli",
+    "section": "nbl new",
+    "text": "nbl new",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#cli_new",
+    "href": "api/cli.html#cli_new",
+    "title": "cli",
+    "section": "cli_new",
+    "text": "cli_new\ncli_new(\n   nb_path: Annotated[str, Argument(help=\"The notebook to create.\")],\n   mod_name: Annotated[Union[str,None], Option(\"-n\", \"--name\", help=\"The name of the exported module. Defaults to the notebook path relative to the code location root.\")],\n   nb_title: Annotated[Union[str,None], Option(\"-t\", \"--title\", help=\"The display title of the notebook. Defaults to the notebook path stem.\")],\n   root_path: Annotated[Union[str,None], Option(\"-r\", \"--root\", help=\"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.\")]\n)\nCreate a new notebook in a code location.",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#nbl-clean",
+    "href": "api/cli.html#nbl-clean",
+    "title": "cli",
+    "section": "nbl clean",
+    "text": "nbl clean",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#cli_clean",
+    "href": "api/cli.html#cli_clean",
+    "title": "cli",
+    "section": "cli_clean",
+    "text": "cli_clean\ncli_clean(\n   nb_paths: Annotated[Union[List[str], None], Argument(help=\"Specify the jupyter notebooks to clean. If omitted, all ipynb files in the project's code locations will be cleaned.\")],\n   remove_outputs: Annotated[bool, Option(help=\"Remove the outputs from the notebook.\")],\n   remove_cell_metadata: Annotated[bool, Option(help=\"Remove the metadata from the notebook.\")],\n   remove_top_metadata: Annotated[bool, Option(help=\"Remove the top-level metadata from the notebook.\")],\n   root_path: Annotated[Union[str,None], Option(\"-r\", \"--root\", help=\"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.\")],\n   ignore_underscores: Annotated[bool, Option(\"-i\", \"--ignore-underscores\", help=\"Ignore notebooks that begin with an underscore in their filenames or in their parent folders.\")]\n)\nClean notebooks in an nblite project by removing outputs and metadata.\nIf nb_path is not provided, all notebooks in the project will be cleaned.",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#nbl-fill",
+    "href": "api/cli.html#nbl-fill",
+    "title": "cli",
+    "section": "nbl fill",
+    "text": "nbl fill",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#cli_fill",
+    "href": "api/cli.html#cli_fill",
+    "title": "cli",
+    "section": "cli_fill",
+    "text": "cli_fill\ncli_fill(\n   nb_paths: Annotated[Union[List[str], None], Argument(help=\"Specify the jupyter notebooks to fill. If omitted, all ipynb files in the project's code locations will be filled.\")],\n   remove_prev_outputs: Annotated[bool, Option(\"-r\", \"--remove-prev-outputs\", help=\"Remove the pre-existing outputs from the notebooks.\")],\n   remove_cell_metadata: Annotated[bool, Option(\"-m\", \"--remove-metadata\", help=\"Remove the metadata from notebook cells.\")],\n   root_path: Annotated[Union[str,None], Option(\"-r\", \"--root\", help=\"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.\")],\n   cell_exec_timeout: Annotated[Union[int,None], Option(\"-t\", \"--timeout\", help=\"The timeout for the cell execution.\")],\n   ignore_underscores: Annotated[bool, Option(\"-i\", \"--ignore-underscores\", help=\"Ignore notebooks that begin with an underscore in their filenames or in their parent folders.\")],\n   dry_run: Annotated[bool, Option(help=\"Dry run the command.\")],\n   n_workers: Annotated[int, Option(\"-n\", \"--n-workers\", help=\"The number of workers to use.\")],\n   allow_export_during: Annotated[bool, Option(\"--allow-export-during\", help=\"Allow export during the command.\")],\n   fill_unchanged: Annotated[bool, Option(\"-f\", \"--fill-unchanged\", help=\"Fill the notebook even if the source has not changed.\")]\n)\nClean notebooks in an nblite project by removing outputs and metadata.\nIf nb_path is not provided, all notebooks in the project will be cleaned.",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#nbl-test",
+    "href": "api/cli.html#nbl-test",
+    "title": "cli",
+    "section": "nbl test",
+    "text": "nbl test",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#cli_test",
+    "href": "api/cli.html#cli_test",
+    "title": "cli",
+    "section": "cli_test",
+    "text": "cli_test\ncli_test(\n   nb_paths: Annotated[Union[List[str], None], Argument(help=\"Specify the jupyter notebooks to fill. If omitted, all ipynb files in the project's code locations will be filled.\")],\n   root_path: Annotated[Union[str,None], Option(\"-r\", \"--root\", help=\"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.\")],\n   cell_exec_timeout: Annotated[Union[int,None], Option(\"-t\", \"--timeout\", help=\"The timeout for the cell execution.\")],\n   ignore_underscores: Annotated[bool, Option(\"-i\", \"--ignore-underscores\", help=\"Ignore notebooks that begin with an underscore in their filenames or in their parent folders.\")]\n)\nAlias for nbl fill --dry-run. Used to test that all cells in the notebooks can be executed without errors.",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#nbl-validate-staging",
+    "href": "api/cli.html#nbl-validate-staging",
+    "title": "cli",
+    "section": "nbl validate-staging",
+    "text": "nbl validate-staging",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#cli_validate_staging",
+    "href": "api/cli.html#cli_validate_staging",
+    "title": "cli",
+    "section": "cli_validate_staging",
+    "text": "cli_validate_staging\ncli_validate_staging(\n   root_path: Annotated[Union[str,None], Option(\"-r\", \"--root\", help=\"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.\")]\n)\nValidate the staging of the project.\nThe staging is valid if all notebooks are clean and the twins of all notebooks that are staged have no unstaged changes.\nThe command will exit with code 1 if the staging is invalid.",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#nbl-install-hooks",
+    "href": "api/cli.html#nbl-install-hooks",
+    "title": "cli",
+    "section": "nbl install-hooks",
+    "text": "nbl install-hooks",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#cli_install_hooks",
+    "href": "api/cli.html#cli_install_hooks",
+    "title": "cli",
+    "section": "cli_install_hooks",
+    "text": "cli_install_hooks\ncli_install_hooks(\n   root_path: Annotated[Union[str,None], Option(\"-r\", \"--root\", help=\"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.\")]\n)\nInstall the git hooks for the project.",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#nbl-git-add",
+    "href": "api/cli.html#nbl-git-add",
+    "title": "cli",
+    "section": "nbl git-add",
+    "text": "nbl git-add",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#cli_git_add",
+    "href": "api/cli.html#cli_git_add",
+    "title": "cli",
+    "section": "cli_git_add",
+    "text": "cli_git_add\ncli_git_add(\n   file_paths: Annotated[List[str], Argument(help=\"The file paths to add to the staging area.\")],\n   extra_args: Annotated[List[str], Option(\"--\", help=\"Extra arguments to pass to git add.\")]\n)\nLike git add, but also runs nbl export, cleans any notebooks that are passed, and stages their twins.",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#nbl-clear",
+    "href": "api/cli.html#nbl-clear",
+    "title": "cli",
+    "section": "nbl clear",
+    "text": "nbl clear",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#cli_clear_downstream",
+    "href": "api/cli.html#cli_clear_downstream",
+    "title": "cli",
+    "section": "cli_clear_downstream",
+    "text": "cli_clear_downstream\ncli_clear_downstream(\n   code_location: Annotated[Optional[str], Argument(help=\"The code location to clear downstream from.\")],\n   all: Annotated[bool, Option(help=\"Clear all downstream notebooks.\")]\n)\nClear a code location or all code locations downstream from the top-level code location.",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#nbl-prepare",
+    "href": "api/cli.html#nbl-prepare",
+    "title": "cli",
+    "section": "nbl prepare",
+    "text": "nbl prepare",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#cli_prepare",
+    "href": "api/cli.html#cli_prepare",
+    "title": "cli",
+    "section": "cli_prepare",
+    "text": "cli_prepare\ncli_prepare(\n   root_path: Annotated[Union[str,None], Option(\"-r\", \"--root\", help=\"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.\")],\n   cell_exec_timeout: Annotated[Union[int,None], Option(\"-t\", \"--timeout\", help=\"The timeout for the cell execution.\")],\n   ignore_underscores: Annotated[bool, Option(\"-i\", \"--ignore-underscores\", help=\"Ignore notebooks that begin with an underscore in their filenames or in their parent folders.\")],\n   dry_run: Annotated[bool, Option(help=\"Dry run the command.\")],\n   n_workers: Annotated[int, Option(\"-n\", \"--n-workers\", help=\"The number of workers to use.\")],\n   allow_export_during: Annotated[bool, Option(\"--allow-export-during\", help=\"Allow export during the command.\")],\n   fill_unchanged: Annotated[bool, Option(\"-f\", \"--fill-unchanged\", help=\"Fill the notebook even if the source has not changed.\")]\n)\nExport, clean, and fill the notebooks in the project.",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#nbl-render-docs",
+    "href": "api/cli.html#nbl-render-docs",
+    "title": "cli",
+    "section": "nbl render-docs",
+    "text": "nbl render-docs",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#cli_render_docs",
+    "href": "api/cli.html#cli_render_docs",
+    "title": "cli",
+    "section": "cli_render_docs",
+    "text": "cli_render_docs\ncli_render_docs(\n   root_path: Annotated[Union[str,None], Option(\"-r\", \"--root\", help=\"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.\")],\n   docs_cl: Annotated[Optional[str], Option(\"-d\", \"--docs-cl\", help=\"The code location to render the documentation for. If not provided, the code location will be retrieved from the nblite.toml file.\")],\n   output_folder: Annotated[Optional[str], Option(\"-o\", \"--output-folder\", help=\"The folder to output the documentation to. Default is '_docs'.\")]\n)\nRender the documentation for the project using Quarto.",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#nbl-preview-docs",
+    "href": "api/cli.html#nbl-preview-docs",
+    "title": "cli",
+    "section": "nbl preview-docs",
+    "text": "nbl preview-docs",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#cli_render_docs-1",
+    "href": "api/cli.html#cli_render_docs-1",
+    "title": "cli",
+    "section": "cli_render_docs",
+    "text": "cli_render_docs\ncli_render_docs(\n   root_path: Annotated[Union[str,None], Option(\"-r\", \"--root\", help=\"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.\")],\n   docs_cl: Annotated[Optional[str], Option(\"-d\", \"--docs-cl\", help=\"The code location to render the documentation for. If not provided, the code location will be retrieved from the nblite.toml file.\")]\n)\nPreview the documentation for the project using Quarto.",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/git.html",
+    "href": "api/git.html",
+    "title": "git",
+    "section": "",
+    "text": "import nblite.git as this_module",
+    "crumbs": [
+      "api",
+      "git"
+    ]
+  },
+  {
+    "objectID": "api/git.html#has_unstaged_changes",
+    "href": "api/git.html#has_unstaged_changes",
+    "title": "git",
+    "section": "has_unstaged_changes",
+    "text": "has_unstaged_changes\nhas_unstaged_changes(file_path)\nCheck if the given file has unstaged changes.\nArguments: - file_path (str): The path to the file to check.\nReturns: bool: True if there are unstaged changes, False otherwise.\n\n\nfps = [\n    '../../test_proj/nbs/notebook1.ipynb',\n    '../../test_proj/nbs/notebook2.ipynb',\n    '../../test_proj/nbs/submodule/notebook3.ipynb',\n]\nfor fp in fps:\n    print(fp, has_unstaged_changes(fp))\n\n../../test_proj/nbs/notebook1.ipynb False\n../../test_proj/nbs/notebook2.ipynb False\n../../test_proj/nbs/submodule/notebook3.ipynb False",
+    "crumbs": [
+      "api",
+      "git"
+    ]
+  },
+  {
+    "objectID": "api/git.html#get_git_root",
+    "href": "api/git.html#get_git_root",
+    "title": "git",
+    "section": "get_git_root",
+    "text": "get_git_root\nget_git_root()\nGet the root directory of the current git repository.\nReturns: str: The path to the git root directory.\n\n\nget_git_root()\n\n'/Users/lukastk/dev-proj/nblite'",
+    "crumbs": [
+      "api",
+      "git"
+    ]
+  },
+  {
+    "objectID": "api/git.html#list_staged_files",
+    "href": "api/git.html#list_staged_files",
+    "title": "git",
+    "section": "list_staged_files",
+    "text": "list_staged_files\nlist_staged_files()\nList all currently staged files.\nReturns: list: A list of staged file paths.\n\n\nshow_doc(this_module.list_unstaged_and_untracked_files)\n\nlist_unstaged_and_untracked_files\nlist_unstaged_and_untracked_files()\nList all currently unstaged and untracked files.\nReturns: list: A list of unstaged and untracked file paths.",
+    "crumbs": [
+      "api",
+      "git"
+    ]
+  },
+  {
+    "objectID": "api/git.html#list_unstaged_and_untracked_files",
+    "href": "api/git.html#list_unstaged_and_untracked_files",
+    "title": "git",
+    "section": "list_unstaged_and_untracked_files",
+    "text": "list_unstaged_and_untracked_files\nlist_unstaged_and_untracked_files()\nList all currently unstaged and untracked files.\nReturns: list: A list of unstaged and untracked file paths.",
+    "crumbs": [
+      "api",
+      "git"
+    ]
+  },
+  {
+    "objectID": "api/git.html#list_unstaged_and_untracked_files-1",
+    "href": "api/git.html#list_unstaged_and_untracked_files-1",
+    "title": "git",
+    "section": "list_unstaged_and_untracked_files",
+    "text": "list_unstaged_and_untracked_files\nlist_unstaged_and_untracked_files()\nList all currently unstaged and untracked files.\nReturns: list: A list of unstaged and untracked file paths.\n\n\nlist_unstaged_and_untracked_files()\n\n['nbs/api/docs/cell_docs.ipynb',\n 'nbs/api/export/01_export_as_func.ipynb',\n 'nbs/api/export/02_nb_export.ipynb',\n 'nbs/api/git.ipynb',\n 'pts/api/docs/cell_docs.pct.py',\n 'uv.lock',\n 'CLAUDE.md',\n '_scratch/']",
+    "crumbs": [
+      "api",
+      "git"
+    ]
+  },
+  {
+    "objectID": "api/git.html#is_file_staged",
+    "href": "api/git.html#is_file_staged",
+    "title": "git",
+    "section": "is_file_staged",
+    "text": "is_file_staged\nis_file_staged(file_path)\nCheck if the given file is staged.\nArguments: - file_path (str): The path to the file to check.\nReturns: bool: True if the file is staged, False otherwise.\n\n\nfps = [\n    '../../test_proj/nbs/notebook1.ipynb',\n    '../../test_proj/nbs/notebook2.ipynb',\n    '../../test_proj/nbs/submodule/notebook3.ipynb',\n]\nfor fp in fps:\n    print(fp, is_file_staged(fp))\n\n../../test_proj/nbs/notebook1.ipynb False\n../../test_proj/nbs/notebook2.ipynb False\n../../test_proj/nbs/submodule/notebook3.ipynb False",
+    "crumbs": [
+      "api",
+      "git"
+    ]
+  },
+  {
+    "objectID": "api/git.html#get_unstaged_nb_twins",
+    "href": "api/git.html#get_unstaged_nb_twins",
+    "title": "git",
+    "section": "get_unstaged_nb_twins",
+    "text": "get_unstaged_nb_twins\nget_unstaged_nb_twins(root_path: str)\nGet all notebook twins for which at least one is unstaged.\nReturns: list: A list of dictionaries, each containing ‘staged’ and ‘unstaged’ lists of twin paths.\n\n\nget_unstaged_nb_twins('../../test_proj')\n\n[]",
+    "crumbs": [
+      "api",
+      "git"
+    ]
+  },
+  {
+    "objectID": "api/docs/cell_docs.html",
+    "href": "api/docs/cell_docs.html",
+    "title": "docs.cell_docs",
+    "section": "",
+    "text": "extract_top_level_definitions(code_str: str) -&gt; list\nExtracts top-level function and class definitions from a given Python code string.\n\n\ncode_str = \"\"\"\ndef foo(a: int, b: Union[str, None], c, *args, **kwargs) -&gt; str:\n    '''\n    Processes input.\n\n    Args:\n        a (int): The first number.\n        b (Union[str, None]): Optional label.\n        c: Unannotated parameter.\n\n    Returns:\n        bool: True if processed correctly.\n    '''\n    return \"foo\"\n\ndef bar():\n    '''\n    A docstring\n    '''\n    pass\n\nasync def baz():\n    pass\n\nclass MyClass(BaseClass1, BaseClass2):\n    def __init__(self, a: int, b: str, c):\n        '''\n        Constructs a new instance of MyClass.\n\n        Args:\n            a (int): The first number.\n            b (str): The second number.\n            c: Unannotated parameter.\n        '''\n        pass\n\n    def baz(self, d: float, e: bool):\n        pass\n        \n    async def async_method(self, f: float, g: bool):\n        pass\n\"\"\"\n\nextract_top_level_definitions(code_str)\n\n[{'type': 'function',\n  'code': 'def foo(a: int, b: Union[str, None], c, *args, **kwargs) -&gt; str:\\n    \\'\\'\\'\\n    Processes input.\\n\\n    Args:\\n        a (int): The first number.\\n        b (Union[str, None]): Optional label.\\n        c: Unannotated parameter.\\n\\n    Returns:\\n        bool: True if processed correctly.\\n    \\'\\'\\'\\n    return \"foo\"'},\n {'type': 'function',\n  'code': \"def bar():\\n    '''\\n    A docstring\\n    '''\\n    pass\"},\n {'type': 'function', 'code': 'async def baz():\\n    pass'},\n {'type': 'class',\n  'code': \"class MyClass(BaseClass1, BaseClass2):\\n    def __init__(self, a: int, b: str, c):\\n        '''\\n        Constructs a new instance of MyClass.\\n\\n        Args:\\n            a (int): The first number.\\n            b (str): The second number.\\n            c: Unannotated parameter.\\n        '''\\n        pass\\n\\n    def baz(self, d: float, e: bool):\\n        pass\\n        \\n    async def async_method(self, f: float, g: bool):\\n        pass\"}]",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.cell_docs"
+    ]
+  },
+  {
+    "objectID": "api/docs/cell_docs.html#extract_top_level_definitions",
+    "href": "api/docs/cell_docs.html#extract_top_level_definitions",
+    "title": "docs.cell_docs",
+    "section": "",
+    "text": "extract_top_level_definitions(code_str: str) -&gt; list\nExtracts top-level function and class definitions from a given Python code string.\n\n\ncode_str = \"\"\"\ndef foo(a: int, b: Union[str, None], c, *args, **kwargs) -&gt; str:\n    '''\n    Processes input.\n\n    Args:\n        a (int): The first number.\n        b (Union[str, None]): Optional label.\n        c: Unannotated parameter.\n\n    Returns:\n        bool: True if processed correctly.\n    '''\n    return \"foo\"\n\ndef bar():\n    '''\n    A docstring\n    '''\n    pass\n\nasync def baz():\n    pass\n\nclass MyClass(BaseClass1, BaseClass2):\n    def __init__(self, a: int, b: str, c):\n        '''\n        Constructs a new instance of MyClass.\n\n        Args:\n            a (int): The first number.\n            b (str): The second number.\n            c: Unannotated parameter.\n        '''\n        pass\n\n    def baz(self, d: float, e: bool):\n        pass\n        \n    async def async_method(self, f: float, g: bool):\n        pass\n\"\"\"\n\nextract_top_level_definitions(code_str)\n\n[{'type': 'function',\n  'code': 'def foo(a: int, b: Union[str, None], c, *args, **kwargs) -&gt; str:\\n    \\'\\'\\'\\n    Processes input.\\n\\n    Args:\\n        a (int): The first number.\\n        b (Union[str, None]): Optional label.\\n        c: Unannotated parameter.\\n\\n    Returns:\\n        bool: True if processed correctly.\\n    \\'\\'\\'\\n    return \"foo\"'},\n {'type': 'function',\n  'code': \"def bar():\\n    '''\\n    A docstring\\n    '''\\n    pass\"},\n {'type': 'function', 'code': 'async def baz():\\n    pass'},\n {'type': 'class',\n  'code': \"class MyClass(BaseClass1, BaseClass2):\\n    def __init__(self, a: int, b: str, c):\\n        '''\\n        Constructs a new instance of MyClass.\\n\\n        Args:\\n            a (int): The first number.\\n            b (str): The second number.\\n            c: Unannotated parameter.\\n        '''\\n        pass\\n\\n    def baz(self, d: float, e: bool):\\n        pass\\n        \\n    async def async_method(self, f: float, g: bool):\\n        pass\"}]",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.cell_docs"
+    ]
+  },
+  {
+    "objectID": "api/docs/cell_docs.html#extract_function_meta",
+    "href": "api/docs/cell_docs.html#extract_function_meta",
+    "title": "docs.cell_docs",
+    "section": "extract_function_meta",
+    "text": "extract_function_meta\nextract_function_meta(code_str)\nExtracts details of functions from a given Python code string.\n\n\nfunc_str = extract_top_level_definitions(code_str)[0]['code']\nextract_function_meta(func_str)\n\n{'name': 'foo',\n 'full_signature': 'foo(a: int, b: Union[str, None], c, *args, **kwargs) -&gt; str',\n 'is_async': False,\n 'args': {'a': 'int',\n  'b': 'Union[str, None]',\n  'c': None,\n  '*args': None,\n  '**kwargs': None},\n 'docstring': 'Processes input.\\n\\nArgs:\\n    a (int): The first number.\\n    b (Union[str, None]): Optional label.\\n    c: Unannotated parameter.\\n\\nReturns:\\n    bool: True if processed correctly.',\n 'return_annotation': 'str'}\n\n\n\nfunc_str = extract_top_level_definitions(code_str)[2]['code']\nextract_function_meta(func_str)\n\n{'name': 'baz',\n 'full_signature': 'baz()',\n 'is_async': True,\n 'args': {},\n 'docstring': None,\n 'return_annotation': None}",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.cell_docs"
+    ]
+  },
+  {
+    "objectID": "api/docs/cell_docs.html#extract_function_meta_from_obj",
+    "href": "api/docs/cell_docs.html#extract_function_meta_from_obj",
+    "title": "docs.cell_docs",
+    "section": "extract_function_meta_from_obj",
+    "text": "extract_function_meta_from_obj\nextract_function_meta_from_obj(func)\nExtracts details of a function from a given Python function object.\n\n\ndef foo(a, b, c:str, *args, **kwargs) -&gt; str:\n    pass\n\nextract_function_meta_from_obj(foo)\n\n{'name': 'foo',\n 'full_signature': 'foo(a, b, c: str, *args, **kwargs) -&gt; str',\n 'is_async': False,\n 'args': {'a': None, 'b': None, 'c': 'str', '*args': None, '**kwargs': None},\n 'docstring': None,\n 'return_annotation': 'str'}",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.cell_docs"
+    ]
+  },
+  {
+    "objectID": "api/docs/cell_docs.html#extract_class_meta",
+    "href": "api/docs/cell_docs.html#extract_class_meta",
+    "title": "docs.cell_docs",
+    "section": "extract_class_meta",
+    "text": "extract_class_meta\nextract_class_meta(code_str)\nExtracts details of a class from a given Python code string.\n\n\nclass_str = extract_top_level_definitions(code_str)[3]['code']\nextract_class_meta(class_str)\n\n{'name': 'MyClass',\n 'inherits_from': ['BaseClass1', 'BaseClass2'],\n 'methods': [{'name': '__init__',\n   'full_signature': '__init__(self, a: int, b: str, c)',\n   'is_async': False,\n   'args': {'self': None, 'a': 'int', 'b': 'str', 'c': None},\n   'docstring': 'Constructs a new instance of MyClass.\\n\\nArgs:\\n    a (int): The first number.\\n    b (str): The second number.\\n    c: Unannotated parameter.',\n   'return_annotation': None},\n  {'name': 'baz',\n   'full_signature': 'baz(self, d: float, e: bool)',\n   'is_async': False,\n   'args': {'self': None, 'd': 'float', 'e': 'bool'},\n   'docstring': None,\n   'return_annotation': None},\n  {'name': 'async_method',\n   'full_signature': 'async_method(self, f: float, g: bool)',\n   'is_async': True,\n   'args': {'self': None, 'f': 'float', 'g': 'bool'},\n   'docstring': None,\n   'return_annotation': None}]}",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.cell_docs"
+    ]
+  },
+  {
+    "objectID": "api/docs/cell_docs.html#extract_class_meta_from_obj",
+    "href": "api/docs/cell_docs.html#extract_class_meta_from_obj",
+    "title": "docs.cell_docs",
+    "section": "extract_class_meta_from_obj",
+    "text": "extract_class_meta_from_obj\nextract_class_meta_from_obj(cls)\nExtracts details of a class from a given Python class object.\n\n\nclass Foo:\n    def __init__(self, a, b, c:str):\n        \"A docstring\"\n        pass\n    \nextract_class_meta_from_obj(Foo)\n\n{'name': 'Foo',\n 'inherits_from': [],\n 'methods': [{'name': '__init__',\n   'full_signature': '__init__(self, a, b, c: str)',\n   'is_async': False,\n   'args': {'self': None, 'a': None, 'b': None, 'c': 'str'},\n   'docstring': 'A docstring',\n   'return_annotation': None}]}",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.cell_docs"
+    ]
+  },
+  {
+    "objectID": "api/docs/cell_docs.html#render_function_doc",
+    "href": "api/docs/cell_docs.html#render_function_doc",
+    "title": "docs.cell_docs",
+    "section": "render_function_doc",
+    "text": "render_function_doc\nrender_function_doc(func, title_level)\nTakes function metadata and returns formatted Markdown documentation\nusing docstring-parser to structure the docstring content.\n\n\nfunction_str = extract_top_level_definitions(code_str)[0]['code']\nMarkdown(render_function_doc(extract_function_meta(function_str)))\n\nfoo\nfoo(a: int, b: Union[str, None], c, *args, **kwargs) -&gt; str\nProcesses input.\nArguments: - a (int): The first number. - b (Union[str, None]): Optional label. - c: Unannotated parameter.\nReturns: bool: True if processed correctly.\n\n\n\n\nfunction_str = \"\"\"\ndef foo(argument1: int, argument2: str, argument3, argument4, argument5,*args, **kwargs) -&gt; str:\n    pass\n\"\"\"\nMarkdown(render_function_doc(extract_function_meta(function_str)))\n\nfoo\nfoo(\n   argument1: int,\n   argument2: str,\n   argument3,\n   argument4,\n   argument5,\n   *args,\n   **kwargs\n) -&gt; str",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.cell_docs"
+    ]
+  },
+  {
+    "objectID": "api/docs/cell_docs.html#foo",
+    "href": "api/docs/cell_docs.html#foo",
+    "title": "docs.cell_docs",
+    "section": "foo",
+    "text": "foo\nfoo(a: int, b: Union[str, None], c, *args, **kwargs) -&gt; str\nProcesses input.\nArguments: - a (int): The first number. - b (Union[str, None]): Optional label. - c: Unannotated parameter.\nReturns: bool: True if processed correctly.",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.cell_docs"
+    ]
+  },
+  {
+    "objectID": "api/docs/cell_docs.html#foo-1",
+    "href": "api/docs/cell_docs.html#foo-1",
+    "title": "docs.cell_docs",
+    "section": "foo",
+    "text": "foo\nfoo(\n   argument1: int,\n   argument2: str,\n   argument3,\n   argument4,\n   argument5,\n   *args,\n   **kwargs\n) -&gt; str",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.cell_docs"
+    ]
+  },
+  {
+    "objectID": "api/docs/cell_docs.html#render_class_doc",
+    "href": "api/docs/cell_docs.html#render_class_doc",
+    "title": "docs.cell_docs",
+    "section": "render_class_doc",
+    "text": "render_class_doc\nrender_class_doc(cls, title_level)\nTakes class metadata and returns formatted Markdown documentation\nfor the class and its methods.\n\n\nclass_str = extract_top_level_definitions(code_str)[3]['code']\nprint(render_class_doc(extract_class_meta(class_str)))\n\n## MyClass\n\n*Inherits from*: `BaseClass1, BaseClass2`\n\n---\n\n&lt;h3&gt;Methods&lt;/h3&gt;\n\n#### __init__\n\n```python\n__init__(self, a: int, b: str, c)\n```\n\nConstructs a new instance of MyClass.\n\n**Arguments:**\n- `a` (*int*): The first number.\n- `b` (*str*): The second number.\n- `c`: Unannotated parameter.\n\n---\n\n#### baz\n\n```python\nbaz(self, d: float, e: bool)\n```\n\n---\n\n#### async_method *(async)*\n\n```python\nasync_method(self, f: float, g: bool)\n```\n\n---",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.cell_docs"
+    ]
+  },
+  {
+    "objectID": "api/docs/cell_docs.html#render_cell_doc",
+    "href": "api/docs/cell_docs.html#render_cell_doc",
+    "title": "docs.cell_docs",
+    "section": "render_cell_doc",
+    "text": "render_cell_doc\nrender_cell_doc(cell_code, title_level)\nTakes a cell code, extracts all top-level function and class definitions,\nand returns formatted Markdown documentation for each.\n\n\nprint(render_cell_doc(code_str))\n\n## foo\n\n```python\nfoo(a: int, b: Union[str, None], c, *args, **kwargs) -&gt; str\n```\n\nProcesses input.\n\n**Arguments:**\n- `a` (*int*): The first number.\n- `b` (*Union[str, None]*): Optional label.\n- `c`: Unannotated parameter.\n\n**Returns:** *bool*: True if processed correctly.\n\n---\n\n\n## bar\n\n```python\nbar()\n```\n\nA docstring\n\n---\n\n\n## baz *(async)*\n\n```python\nbaz()\n```\n\n---\n\n\n## MyClass\n\n*Inherits from*: `BaseClass1, BaseClass2`\n\n---\n\n&lt;h3&gt;Methods&lt;/h3&gt;\n\n#### __init__\n\n```python\n__init__(self, a: int, b: str, c)\n```\n\nConstructs a new instance of MyClass.\n\n**Arguments:**\n- `a` (*int*): The first number.\n- `b` (*str*): The second number.\n- `c`: Unannotated parameter.\n\n---\n\n#### baz\n\n```python\nbaz(self, d: float, e: bool)\n```\n\n---\n\n#### async_method *(async)*\n\n```python\nasync_method(self, f: float, g: bool)\n```\n\n---",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.cell_docs"
+    ]
+  },
+  {
+    "objectID": "api/docs/cell_docs.html#show_doc",
+    "href": "api/docs/cell_docs.html#show_doc",
+    "title": "docs.cell_docs",
+    "section": "show_doc",
+    "text": "show_doc\nshow_doc(obj, title_level)\n\n\ndef foo(a, b, c:str, *args, **kwargs):\n    \"A docstring\"\n    pass\n\nshow_doc(foo).data\n\n'## foo\\n\\n```python\\nfoo(a, b, c: str, *args, **kwargs)\\n```\\n\\nA docstring\\n\\n---\\n'\n\n\n\nclass FooClass:\n    def __init__(self, a, b, c:str):\n        \"A docstring\"\n        pass\n\nshow_doc(FooClass).data\n\n'## FooClass\\n\\n---\\n\\n&lt;h3&gt;Methods&lt;/h3&gt;\\n\\n#### __init__\\n\\n```python\\n__init__(self, a, b, c: str)\\n```\\n\\nA docstring\\n\\n---\\n'",
+    "crumbs": [
+      "api",
+      "docs",
+      "docs.cell_docs"
+    ]
+  },
+  {
+    "objectID": "api/export/00_base.html",
+    "href": "api/export/00_base.html",
+    "title": "export.base",
+    "section": "",
+    "text": "convert_nb(nb_path: str, dest_path: str, nb_format: str, dest_format: str)\nConvert a notebook from one format to another.\nArguments: - nb_path: Path to the notebook to convert. - dest_path: Path to the destination file. - nb_format: Format of the notebook to convert. - dest_format: Format of the destination file.\n\n\nroot_path = Path('../../../test_proj/')\n\n(root_path / 'pcts').mkdir(parents=True, exist_ok=True)\n(root_path / 'lgts').mkdir(parents=True, exist_ok=True)\n\nconvert_nb(\n    nb_path=root_path / 'nbs' / 'notebook1.ipynb',\n    dest_path=root_path / 'pcts' / 'notebook1.pct.py',\n)\n\nconvert_nb(\n    nb_path=root_path / 'nbs' / 'notebook2.ipynb',\n    dest_path=root_path / 'pcts' / 'notebook2.pct.py',\n)\n\nconvert_nb(\n    nb_path=root_path / 'pcts' / 'notebook1.pct.py',\n    dest_path=root_path / 'lgts' / 'notebook1.lgt.py',\n)\n\nconvert_nb(\n    nb_path=root_path / 'pcts' / 'notebook2.pct.py',\n    dest_path=root_path / 'lgts' / 'notebook2.lgt.py',\n)\n\n\n# Test to see if the conversion is reversible\nwith tempfile.TemporaryDirectory() as tmpdirname:\n    tempdir = Path(tmpdirname)\n    convert_nb(\n        root_path / \"pcts\" / \"notebook1.pct.py\",\n        tempdir / \"nb.ipynb\",\n    )\n    convert_nb(\n        tempdir / \"nb.ipynb\",\n        tempdir / \"nb.pct.py\",\n    )\n    assert Path(root_path / \"pcts\" / \"notebook1.pct.py\").read_text() == Path(tempdir / \"nb.pct.py\").read_text()",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
+    "objectID": "api/export/00_base.html#convert_nb",
+    "href": "api/export/00_base.html#convert_nb",
+    "title": "export.base",
+    "section": "",
+    "text": "convert_nb(nb_path: str, dest_path: str, nb_format: str, dest_format: str)\nConvert a notebook from one format to another.\nArguments: - nb_path: Path to the notebook to convert. - dest_path: Path to the destination file. - nb_format: Format of the notebook to convert. - dest_format: Format of the destination file.\n\n\nroot_path = Path('../../../test_proj/')\n\n(root_path / 'pcts').mkdir(parents=True, exist_ok=True)\n(root_path / 'lgts').mkdir(parents=True, exist_ok=True)\n\nconvert_nb(\n    nb_path=root_path / 'nbs' / 'notebook1.ipynb',\n    dest_path=root_path / 'pcts' / 'notebook1.pct.py',\n)\n\nconvert_nb(\n    nb_path=root_path / 'nbs' / 'notebook2.ipynb',\n    dest_path=root_path / 'pcts' / 'notebook2.pct.py',\n)\n\nconvert_nb(\n    nb_path=root_path / 'pcts' / 'notebook1.pct.py',\n    dest_path=root_path / 'lgts' / 'notebook1.lgt.py',\n)\n\nconvert_nb(\n    nb_path=root_path / 'pcts' / 'notebook2.pct.py',\n    dest_path=root_path / 'lgts' / 'notebook2.lgt.py',\n)\n\n\n# Test to see if the conversion is reversible\nwith tempfile.TemporaryDirectory() as tmpdirname:\n    tempdir = Path(tmpdirname)\n    convert_nb(\n        root_path / \"pcts\" / \"notebook1.pct.py\",\n        tempdir / \"nb.ipynb\",\n    )\n    convert_nb(\n        tempdir / \"nb.ipynb\",\n        tempdir / \"nb.pct.py\",\n    )\n    assert Path(root_path / \"pcts\" / \"notebook1.pct.py\").read_text() == Path(tempdir / \"nb.pct.py\").read_text()",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
+    "objectID": "api/export/00_base.html#get_nb_module_export_name",
+    "href": "api/export/00_base.html#get_nb_module_export_name",
+    "title": "export.base",
+    "section": "get_nb_module_export_name",
+    "text": "get_nb_module_export_name\nget_nb_module_export_name(nb_path: str, lib_path: str) -&gt; str\n\n\nget_nb_module_export_name(root_path / 'nbs/submodule/notebook3.ipynb', root_path / 'my_module')\n\n'submodule.notebook3'\n\n\n\nget_nb_module_export_name(root_path / 'pcts/submodule/notebook3.pct.py', root_path / 'my_module')\n\n'submodule.notebook3'",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
+    "objectID": "api/export/00_base.html#get_nb_module_export_path",
+    "href": "api/export/00_base.html#get_nb_module_export_path",
+    "title": "export.base",
+    "section": "get_nb_module_export_path",
+    "text": "get_nb_module_export_path\nget_nb_module_export_path(nb_path: str, lib_path: str) -&gt; str\n\n\nget_nb_module_export_path(root_path / 'nbs/submodule/notebook3.ipynb', root_path / 'my_module')\n\nPath('/Users/lukastk/dev-proj/nblite/test_proj/my_module/submodule/notebook3.py')",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
+    "objectID": "api/export/00_base.html#get_nb_twin_paths",
+    "href": "api/export/00_base.html#get_nb_twin_paths",
+    "title": "export.base",
+    "section": "get_nb_twin_paths",
+    "text": "get_nb_twin_paths\nget_nb_twin_paths(nb_path: str, root_path: str)\nFor a given notebook in a code location, returns the paths to all its ‘twins’ (the corresponding notebooks in the other code locations).\nThe original given notebook path is also returned.\n\n\nget_nb_twin_paths(root_path / 'nbs/folder/notebook4.ipynb', root_path)\n\n('/Users/lukastk/dev-proj/nblite/test_proj/lgts/folder/notebook4.lgt.py',\n '/Users/lukastk/dev-proj/nblite/test_proj/my_module/notebook4.py',\n '/Users/lukastk/dev-proj/nblite/test_proj/nbs/folder/notebook4.ipynb',\n '/Users/lukastk/dev-proj/nblite/test_proj/pcts/folder/notebook4.pct.py')",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
+    "objectID": "api/export/00_base.html#clean_ipynb",
+    "href": "api/export/00_base.html#clean_ipynb",
+    "title": "export.base",
+    "section": "clean_ipynb",
+    "text": "clean_ipynb\nclean_ipynb(\n   nb_path: str,\n   remove_outputs: bool,\n   remove_cell_metadata: bool,\n   remove_top_metadata: bool\n)\nClean a notebook by removing all outputs and metadata.\nArguments: - nb_path: Path to the notebook to clean. - remove_outputs: Whether to remove the outputs from the notebook. - remove_metadata: Whether to remove the metadata from the notebook.\n\n\nclean_ipynb(root_path / 'nbs/notebook1.ipynb', remove_outputs=True, remove_cell_metadata=True)",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
+    "objectID": "api/export/00_base.html#get_nb_source_and_output_hash",
+    "href": "api/export/00_base.html#get_nb_source_and_output_hash",
+    "title": "export.base",
+    "section": "get_nb_source_and_output_hash",
+    "text": "get_nb_source_and_output_hash\nget_nb_source_and_output_hash(\n   nb: Union[str,nbformat.notebooknode.NotebookNode],\n   return_nb: bool\n) -&gt; Tuple[bool, str]\nCheck the source hash of a notebook.\n\n\nnb_src_and_out_hash, has_changed = get_nb_source_and_output_hash(root_path / 'nbs' / 'notebook1.ipynb')\nhas_changed\n\nTrue\n\n\n\nnb_src_and_out_hash, has_changed, nb, nb_src_and_out = get_nb_source_and_output_hash(root_path / 'nbs' / 'notebook1.ipynb', return_nb=True)\nhas_changed\n\nTrue",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
+    "objectID": "api/export/00_base.html#fill_ipynb",
+    "href": "api/export/00_base.html#fill_ipynb",
+    "title": "export.base",
+    "section": "fill_ipynb",
+    "text": "fill_ipynb\nfill_ipynb(\n   nb_path: str,\n   cell_exec_timeout,\n   remove_pre_existing_outputs: bool,\n   remove_cell_metadata: bool,\n   working_dir: Union[str,None],\n   dry_run: bool\n) -&gt; nbformat.notebooknode.NotebookNode\nExecute a notebook and fills it with the outputs.\nCells can be skipped by adding the following directives to the cell: - #|skip_evals: Skip current and subsequent cells, until #|skip_evals_stop is encountered. - #|skip_evals_stop: Stop skipping cells. - #|eval: false: Skip the cell.\nArguments: - nb_path: Path to the notebook to fill. - cell_exec_timeout: Timeout for cell execution. - remove_pre_existing_outputs: Whether to remove the pre-existing outputs from the notebook. - remove_metadata: Whether to remove the metadata from the notebook.\n\n\nfill_ipynb(root_path / 'nbs' / 'notebook1.ipynb');",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
+    "objectID": "api/export/00_base.html#remove_directive_lines",
+    "href": "api/export/00_base.html#remove_directive_lines",
+    "title": "export.base",
+    "section": "remove_directive_lines",
+    "text": "remove_directive_lines\nremove_directive_lines(code)",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
+    "objectID": "api/export/00_base.html#get_cell_with_directives",
+    "href": "api/export/00_base.html#get_cell_with_directives",
+    "title": "export.base",
+    "section": "get_cell_with_directives",
+    "text": "get_cell_with_directives\nget_cell_with_directives(cell: dict)\nGet the cell with the directives from a cell as metadata.",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
+    "objectID": "api/export/00_base.html#get_nb_directives",
+    "href": "api/export/00_base.html#get_nb_directives",
+    "title": "export.base",
+    "section": "get_nb_directives",
+    "text": "get_nb_directives\nget_nb_directives(nb_path, nb_format, only_code_cells: bool)\nGet the directives from a notebook.\n\n\ndirectives = get_nb_directives(root_path / 'nbs' / 'func_notebook.ipynb')\nfor directive in directives:\n    print(f\"#|{directive['directive']} {directive['args']}\")\n\n#|default_exp test_func_nb\n#|export_as_func true\n#|top_export \n#|set_func_signature \n#|export \n#|func_return",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
+    "objectID": "api/export/00_base.html#lookup_directive",
+    "href": "api/export/00_base.html#lookup_directive",
+    "title": "export.base",
+    "section": "lookup_directive",
+    "text": "lookup_directive\nlookup_directive(nb_directives, directive)\nLookup the latest ocurring directive from the output of get_nb_directives.\n\n\nlookup_directive(directives, 'set_func_signature')\n\n{'directive': 'set_func_signature',\n 'args': '',\n 'cell': {'cell_type': 'code',\n  'execution_count': None,\n  'metadata': {},\n  'outputs': [],\n  'source': '#|set_func_signature\\n@a_decorator\\ndef nb_func(): ...',\n  'directives': [{'directive': 'set_func_signature',\n    'args': '',\n    'cell_line': 0}],\n  'source_without_directives': '@a_decorator\\ndef nb_func(): ...'}}",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
+    "objectID": "api/export/00_base.html#generate_readme",
+    "href": "api/export/00_base.html#generate_readme",
+    "title": "export.base",
+    "section": "generate_readme",
+    "text": "generate_readme\ngenerate_readme(root_path: Union[str,None])\nGenerate a README.md file for the project from the index.ipynb file.\nArguments: - root_path: The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.\n\n\ngenerate_readme(root_path)",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
+    "objectID": "api/export/00_base.html#nbdev_nb_export",
+    "href": "api/export/00_base.html#nbdev_nb_export",
+    "title": "export.base",
+    "section": "_nbdev_nb_export",
+    "text": "_nbdev_nb_export\n_nbdev_nb_export(\n   nbname: str,\n   lib_path: str,\n   procs,\n   name: str,\n   debug: bool,\n   source_nb_path: str\n)\nCopied from nbdev.export.nb_export and modified, adding the extra argument\nsource_nb_path to use as the source notebook path in mod_maker.dest2nb.\nSource: https://github.com/AnswerDotAI/nbdev/blob/main/nbs/api/04_export.ipynb",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
+    "objectID": "api/export/00_base.html#export_to_lib",
+    "href": "api/export/00_base.html#export_to_lib",
+    "title": "export.base",
+    "section": "export_to_lib",
+    "text": "export_to_lib\nexport_to_lib(nb_path, lib_path, nb_format)\n\n\nroot_path = Path('../../../test_proj/')\n\nexport_to_lib(\n    root_path / 'nbs' / 'notebook1.ipynb',\n    root_path / 'my_module',\n)\n\nexport_to_lib(\n    root_path / 'nbs' / 'notebook2.ipynb',\n    root_path / 'my_module',\n)\n\n\nexport_to_lib(\n    root_path / 'pcts' / 'notebook1.pct.py',\n    root_path / 'my_module',\n)\n\nexport_to_lib(\n    root_path / 'pcts' / 'notebook2.pct.py',\n    root_path / 'my_module',\n)",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
+    "objectID": "api/export/00_base.html#clear_code_location",
+    "href": "api/export/00_base.html#clear_code_location",
+    "title": "export.base",
+    "section": "clear_code_location",
+    "text": "clear_code_location\nclear_code_location(cl_key: str, root_path: Union[str,None])\nClear the code location of a given key.\n\n\nclear_code_location('pcts', root_path)",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
+    "objectID": "api/export/00_base.html#clear_downstream_code_locations",
+    "href": "api/export/00_base.html#clear_downstream_code_locations",
+    "title": "export.base",
+    "section": "clear_downstream_code_locations",
+    "text": "clear_downstream_code_locations\nclear_downstream_code_locations(root_path: Union[str,None])\n\n\nclear_downstream_code_locations(root_path)",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
+    "objectID": "api/export/02_nb_export.html",
+    "href": "api/export/02_nb_export.html",
+    "title": "export.nb_export",
+    "section": "",
+    "text": "Contains the logic for exporting notebooks.\nimport shutil\nimport nblite.export.nb_export as this_module",
+    "crumbs": [
+      "api",
+      "export",
+      "export.nb_export"
+    ]
+  },
+  {
+    "objectID": "api/export/02_nb_export.html#export",
+    "href": "api/export/02_nb_export.html#export",
+    "title": "export.nb_export",
+    "section": "export",
+    "text": "export\nexport(\n   root_path: Union[str,None],\n   config_path: Union[str,None],\n   export_pipeline: Union[str,None],\n   nb_paths: Union[List[str],None]\n)\nExport notebooks in an nblite project, as specified in the nblite.toml config file.\nIf the root_path is not provided, nblite will search for a nblite.toml file in the current directory and all parent directories, and use the directory containing the nblite.toml file as the root folder.\nArguments: - root_path: Path to the root folder of the nblite project. - config_path: Path to the nblite.toml config file. Will be used instead of the config file in the root folder if provided. - export_pipeline: The export pipeline to use. E.g. ‘nbs-&gt;pts,pts-&gt;lib’.\n\n\nroot_path = Path('../../../test_proj/')\nshutil.rmtree(root_path / 'my_module', ignore_errors=True)\nshutil.rmtree(root_path / 'pcts', ignore_errors=True)\nshutil.rmtree(root_path / 'lgts', ignore_errors=True)\n\n\nexport(root_path)\n\n\nexport(root_path, nb_paths=[root_path / 'nbs/notebook1.ipynb'])",
+    "crumbs": [
+      "api",
+      "export",
+      "export.nb_export"
+    ]
+  }
+]

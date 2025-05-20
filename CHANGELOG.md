@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.13] - 2025-05-20
+
+### 🚀 Features
+
+- Updated README.md
+
+### 🐛 Bug Fixes
+
+- *(nbl fill)* Bug in 'get_nb_source_and_output_hash'. Only cells with outputs were hashed. Now source-only cells are also hashed.
+- Render-docs was not rendering exported async functions
+
+### 🚜 Refactor
+
+- Removed redundant import statement
+- Removed junk line
+
+### 📚 Documentation
+
+- Added some stuff
+- Updated readme
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Ran 'nbl prepare'
+- Update version in pyproject.toml
+
 ## [0.5.12] - 2025-05-10
 
 ### 🚀 Features

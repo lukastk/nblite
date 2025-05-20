@@ -45,14 +45,14 @@ def extract_top_level_definitions(code_str: str) -> list:
     # Iterate over the top-level nodes in the AST
     for node in tree.body:
         # Check if the node is a function or class definition
-        if isinstance(node, (ast.FunctionDef, ast.ClassDef)):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             # Get the source code for the node
             start_line = node.lineno - 1
             end_line = node.end_lineno
             lines = code_str.splitlines()
             definition = "\n".join(lines[start_line:end_line])
             top_level_definitions.append({
-                'type': 'function' if isinstance(node, ast.FunctionDef) else 'class',
+                'type': 'function' if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) else 'class',
                 'code': definition,
             })
 
@@ -79,6 +79,9 @@ def bar():
     '''
     A docstring
     '''
+    pass
+
+async def baz():
     pass
 
 class MyClass(BaseClass1, BaseClass2):
@@ -117,7 +120,7 @@ def extract_function_meta(code_str):
     tree = ast.parse(code_str)
     function_details = []
     for node in tree.body:
-        if isinstance(node, ast.FunctionDef):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             func_name = node.name
             is_async = isinstance(node, ast.AsyncFunctionDef)
             args = {}
@@ -153,12 +156,16 @@ def extract_function_meta(code_str):
                 'docstring': docstring,
                 'return_annotation': return_type
             })
-    if len(function_details) != 1: raise ValueError("Expected exactly one function definition in the code string.")
+    if len(function_details) != 1: raise ValueError(f"Expected exactly one function definition in the code string. Got:\n{code_str}")
     return function_details[0]
 
 
 # %%
 func_str = extract_top_level_definitions(code_str)[0]['code']
+extract_function_meta(func_str)
+
+# %%
+func_str = extract_top_level_definitions(code_str)[2]['code']
 extract_function_meta(func_str)
 
 # %%
@@ -253,7 +260,7 @@ def extract_class_meta(code_str):
             base_classes = [base.id for base in node.bases if isinstance(base, ast.Name)]
             methods = []
             for item in node.body:
-                if isinstance(item, ast.FunctionDef):
+                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
                     method_details = extract_function_meta(ast.get_source_segment(code_str, item))
                     methods.append(method_details)
             class_details = {
@@ -265,7 +272,7 @@ def extract_class_meta(code_str):
 
 
 # %%
-class_str = extract_top_level_definitions(code_str)[2]['code']
+class_str = extract_top_level_definitions(code_str)[3]['code']
 extract_class_meta(class_str)
 
 # %%
@@ -438,7 +445,7 @@ def render_class_doc(cls, title_level=2):
 
 
 # %%
-class_str = extract_top_level_definitions(code_str)[2]['code']
+class_str = extract_top_level_definitions(code_str)[3]['code']
 print(render_class_doc(extract_class_meta(class_str)))
 
 # %%

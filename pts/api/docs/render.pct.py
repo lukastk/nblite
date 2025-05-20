@@ -195,6 +195,22 @@ def render_docs(output_folder:Union[str,None], docs_cl:Union[str,None] = None, r
 
 
 # %%
+#|export
+def foo():
+    pass
+
+def bar():
+    pass
+
+async def baz():
+    pass
+
+# %%
+#|export
+async def baz2():
+    pass
+
+# %%
 render_docs(root_path / '_docs', root_path=root_path, docs_cl='pcts')
 
 # %%

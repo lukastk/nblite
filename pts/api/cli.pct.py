@@ -200,13 +200,15 @@ def cli_init(
             module_name = typer.prompt(f"Enter the name of the module to create", default=default_module_name)
         else:
             module_name = default_module_name
+            
+    module_name_slug = module_name.replace('-', '_')
     
     if root_path is None:
         root_path = Path('.').resolve()
     
     nblite_toml_template_path = nblite_assets_path / "default_nblite.toml.jinja"
     nblite_toml_template = Template(nblite_toml_template_path.read_text())
-    nblite_toml_str = nblite_toml_template.render(module_name=module_name)
+    nblite_toml_str = nblite_toml_template.render(module_name=module_name, module_name_slug=module_name_slug)
     
     toml_path = root_path / 'nblite.toml'
     if toml_path.exists():

@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.14] - 2025-05-23
+
+### 🐛 Bug Fixes
+
+- Use slugified module name for lib path in 'nbl init'
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Render docs
+- Nbl prepare
+- Update version in pyproject.toml
+
 ## [0.5.13] - 2025-05-20
 
 ### 🚀 Features

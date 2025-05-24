@@ -27,9 +27,9 @@ from jinja2 import Template
 import os
 
 from nblite.const import nblite_config_file_name, nblite_assets_path, DISABLE_NBLITE_EXPORT_ENV_VAR
-from nblite.config import get_project_root_and_config, read_config, get_downstream_module
+from nblite.config import get_project_root_and_config, read_config, get_downstream_module, get_top_level_code_locations
 from nblite.export import convert_nb, generate_readme, get_nb_twin_paths, clear_code_location, clear_downstream_code_locations, get_nb_source_and_output_hash
-from nblite.utils import get_code_location_nbs, is_nb_unclean, get_relative_path, is_code_loc_nb
+from nblite.utils import get_code_location_nbs, is_nb_unclean, get_relative_path, is_code_loc_nb, get_code_location_nbs
 from nblite.git import get_unstaged_nb_twins, get_git_root, is_file_staged, has_unstaged_changes
 from nblite.docs import render_docs, preview_docs
 
@@ -551,10 +551,23 @@ def cli_install_hooks(
 # ## `nbl git-add`
 
 # %%
+#|exporti
+def _get_nbs(ctx: typer.Context):
+    root_path, config = get_project_root_and_config()
+    top_cl_keys = get_top_level_code_locations(config)
+    top_level_nbs = []
+    for cl_key in top_cl_keys:
+        cl = config.code_locations[cl_key]
+        nbs = get_code_location_nbs(root_path, cl)
+        for nb in nbs:
+            yield Path(nb).relative_to(root_path).as_posix()
+
+
+# %%
 #|export
 @app.command(name='git-add')
 def cli_git_add(
-    file_paths: Annotated[List[str], Argument(help="The file paths to add to the staging area.")],
+    file_paths: Annotated[List[str], Argument(help="The file paths to add to the staging area.", autocompletion=_get_nbs)],
     extra_args: Annotated[List[str], Option("--", help="Extra arguments to pass to git add.")] = [],
 ):
     """
@@ -573,7 +586,7 @@ def cli_git_add(
         twin_paths = get_nb_twin_paths(fp, root_path)
         for twin_path in twin_paths:
             if not Path(twin_path).as_posix().endswith('.ipynb'): continue
-            clean_ipynb(twin_path, remove_outputs=False, remove_metadata=True)
+            clean_ipynb(twin_path)
         twin_paths = [p for p in twin_paths if has_unstaged_changes(p)]
         file_paths.extend(twin_paths)
     

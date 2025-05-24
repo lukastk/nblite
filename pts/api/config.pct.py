@@ -284,7 +284,6 @@ show_doc(this_module.get_project_root_and_config)
 #|export
 def get_project_root_and_config(curr_folder:Union[Path, None] = None) -> Path:
     curr_folder = Path(curr_folder) if curr_folder is not None else Path('.')
-    if not curr_folder.exists(): raise ValueError(f"Directory '{curr_folder}' does not exist")
     config_path = _find_config_file(curr_folder)
     if config_path is None:
         raise ValueError("No nblite.toml found in the current or any parent directory")

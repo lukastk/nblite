@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.15] - 2025-05-24
+
+### 🚀 Features
+
+- 'nbl git-add' autocomplete
+
+### 🐛 Bug Fixes
+
+- Removed requirement that 'curr_folder' exists in 'get_project_root_and_config'
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update version in pyproject.toml
+
 ## [0.5.14] - 2025-05-23
 
 ### 🐛 Bug Fixes

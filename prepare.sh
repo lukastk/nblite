@@ -1,3 +1,4 @@
+uv pip install test_proj/
 uvx --from nblite nbl export
 cd test_proj
 nbl prepare

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.16] - 2025-05-25
+
+### 🐛 Bug Fixes
+
+- Issues whenever the parent folders of a repo started with a '_' or '.'
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Updated prepare script to install the test module
+- Update version in pyproject.toml
+
 ## [0.5.15] - 2025-05-24
 
 ### 🚀 Features

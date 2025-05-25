@@ -353,6 +353,7 @@ def cli_fill(
     root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None,
     cell_exec_timeout: Annotated[Union[int,None], Option("-t", "--timeout", help="The timeout for the cell execution.")] = None,
     ignore_underscores: Annotated[bool, Option("-i", "--ignore-underscores", help="Ignore notebooks that begin with an underscore in their filenames or in their parent folders.")] = False,
+    ignore_periods: Annotated[bool, Option("-p", "--ignore-periods", help="Ignore notebooks that begin with a period in their filenames or in their parent folders.")] = True,
     dry_run: Annotated[bool, Option(help="Dry run the command.")] = False,
     n_workers: Annotated[int, Option("-n", "--n-workers", help="The number of workers to use.")] = 4,
     allow_export_during: Annotated[bool, Option("--allow-export-during", help="Allow export during the command.")] = False,
@@ -378,10 +379,8 @@ def cli_fill(
         nb_paths = []
         for cl in config.code_locations.values():
             if cl.format != 'ipynb': continue
-            nb_paths.extend(get_code_location_nbs(root_path, cl, ignore_underscores=ignore_underscores))
+            nb_paths.extend(get_code_location_nbs(root_path, cl, ignore_underscores=ignore_underscores, ignore_periods=ignore_periods))
     nb_paths = [Path(p).resolve() for p in nb_paths]
-    nb_paths = [p for p in nb_paths if not any(p.startswith('_') for p in p.parts)]
-    nb_paths = [p for p in nb_paths if not any(p.startswith('.') for p in p.parts)]
     nb_paths.sort()
         
     nb_exceptions = {}

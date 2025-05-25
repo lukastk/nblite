@@ -108,7 +108,7 @@ show_doc(this_module.get_code_location_nbs)
 
 # %%
 #|export
-def get_code_location_nbs(root_path: str, cl: CodeLocation, ignore_underscores: bool = True):
+def get_code_location_nbs(root_path: str, cl: CodeLocation, ignore_underscores: bool = True, ignore_periods: bool = True):
     """Returns all notebooks in a code location. If ignore_underscores is True,
     notebooks with underscores in their names, or notebooks in folders that start with underscores, are ignored."""
     
@@ -121,6 +121,7 @@ def get_code_location_nbs(root_path: str, cl: CodeLocation, ignore_underscores: 
         if fp.is_file() and fp.name.endswith(cl.file_ext):
             if '.ipynb_checkpoints' in rel_fp.parts: continue
             if ignore_underscores and any(p.startswith('_') for p in rel_fp.parts): continue
+            if ignore_periods and any(p.startswith('.') for p in rel_fp.parts): continue
             nbs.append(fp)
     return nbs
 
@@ -242,3 +243,21 @@ def _root_path_and_config_helper(root_path:Union[str,None] = None, config_path:U
         config = read_config(config_path)
         
     return root_path, config
+
+
+# %%
+#|hide
+show_doc(this_module.is_ignorable_path)
+
+
+# %%
+#|export
+def is_ignorable_path(path: str, cl_path: str):
+    """Returns True if any part of the path, relative to the code location path, starts with an underscore or period."""
+    path = Path(path)
+    cl_path = Path(cl_path)
+    if not path.is_absolute(): raise ValueError(f"Path '{path}' must be absolute.")
+    if not cl_path.is_absolute(): raise ValueError(f"Code location path '{cl_path}' must be absolute.")
+    
+    rel_path = path.relative_to(cl_path)
+    return any(p.startswith('_') or p.startswith('.') for p in rel_path.parts)

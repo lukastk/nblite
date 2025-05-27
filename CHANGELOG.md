@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.17] - 2025-05-27
+
+### 🚀 Features
+
+- 'nbl to-md'
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update version in pyproject.toml
+
 ## [0.5.16] - 2025-05-25
 
 ### 🐛 Bug Fixes

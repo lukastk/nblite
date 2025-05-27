@@ -488,6 +488,53 @@ lookup_directive(directives, 'set_func_signature')
 
 # %%
 #|hide
+show_doc(this_module.generate_md_file)
+
+
+# %%
+#|export
+def generate_md_file(nb_path:Union[str,None] = None, out_path:Union[str,None] = None, nb_format:Union[str,None] = None):
+    """
+    Generate a markdown file from a notebook.
+    
+    Args:
+        root_path: The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.
+    """
+    # Hot reloading, to reduce loading time for the CLI
+    import jupytext
+    from jupytext.config import JupytextConfiguration
+    from jupytext.formats import long_form_one_format
+
+    nb_format = nb_format or get_nb_format_from_path(nb_path)
+    nb_format_jupytext = format_to_jupytext_format[nb_format]
+    config = JupytextConfiguration()
+    config.set_default_format_options(long_form_one_format(nb_format), read=False)
+    config.notebook_metadata_filter = '-all'
+    nb = jupytext.read(nb_path, fmt=nb_format_jupytext)
+
+    # Removed cells with the #|hide directive
+    nb_cells_with_directives = list(map(get_cell_with_directives, nb['cells']))
+    processed_nb_cells = []
+    for cell in nb_cells_with_directives:
+        if any([d['directive'] == 'hide' for d in cell['directives']]): continue
+        del cell['directives']
+        processed_nb_cells.append(cell)
+    nb['cells'] = processed_nb_cells
+
+    jupytext.write(nb, out_path, fmt='md', config=config)
+
+
+# %%
+import tempfile
+
+# Create a temporary file path
+with tempfile.NamedTemporaryFile(delete=True, suffix='.md') as temp_file:
+    generate_md_file(root_path / 'nbs' / 'notebook1.ipynb', temp_file.name)
+    md_file_content = Path(temp_file.name).read_text()
+    print("\n".join(md_file_content.splitlines()[:10]))
+
+# %%
+#|hide
 show_doc(this_module.generate_readme)
 
 
@@ -500,11 +547,6 @@ def generate_readme(root_path:Union[str,None] = None):
     Args:
         root_path: The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.
     """
-    # Hot reloading, to reduce loading time for the CLI
-    import jupytext
-    from jupytext.config import JupytextConfiguration
-    from jupytext.formats import long_form_one_format
-    
     if root_path is None:
         root_path, config = get_project_root_and_config()
     else:
@@ -520,22 +562,7 @@ def generate_readme(root_path:Union[str,None] = None):
     index_nb_path = root_path / top_level_cl.path / ('index.' + top_level_cl.file_ext)
     if not index_nb_path.exists(): return
 
-    config = JupytextConfiguration()
-    config.set_default_format_options(long_form_one_format(top_level_cl.format), read=False)
-    config.notebook_metadata_filter = '-all'
-    
-    index_nb = jupytext.read(index_nb_path, fmt=top_level_cl.jupytext_format)
-
-    # Removed cells with the #|hide directive
-    index_nb_cells_with_directives = list(map(get_cell_with_directives, index_nb['cells']))
-    processed_index_nb_cells = []
-    for cell in index_nb_cells_with_directives:
-        if any([d['directive'] == 'hide' for d in cell['directives']]): continue
-        del cell['directives']
-        processed_index_nb_cells.append(cell)
-    index_nb['cells'] = processed_index_nb_cells
-
-    jupytext.write(index_nb, root_path / 'README.md', fmt='md', config=config)
+    generate_md_file(index_nb_path, root_path / 'README.md', top_level_cl.format)
 
 
 # %%

@@ -28,7 +28,7 @@ import os
 
 from nblite.const import nblite_config_file_name, nblite_assets_path, DISABLE_NBLITE_EXPORT_ENV_VAR
 from nblite.config import get_project_root_and_config, read_config, get_downstream_module, get_top_level_code_locations
-from nblite.export import convert_nb, generate_readme, get_nb_twin_paths, clear_code_location, clear_downstream_code_locations, get_nb_source_and_output_hash
+from nblite.export import convert_nb, generate_readme, get_nb_twin_paths, clear_code_location, clear_downstream_code_locations, get_nb_source_and_output_hash, generate_md_file
 from nblite.utils import get_code_location_nbs, is_nb_unclean, get_relative_path, is_code_loc_nb, get_code_location_nbs
 from nblite.git import get_unstaged_nb_twins, get_git_root, is_file_staged, has_unstaged_changes
 from nblite.docs import render_docs, preview_docs
@@ -156,6 +156,17 @@ def cli_export(
     and all parent directories, and use the directory containing the nblite.toml file as the root folder.
     """
     export(root_path, config_path, export_pipeline, nb_paths)
+
+
+# %% [markdown]
+# ## `nbl to-md`
+
+# %%
+#|export
+@app.command(name='to-md')
+@derive_cli_meta(generate_md_file)
+def cli_to_md(nb_path, out_path, nb_format=None):
+    generate_md_file(nb_path, out_path, nb_format)
 
 
 # %% [markdown]

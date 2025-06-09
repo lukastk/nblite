@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.18] - 2025-06-09
+
+### 🚀 Features
+
+- Options for including underscores and periods
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Modified script
+- Update version in pyproject.toml
+
 ## [0.5.17] - 2025-05-27
 
 ### 🚀 Features

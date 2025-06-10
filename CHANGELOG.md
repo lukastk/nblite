@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.20] - 2025-06-10
+
+### 🐛 Bug Fixes
+
+- *(export.export_as_func.export_to_lib_as_func)* Fixed bug for real
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update version in pyproject.toml
+
 ## [0.5.19] - 2025-06-10
 
 ### 🐛 Bug Fixes

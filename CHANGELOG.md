@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.22] - 2025-06-20
+
+### 🐛 Bug Fixes
+
+- Filtering out 'pkg_resources' warning.
+
+### 📚 Documentation
+
+- Updated and cleaned up the documentation for 'nblite.docs'
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Ran nbl prepare on 'test_proj' after having filtered out the pkg_resource warning
+- Ran 'nbl prepare' with the 'pkg_resources' warning now removed. Also adjusted some of the non-exported cells so that I won't keep getting unstaged changes.
+- Updated uv.lock
+- Updated prepare script
+- Updated publish_new_version.sh script
+- Update docs
+- Update version in pyproject.toml
+
 ## [0.5.21] - 2025-06-20
 
 ### 🚀 Features

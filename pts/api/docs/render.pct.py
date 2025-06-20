@@ -45,7 +45,7 @@ def process_and_remove_nbdev_directives(nb_path: Path) -> dict:
         directive_keys = [d['directive'] for d in cell['directives']]
         directive_lines = [d['cell_line'] for d in cell['directives']]
         
-        if 'export' in directive_keys or 'exporti' in directive_keys: # Add rendered docstring of all function and class definitions in the cell
+        if 'export' in directive_keys: # Add rendered docstring of all function and class definitions in the cell
             doc_cell = nbformat.notebooknode.NotebookNode({
                 'cell_type': 'markdown',
                 'metadata': {},
@@ -205,10 +205,12 @@ def bar():
 async def baz():
     pass
 
+
 # %%
 #|export
 async def baz2():
     pass
+
 
 # %%
 render_docs(root_path / '_docs', root_path=root_path, docs_cl='pcts')

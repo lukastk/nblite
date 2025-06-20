@@ -1,4 +1,4 @@
-uv pip install test_proj/
+uv pip install -e test_proj/
 uvx --from nblite nbl export 
 cd test_proj
 nbl prepare --include-underscores

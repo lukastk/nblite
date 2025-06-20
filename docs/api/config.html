@@ -248,11 +248,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#codelocation" id="toc-codelocation" class="nav-link" data-scroll-target="#codelocation">CodeLocation</a></li>
   <li><a href="#nbliteconfig" id="toc-nbliteconfig" class="nav-link" data-scroll-target="#nbliteconfig">NBLiteConfig</a></li>
   <li><a href="#parse_config_dict" id="toc-parse_config_dict" class="nav-link" data-scroll-target="#parse_config_dict">parse_config_dict</a></li>
-  <li><a href="#find_config_file" id="toc-find_config_file" class="nav-link" data-scroll-target="#find_config_file">_find_config_file</a></li>
   <li><a href="#read_config" id="toc-read_config" class="nav-link" data-scroll-target="#read_config">read_config</a></li>
   <li><a href="#get_project_root_and_config" id="toc-get_project_root_and_config" class="nav-link" data-scroll-target="#get_project_root_and_config">get_project_root_and_config</a></li>
   <li><a href="#get_top_level_code_locations" id="toc-get_top_level_code_locations" class="nav-link" data-scroll-target="#get_top_level_code_locations">get_top_level_code_locations</a></li>
-  <li><a href="#get_downstream_module" id="toc-get_downstream_module" class="nav-link" data-scroll-target="#get_downstream_module">get_downstream_module</a></li>
   </ul>
 </nav>
     </div>
@@ -419,24 +417,19 @@ Methods
  'docs_title': None}</code></pre>
 </div>
 </div>
-</section>
-<section id="find_config_file" class="level2">
-<h2 class="anchored" data-anchor-id="find_config_file">_find_config_file</h2>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>_find_config_file(curr_folder: Path) <span class="op">-&gt;</span> <span class="bu">str</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<hr>
-<div id="cell-11" class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>_find_config_file(Path(<span class="st">'../../test_proj'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-10" class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>_find_config_file(Path(<span class="st">'../../test_proj'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<pre><code>Path('/Users/lukastk/dev-proj/nblite/test_proj/nblite.toml')</code></pre>
+<pre><code>Path('/Users/lukastk/dev/2025-03-05_00__nblite/test_proj/nblite.toml')</code></pre>
 </div>
 </div>
 </section>
 <section id="read_config" class="level2">
 <h2 class="anchored" data-anchor-id="read_config">read_config</h2>
-<div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>read_config(path) <span class="op">-&gt;</span> NBLiteConfig</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>read_config(path) <span class="op">-&gt;</span> NBLiteConfig</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <hr>
-<div id="cell-13" class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>read_config(<span class="st">'../../test_proj/nblite.toml'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-12" class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>read_config(<span class="st">'../../test_proj/nblite.toml'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <pre><code>NBLiteConfig(export_pipeline=[ExportRule(from_key='nbs', to_key='pcts'), ExportRule(from_key='pcts', to_key='lgts'), ExportRule(from_key='lgts', to_key='lib')], code_locations={'lib': CodeLocation(path='my_module', format='module'), 'pcts': CodeLocation(path='pcts', format='percent'), 'lgts': CodeLocation(path='lgts', format='light'), 'nbs': CodeLocation(path='nbs', format='ipynb')}, docs_cl='pcts', docs_title='nblite')</code></pre>
 </div>
@@ -444,39 +437,31 @@ Methods
 </section>
 <section id="get_project_root_and_config" class="level2">
 <h2 class="anchored" data-anchor-id="get_project_root_and_config">get_project_root_and_config</h2>
-<div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>get_project_root_and_config(curr_folder: Union[Path, <span class="va">None</span>]) <span class="op">-&gt;</span> Path</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>get_project_root_and_config(curr_folder: Union[Path, <span class="va">None</span>]) <span class="op">-&gt;</span> Path</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <hr>
-<div id="cell-15" class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>root_path, config <span class="op">=</span> get_project_root_and_config(<span class="st">'../../test_proj'</span>)</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(root_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-14" class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>root_path, config <span class="op">=</span> get_project_root_and_config(<span class="st">'../../test_proj'</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(root_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>/Users/lukastk/dev-proj/nblite/test_proj</code></pre>
+<pre><code>/Users/lukastk/dev/2025-03-05_00__nblite/test_proj</code></pre>
 </div>
 </div>
 </section>
 <section id="get_top_level_code_locations" class="level2">
 <h2 class="anchored" data-anchor-id="get_top_level_code_locations">get_top_level_code_locations</h2>
-<div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>get_top_level_code_locations(config: NBLiteConfig) <span class="op">-&gt;</span> List[<span class="bu">str</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>get_top_level_code_locations(config: NBLiteConfig) <span class="op">-&gt;</span> List[<span class="bu">str</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Returns the top level code locations in the export pipeline.</p>
 <hr>
-<div id="cell-17" class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>root_path, config <span class="op">=</span> get_project_root_and_config(<span class="st">'../../test_proj'</span>)</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>get_top_level_code_locations(config)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-16" class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>root_path, config <span class="op">=</span> get_project_root_and_config(<span class="st">'../../test_proj'</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>get_top_level_code_locations(config)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <pre><code>['nbs']</code></pre>
 </div>
 </div>
-</section>
-<section id="get_downstream_module" class="level2">
-<h2 class="anchored" data-anchor-id="get_downstream_module">get_downstream_module</h2>
-<div class="sourceCode" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>get_downstream_module(config: NBLiteConfig, starting_code_loc_key: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">str</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Finds the first downstream code location in the export pipeline that is of format ‘module’.</p>
-<p><strong>Arguments:</strong> - <code>config</code> (<em>NBLiteConfig</em>): The configuration object containing the export pipeline and code locations. - <code>starting_code_loc_key</code> (<em>str</em>): The key of the starting code location.</p>
-<p><strong>Returns:</strong> <em>str</em>: The key of the first downstream code location with format ‘module’, or None if not found.</p>
-<hr>
-<div id="cell-19" class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>config <span class="op">=</span> read_config(<span class="st">'../../test_proj/nblite.toml'</span>)</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>get_downstream_module(config, <span class="st">'nbs'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-17" class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>config <span class="op">=</span> read_config(<span class="st">'../../test_proj/nblite.toml'</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>get_downstream_module(config, <span class="st">'nbs'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <pre><code>'lib'</code></pre>
 </div>

@@ -251,7 +251,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#is_nb_unclean" id="toc-is_nb_unclean" class="nav-link" data-scroll-target="#is_nb_unclean">is_nb_unclean</a></li>
   <li><a href="#get_unclean_nbs" id="toc-get_unclean_nbs" class="nav-link" data-scroll-target="#get_unclean_nbs">get_unclean_nbs</a></li>
   <li><a href="#get_relative_path" id="toc-get_relative_path" class="nav-link" data-scroll-target="#get_relative_path">get_relative_path</a></li>
-  <li><a href="#root_path_and_config_helper" id="toc-root_path_and_config_helper" class="nav-link" data-scroll-target="#root_path_and_config_helper">_root_path_and_config_helper</a></li>
+  <li><a href="#is_ignorable_path" id="toc-is_ignorable_path" class="nav-link" data-scroll-target="#is_ignorable_path">is_ignorable_path</a></li>
   </ul>
 </nav>
     </div>
@@ -331,8 +331,9 @@ False</code></pre>
 <div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>get_code_location_nbs(</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>   root_path: <span class="bu">str</span>,</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>   cl: CodeLocation,</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>   ignore_underscores: <span class="bu">bool</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>   ignore_underscores: <span class="bu">bool</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>   ignore_periods: <span class="bu">bool</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Returns all notebooks in a code location. If ignore_underscores is True,</p>
 <p>notebooks with underscores in their names, or notebooks in folders that start with underscores, are ignored.</p>
 <hr>
@@ -409,12 +410,10 @@ False</code></pre>
 </div>
 </div>
 </section>
-<section id="root_path_and_config_helper" class="level2">
-<h2 class="anchored" data-anchor-id="root_path_and_config_helper">_root_path_and_config_helper</h2>
-<div class="sourceCode" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>_root_path_and_config_helper(</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>   root_path: Union[<span class="bu">str</span>,<span class="va">None</span>],</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>   config_path: Union[<span class="bu">str</span>,<span class="va">None</span>]</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">tuple</span>[Path,<span class="bu">dict</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="is_ignorable_path" class="level2">
+<h2 class="anchored" data-anchor-id="is_ignorable_path">is_ignorable_path</h2>
+<div class="sourceCode" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>is_ignorable_path(path: <span class="bu">str</span>, cl_path: <span class="bu">str</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Returns True if any part of the path, relative to the code location path, starts with an underscore or period.</p>
 <hr>
 
 

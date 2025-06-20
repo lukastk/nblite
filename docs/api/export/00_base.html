@@ -251,12 +251,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#clean_ipynb" id="toc-clean_ipynb" class="nav-link" data-scroll-target="#clean_ipynb">clean_ipynb</a></li>
   <li><a href="#get_nb_source_and_output_hash" id="toc-get_nb_source_and_output_hash" class="nav-link" data-scroll-target="#get_nb_source_and_output_hash">get_nb_source_and_output_hash</a></li>
   <li><a href="#fill_ipynb" id="toc-fill_ipynb" class="nav-link" data-scroll-target="#fill_ipynb">fill_ipynb</a></li>
-  <li><a href="#remove_directive_lines" id="toc-remove_directive_lines" class="nav-link" data-scroll-target="#remove_directive_lines">remove_directive_lines</a></li>
   <li><a href="#get_cell_with_directives" id="toc-get_cell_with_directives" class="nav-link" data-scroll-target="#get_cell_with_directives">get_cell_with_directives</a></li>
   <li><a href="#get_nb_directives" id="toc-get_nb_directives" class="nav-link" data-scroll-target="#get_nb_directives">get_nb_directives</a></li>
   <li><a href="#lookup_directive" id="toc-lookup_directive" class="nav-link" data-scroll-target="#lookup_directive">lookup_directive</a></li>
+  <li><a href="#generate_md_file" id="toc-generate_md_file" class="nav-link" data-scroll-target="#generate_md_file">generate_md_file</a></li>
   <li><a href="#generate_readme" id="toc-generate_readme" class="nav-link" data-scroll-target="#generate_readme">generate_readme</a></li>
-  <li><a href="#nbdev_nb_export" id="toc-nbdev_nb_export" class="nav-link" data-scroll-target="#nbdev_nb_export">_nbdev_nb_export</a></li>
   <li><a href="#export_to_lib" id="toc-export_to_lib" class="nav-link" data-scroll-target="#export_to_lib">export_to_lib</a></li>
   <li><a href="#clear_code_location" id="toc-clear_code_location" class="nav-link" data-scroll-target="#clear_code_location">clear_code_location</a></li>
   <li><a href="#clear_downstream_code_locations" id="toc-clear_downstream_code_locations" class="nav-link" data-scroll-target="#clear_downstream_code_locations">clear_downstream_code_locations</a></li>
@@ -356,7 +355,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-11" class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>get_nb_module_export_path(root_path <span class="op">/</span> <span class="st">'nbs/submodule/notebook3.ipynb'</span>, root_path <span class="op">/</span> <span class="st">'my_module'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<pre><code>Path('/Users/lukastk/dev-proj/nblite/test_proj/my_module/submodule/notebook3.py')</code></pre>
+<pre><code>Path('/Users/lukastk/dev/2025-03-05_00__nblite/test_proj/my_module/submodule/notebook3.py')</code></pre>
 </div>
 </div>
 </section>
@@ -369,10 +368,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-13" class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>get_nb_twin_paths(root_path <span class="op">/</span> <span class="st">'nbs/folder/notebook4.ipynb'</span>, root_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<pre><code>('/Users/lukastk/dev-proj/nblite/test_proj/lgts/folder/notebook4.lgt.py',
- '/Users/lukastk/dev-proj/nblite/test_proj/my_module/notebook4.py',
- '/Users/lukastk/dev-proj/nblite/test_proj/nbs/folder/notebook4.ipynb',
- '/Users/lukastk/dev-proj/nblite/test_proj/pcts/folder/notebook4.pct.py')</code></pre>
+<pre><code>('/Users/lukastk/dev/2025-03-05_00__nblite/test_proj/lgts/folder/notebook4.lgt.py',
+ '/Users/lukastk/dev/2025-03-05_00__nblite/test_proj/my_module/notebook4.py',
+ '/Users/lukastk/dev/2025-03-05_00__nblite/test_proj/nbs/folder/notebook4.ipynb',
+ '/Users/lukastk/dev/2025-03-05_00__nblite/test_proj/pcts/folder/notebook4.pct.py')</code></pre>
 </div>
 </div>
 </section>
@@ -432,26 +431,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>fill_ipynb(root_path <span class="op">/</span> <span class="st">'nbs'</span> <span class="op">/</span> <span class="st">'notebook1.ipynb'</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="remove_directive_lines" class="level2">
-<h2 class="anchored" data-anchor-id="remove_directive_lines">remove_directive_lines</h2>
-<div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>remove_directive_lines(code)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<hr>
-</section>
 <section id="get_cell_with_directives" class="level2">
 <h2 class="anchored" data-anchor-id="get_cell_with_directives">get_cell_with_directives</h2>
-<div class="sourceCode" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>get_cell_with_directives(cell: <span class="bu">dict</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>get_cell_with_directives(cell: <span class="bu">dict</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Get the cell with the directives from a cell as metadata.</p>
 <hr>
 </section>
 <section id="get_nb_directives" class="level2">
 <h2 class="anchored" data-anchor-id="get_nb_directives">get_nb_directives</h2>
-<div class="sourceCode" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>get_nb_directives(nb_path, nb_format, only_code_cells: <span class="bu">bool</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>get_nb_directives(nb_path, nb_format, only_code_cells: <span class="bu">bool</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Get the directives from a notebook.</p>
 <hr>
-<div id="cell-24" class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>directives <span class="op">=</span> get_nb_directives(root_path <span class="op">/</span> <span class="st">'nbs'</span> <span class="op">/</span> <span class="st">'func_notebook.ipynb'</span>)</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> directive <span class="kw">in</span> directives:</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"#|</span><span class="sc">{</span>directive[<span class="st">'directive'</span>]<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>directive[<span class="st">'args'</span>]<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-23" class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>directives <span class="op">=</span> get_nb_directives(root_path <span class="op">/</span> <span class="st">'nbs'</span> <span class="op">/</span> <span class="st">'func_notebook.ipynb'</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> directive <span class="kw">in</span> directives:</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"#|</span><span class="sc">{</span>directive[<span class="st">'directive'</span>]<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>directive[<span class="st">'args'</span>]<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#|default_exp test_func_nb
 #|export_as_func true
@@ -464,11 +458,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="lookup_directive" class="level2">
 <h2 class="anchored" data-anchor-id="lookup_directive">lookup_directive</h2>
-<div class="sourceCode" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>lookup_directive(nb_directives, directive)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>lookup_directive(nb_directives, directive)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Lookup the latest ocurring directive from the output of <code>get_nb_directives</code>.</p>
 <hr>
-<div id="cell-26" class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>lookup_directive(directives, <span class="st">'set_func_signature'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-25" class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>lookup_directive(directives, <span class="st">'set_func_signature'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <pre><code>{'directive': 'set_func_signature',
  'args': '',
@@ -484,75 +478,92 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
+<section id="generate_md_file" class="level2">
+<h2 class="anchored" data-anchor-id="generate_md_file">generate_md_file</h2>
+<div class="sourceCode" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>generate_md_file(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>   nb_path: Union[<span class="bu">str</span>,<span class="va">None</span>],</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>   out_path: Union[<span class="bu">str</span>,<span class="va">None</span>],</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>   nb_format: Union[<span class="bu">str</span>,<span class="va">None</span>]</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Generate a markdown file from a notebook.</p>
+<p><strong>Arguments:</strong> - <code>root_path</code>: The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.</p>
+<hr>
+<div id="cell-27" class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tempfile</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a temporary file path</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> tempfile.NamedTemporaryFile(delete<span class="op">=</span><span class="va">True</span>, suffix<span class="op">=</span><span class="st">'.md'</span>) <span class="im">as</span> temp_file:</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    generate_md_file(root_path <span class="op">/</span> <span class="st">'nbs'</span> <span class="op">/</span> <span class="st">'notebook1.ipynb'</span>, temp_file.name)</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    md_file_content <span class="op">=</span> Path(temp_file.name).read_text()</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(md_file_content.splitlines()[:<span class="dv">10</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Notebook 1
+
+```python
+#|default_exp notebook1
+```
+
+```python
+#|export
+def foo():
+    print("Hello")</code></pre>
+</div>
+</div>
+</section>
 <section id="generate_readme" class="level2">
 <h2 class="anchored" data-anchor-id="generate_readme">generate_readme</h2>
-<div class="sourceCode" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>generate_readme(root_path: Union[<span class="bu">str</span>,<span class="va">None</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>generate_readme(root_path: Union[<span class="bu">str</span>,<span class="va">None</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Generate a README.md file for the project from the index.ipynb file.</p>
 <p><strong>Arguments:</strong> - <code>root_path</code>: The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.</p>
 <hr>
-<div id="cell-28" class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>generate_readme(root_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-29" class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>generate_readme(root_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section>
-<section id="nbdev_nb_export" class="level2">
-<h2 class="anchored" data-anchor-id="nbdev_nb_export">_nbdev_nb_export</h2>
-<div class="sourceCode" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>_nbdev_nb_export(</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>   nbname: <span class="bu">str</span>,</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>   lib_path: <span class="bu">str</span>,</span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>   procs,</span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>   name: <span class="bu">str</span>,</span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>   debug: <span class="bu">bool</span>,</span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>   source_nb_path: <span class="bu">str</span></span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Copied from <code>nbdev.export.nb_export</code> and modified, adding the extra argument</p>
-<p><code>source_nb_path</code> to use as the source notebook path in <code>mod_maker.dest2nb</code>.</p>
-<p>Source: https://github.com/AnswerDotAI/nbdev/blob/main/nbs/api/04_export.ipynb</p>
-<hr>
 </section>
 <section id="export_to_lib" class="level2">
 <h2 class="anchored" data-anchor-id="export_to_lib">export_to_lib</h2>
-<div class="sourceCode" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>export_to_lib(nb_path, lib_path, nb_format)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>export_to_lib(nb_path, lib_path, nb_format)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <hr>
 <div id="cell-31" class="cell">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>root_path <span class="op">=</span> Path(<span class="st">'../../../test_proj/'</span>)</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>export_to_lib(</span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    root_path <span class="op">/</span> <span class="st">'nbs'</span> <span class="op">/</span> <span class="st">'notebook1.ipynb'</span>,</span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    root_path <span class="op">/</span> <span class="st">'my_module'</span>,</span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>export_to_lib(</span>
-<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>    root_path <span class="op">/</span> <span class="st">'nbs'</span> <span class="op">/</span> <span class="st">'notebook2.ipynb'</span>,</span>
-<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>    root_path <span class="op">/</span> <span class="st">'my_module'</span>,</span>
-<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>root_path <span class="op">=</span> Path(<span class="st">'../../../test_proj/'</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>export_to_lib(</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    root_path <span class="op">/</span> <span class="st">'nbs'</span> <span class="op">/</span> <span class="st">'notebook1.ipynb'</span>,</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    root_path <span class="op">/</span> <span class="st">'my_module'</span>,</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>export_to_lib(</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>    root_path <span class="op">/</span> <span class="st">'nbs'</span> <span class="op">/</span> <span class="st">'notebook2.ipynb'</span>,</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>    root_path <span class="op">/</span> <span class="st">'my_module'</span>,</span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="cell-32" class="cell">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>export_to_lib(</span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>    root_path <span class="op">/</span> <span class="st">'pcts'</span> <span class="op">/</span> <span class="st">'notebook1.pct.py'</span>,</span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    root_path <span class="op">/</span> <span class="st">'my_module'</span>,</span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>export_to_lib(</span>
-<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>    root_path <span class="op">/</span> <span class="st">'pcts'</span> <span class="op">/</span> <span class="st">'notebook2.pct.py'</span>,</span>
-<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>    root_path <span class="op">/</span> <span class="st">'my_module'</span>,</span>
-<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>export_to_lib(</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>    root_path <span class="op">/</span> <span class="st">'pcts'</span> <span class="op">/</span> <span class="st">'notebook1.pct.py'</span>,</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    root_path <span class="op">/</span> <span class="st">'my_module'</span>,</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>export_to_lib(</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>    root_path <span class="op">/</span> <span class="st">'pcts'</span> <span class="op">/</span> <span class="st">'notebook2.pct.py'</span>,</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>    root_path <span class="op">/</span> <span class="st">'my_module'</span>,</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="clear_code_location" class="level2">
 <h2 class="anchored" data-anchor-id="clear_code_location">clear_code_location</h2>
-<div class="sourceCode" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>clear_code_location(cl_key: <span class="bu">str</span>, root_path: Union[<span class="bu">str</span>,<span class="va">None</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>clear_code_location(cl_key: <span class="bu">str</span>, root_path: Union[<span class="bu">str</span>,<span class="va">None</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Clear the code location of a given key.</p>
 <hr>
 <div id="cell-34" class="cell">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>clear_code_location(<span class="st">'pcts'</span>, root_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>clear_code_location(<span class="st">'pcts'</span>, root_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="clear_downstream_code_locations" class="level2">
 <h2 class="anchored" data-anchor-id="clear_downstream_code_locations">clear_downstream_code_locations</h2>
-<div class="sourceCode" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>clear_downstream_code_locations(root_path: Union[<span class="bu">str</span>,<span class="va">None</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>clear_downstream_code_locations(root_path: Union[<span class="bu">str</span>,<span class="va">None</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <hr>
 <div id="cell-36" class="cell">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>clear_downstream_code_locations(root_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>clear_downstream_code_locations(root_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 

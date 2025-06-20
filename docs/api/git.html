@@ -294,9 +294,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> fp <span class="kw">in</span> fps:</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(fp, has_unstaged_changes(fp))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>../../test_proj/nbs/notebook1.ipynb False
-../../test_proj/nbs/notebook2.ipynb False
-../../test_proj/nbs/submodule/notebook3.ipynb False</code></pre>
+<pre><code>../../test_proj/nbs/notebook1.ipynb True
+../../test_proj/nbs/notebook2.ipynb True
+../../test_proj/nbs/submodule/notebook3.ipynb True</code></pre>
 </div>
 </div>
 </section>
@@ -309,7 +309,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-8" class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>get_git_root()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<pre><code>'/Users/lukastk/dev-proj/nblite'</code></pre>
+<pre><code>'/Users/lukastk/dev/2025-03-05_00__nblite'</code></pre>
 </div>
 </div>
 </section>
@@ -339,11 +339,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-12" class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>list_unstaged_and_untracked_files()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<pre><code>['nbs/api/docs/cell_docs.ipynb',
- 'nbs/api/export/01_export_as_func.ipynb',
+<pre><code>['nbs/api/const.ipynb',
+ 'nbs/api/docs/cell_docs.ipynb',
+ 'nbs/api/docs/render.ipynb',
+ 'nbs/api/export/00_base.ipynb',
  'nbs/api/export/02_nb_export.ipynb',
  'nbs/api/git.ipynb',
- 'pts/api/docs/cell_docs.pct.py',
+ 'nbs/api/utils.ipynb',
+ 'pts/api/docs/render.pct.py',
+ 'publish_new_version.sh',
+ 'test_proj/nbs/_notebook6.ipynb',
+ 'test_proj/nbs/_scratch/notebook5.ipynb',
+ 'test_proj/nbs/folder/notebook4.ipynb',
+ 'test_proj/nbs/folder/subfolder/notebook7.ipynb',
+ 'test_proj/nbs/notebook1.ipynb',
+ 'test_proj/nbs/notebook2.ipynb',
+ 'test_proj/nbs/submodule/notebook3.ipynb',
  'uv.lock',
  'CLAUDE.md',
  '_scratch/']</code></pre>

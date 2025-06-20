@@ -246,7 +246,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#helper-functions" id="toc-helper-functions" class="nav-link active" data-scroll-target="#helper-functions">Helper functions</a>
   <ul class="collapse">
-  <li><a href="#parse_docstring" id="toc-parse_docstring" class="nav-link" data-scroll-target="#parse_docstring">parse_docstring</a></li>
   <li><a href="#derive_cli_meta" id="toc-derive_cli_meta" class="nav-link" data-scroll-target="#derive_cli_meta">derive_cli_meta</a></li>
   </ul></li>
   <li><a href="#define-clis" id="toc-define-clis" class="nav-link" data-scroll-target="#define-clis">Define CLIs</a>
@@ -255,6 +254,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#main" id="toc-main" class="nav-link" data-scroll-target="#main">main</a></li>
   <li><a href="#nbl-export" id="toc-nbl-export" class="nav-link" data-scroll-target="#nbl-export"><code>nbl export</code></a></li>
   <li><a href="#cli_export" id="toc-cli_export" class="nav-link" data-scroll-target="#cli_export">cli_export</a></li>
+  <li><a href="#nbl-to-md" id="toc-nbl-to-md" class="nav-link" data-scroll-target="#nbl-to-md"><code>nbl to-md</code></a></li>
+  <li><a href="#cli_to_md" id="toc-cli_to_md" class="nav-link" data-scroll-target="#cli_to_md">cli_to_md</a></li>
   <li><a href="#nbl-readme" id="toc-nbl-readme" class="nav-link" data-scroll-target="#nbl-readme"><code>nbl readme</code></a></li>
   <li><a href="#cli_readme" id="toc-cli_readme" class="nav-link" data-scroll-target="#cli_readme">cli_readme</a></li>
   <li><a href="#nbl-convert" id="toc-nbl-convert" class="nav-link" data-scroll-target="#nbl-convert"><code>nbl convert</code></a></li>
@@ -314,17 +315,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="helper-functions" class="level1">
 <h1>Helper functions</h1>
-<section id="parse_docstring" class="level2">
-<h2 class="anchored" data-anchor-id="parse_docstring">parse_docstring</h2>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>parse_docstring(docstring: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">tuple</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Parses a docstring to extract argument descriptions and return value description.</p>
-<p><strong>Arguments:</strong> - <code>docstring</code>: The docstring to parse.</p>
-<p><strong>Returns:</strong>: A tuple containing three elements: 1. The function summary as a string. 2. A dictionary of argument descriptions. 3. The return value description as a string.</p>
-<hr>
-</section>
 <section id="derive_cli_meta" class="level2">
 <h2 class="anchored" data-anchor-id="derive_cli_meta">derive_cli_meta</h2>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>derive_cli_meta(source_func: FunctionType) <span class="op">-&gt;</span> Callable</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>derive_cli_meta(source_func: FunctionType) <span class="op">-&gt;</span> Callable</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>A decorator factory that transfers docstring and argument annotations from a source functio and turns</p>
 <p>them into a typer annotations for the target function.</p>
 <p><strong>Arguments:</strong> - <code>source_func</code>: The function from which to derive the docstring and argument annotations.</p>
@@ -335,12 +328,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>Define CLIs</h1>
 <section id="entrypoint" class="level2">
 <h2 class="anchored" data-anchor-id="entrypoint">entrypoint</h2>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>entrypoint(ctx: typer.Context, version: <span class="bu">bool</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>entrypoint(ctx: typer.Context, version: <span class="bu">bool</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <hr>
 </section>
 <section id="main" class="level2">
 <h2 class="anchored" data-anchor-id="main">main</h2>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>main()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>main()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <hr>
 </section>
 <section id="nbl-export" class="level2">
@@ -348,14 +341,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="cli_export" class="level2">
 <h2 class="anchored" data-anchor-id="cli_export">cli_export</h2>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>cli_export(</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>   root_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="bu">help</span><span class="op">=</span><span class="st">"Path to the root folder of the nblite project."</span>)],</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>   config_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="bu">help</span><span class="op">=</span><span class="st">"Path to the nblite.toml config file. Will be used instead of the config file in the root folder if provided."</span>)],</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>   export_pipeline: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="bu">help</span><span class="op">=</span><span class="st">" The export pipeline to use. E.g. 'nbs-&gt;pts,pts-&gt;lib'."</span>)],</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>   nb_paths: Annotated[Union[List[<span class="bu">str</span>],<span class="va">None</span>], Option(<span class="bu">help</span><span class="op">=</span><span class="st">"If provided, only the notebooks specified in the paths will be exported."</span>)]</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>cli_export(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>   root_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="bu">help</span><span class="op">=</span><span class="st">"Path to the root folder of the nblite project."</span>)],</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>   config_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="bu">help</span><span class="op">=</span><span class="st">"Path to the nblite.toml config file. Will be used instead of the config file in the root folder if provided."</span>)],</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>   export_pipeline: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="bu">help</span><span class="op">=</span><span class="st">" The export pipeline to use. E.g. 'nbs-&gt;pts,pts-&gt;lib'."</span>)],</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>   nb_paths: Annotated[Union[List[<span class="bu">str</span>],<span class="va">None</span>], Option(<span class="bu">help</span><span class="op">=</span><span class="st">"If provided, only the notebooks specified in the paths will be exported."</span>)]</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Export notebooks in an nblite project, as specified in the nblite.toml config file.</p>
 <p>If the <code>root_path</code> is not provided, nblite will search for a nblite.toml file in the current directory and all parent directories, and use the directory containing the nblite.toml file as the root folder.</p>
+<hr>
+</section>
+<section id="nbl-to-md" class="level2">
+<h2 class="anchored" data-anchor-id="nbl-to-md"><code>nbl to-md</code></h2>
+</section>
+<section id="cli_to_md" class="level2">
+<h2 class="anchored" data-anchor-id="cli_to_md">cli_to_md</h2>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>cli_to_md(nb_path, out_path, nb_format)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <hr>
 </section>
 <section id="nbl-readme" class="level2">
@@ -412,8 +413,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>   remove_cell_metadata: Annotated[<span class="bu">bool</span>, Option(<span class="bu">help</span><span class="op">=</span><span class="st">"Remove the metadata from the notebook."</span>)],</span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>   remove_top_metadata: Annotated[<span class="bu">bool</span>, Option(<span class="bu">help</span><span class="op">=</span><span class="st">"Remove the top-level metadata from the notebook."</span>)],</span>
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>   root_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="st">"-r"</span>, <span class="st">"--root"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file."</span>)],</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>   ignore_underscores: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-i"</span>, <span class="st">"--ignore-underscores"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Ignore notebooks that begin with an underscore in their filenames or in their parent folders."</span>)]</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>   include_underscores: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-i"</span>, <span class="st">"--include-underscores"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Include notebooks that begin with an underscore in their filenames or in their parent folders."</span>)],</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>   include_periods: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-p"</span>, <span class="st">"--include-periods"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Include notebooks that begin with a period in their filenames or in their parent folders."</span>)]</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Clean notebooks in an nblite project by removing outputs and metadata.</p>
 <p>If <code>nb_path</code> is not provided, all notebooks in the project will be cleaned.</p>
 <hr>
@@ -429,12 +431,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>   remove_cell_metadata: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-m"</span>, <span class="st">"--remove-metadata"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Remove the metadata from notebook cells."</span>)],</span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>   root_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="st">"-r"</span>, <span class="st">"--root"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file."</span>)],</span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>   cell_exec_timeout: Annotated[Union[<span class="bu">int</span>,<span class="va">None</span>], Option(<span class="st">"-t"</span>, <span class="st">"--timeout"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The timeout for the cell execution."</span>)],</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>   ignore_underscores: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-i"</span>, <span class="st">"--ignore-underscores"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Ignore notebooks that begin with an underscore in their filenames or in their parent folders."</span>)],</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>   dry_run: Annotated[<span class="bu">bool</span>, Option(<span class="bu">help</span><span class="op">=</span><span class="st">"Dry run the command."</span>)],</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>   n_workers: Annotated[<span class="bu">int</span>, Option(<span class="st">"-n"</span>, <span class="st">"--n-workers"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The number of workers to use."</span>)],</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>   allow_export_during: Annotated[<span class="bu">bool</span>, Option(<span class="st">"--allow-export-during"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Allow export during the command."</span>)],</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>   fill_unchanged: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-f"</span>, <span class="st">"--fill-unchanged"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Fill the notebook even if the source has not changed."</span>)]</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>   include_underscores: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-i"</span>, <span class="st">"--include-underscores"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Include notebooks that begin with an underscore in their filenames or in their parent folders."</span>)],</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>   include_periods: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-p"</span>, <span class="st">"--include-periods"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Include notebooks that begin with a period in their filenames or in their parent folders."</span>)],</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>   dry_run: Annotated[<span class="bu">bool</span>, Option(<span class="bu">help</span><span class="op">=</span><span class="st">"Dry run the command."</span>)],</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>   n_workers: Annotated[<span class="bu">int</span>, Option(<span class="st">"-n"</span>, <span class="st">"--n-workers"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The number of workers to use."</span>)],</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>   allow_export_during: Annotated[<span class="bu">bool</span>, Option(<span class="st">"--allow-export-during"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Allow export during the command."</span>)],</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>   fill_unchanged: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-f"</span>, <span class="st">"--fill-unchanged"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Fill the notebook even if the source has not changed."</span>)]</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Clean notebooks in an nblite project by removing outputs and metadata.</p>
 <p>If <code>nb_path</code> is not provided, all notebooks in the project will be cleaned.</p>
 <hr>
@@ -448,8 +451,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>   nb_paths: Annotated[Union[List[<span class="bu">str</span>], <span class="va">None</span>], Argument(<span class="bu">help</span><span class="op">=</span><span class="st">"Specify the jupyter notebooks to fill. If omitted, all ipynb files in the project's code locations will be filled."</span>)],</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>   root_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="st">"-r"</span>, <span class="st">"--root"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file."</span>)],</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>   cell_exec_timeout: Annotated[Union[<span class="bu">int</span>,<span class="va">None</span>], Option(<span class="st">"-t"</span>, <span class="st">"--timeout"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The timeout for the cell execution."</span>)],</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>   ignore_underscores: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-i"</span>, <span class="st">"--ignore-underscores"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Ignore notebooks that begin with an underscore in their filenames or in their parent folders."</span>)]</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>   include_underscores: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-i"</span>, <span class="st">"--include-underscores"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Include notebooks that begin with an underscore in their filenames or in their parent folders."</span>)],</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>   include_periods: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-p"</span>, <span class="st">"--include-periods"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Include notebooks that begin with a period in their filenames or in their parent folders."</span>)]</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Alias for <code>nbl fill --dry-run</code>. Used to test that all cells in the notebooks can be executed without errors.</p>
 <hr>
 </section>
@@ -483,7 +487,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="cli_git_add" class="level2">
 <h2 class="anchored" data-anchor-id="cli_git_add">cli_git_add</h2>
 <div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>cli_git_add(</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>   file_paths: Annotated[List[<span class="bu">str</span>], Argument(<span class="bu">help</span><span class="op">=</span><span class="st">"The file paths to add to the staging area."</span>)],</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>   file_paths: Annotated[List[<span class="bu">str</span>], Argument(<span class="bu">help</span><span class="op">=</span><span class="st">"The file paths to add to the staging area."</span>, autocompletion<span class="op">=</span>_get_nbs)],</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>   extra_args: Annotated[List[<span class="bu">str</span>], Option(<span class="st">"--"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Extra arguments to pass to git add."</span>)]</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Like <code>git add</code>, but also runs <code>nbl export</code>, cleans any notebooks that are passed, and stages their twins.</p>
@@ -509,12 +513,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>cli_prepare(</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>   root_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="st">"-r"</span>, <span class="st">"--root"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file."</span>)],</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>   cell_exec_timeout: Annotated[Union[<span class="bu">int</span>,<span class="va">None</span>], Option(<span class="st">"-t"</span>, <span class="st">"--timeout"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The timeout for the cell execution."</span>)],</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>   ignore_underscores: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-i"</span>, <span class="st">"--ignore-underscores"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Ignore notebooks that begin with an underscore in their filenames or in their parent folders."</span>)],</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>   dry_run: Annotated[<span class="bu">bool</span>, Option(<span class="bu">help</span><span class="op">=</span><span class="st">"Dry run the command."</span>)],</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>   n_workers: Annotated[<span class="bu">int</span>, Option(<span class="st">"-n"</span>, <span class="st">"--n-workers"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The number of workers to use."</span>)],</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>   allow_export_during: Annotated[<span class="bu">bool</span>, Option(<span class="st">"--allow-export-during"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Allow export during the command."</span>)],</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>   fill_unchanged: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-f"</span>, <span class="st">"--fill-unchanged"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Fill the notebook even if the source has not changed."</span>)]</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>   include_underscores: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-i"</span>, <span class="st">"--include-underscores"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Include notebooks that begin with an underscore in their filenames or in their parent folders."</span>)],</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>   include_periods: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-p"</span>, <span class="st">"--include-periods"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Include notebooks that begin with a period in their filenames or in their parent folders."</span>)],</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>   dry_run: Annotated[<span class="bu">bool</span>, Option(<span class="bu">help</span><span class="op">=</span><span class="st">"Dry run the command."</span>)],</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>   n_workers: Annotated[<span class="bu">int</span>, Option(<span class="st">"-n"</span>, <span class="st">"--n-workers"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The number of workers to use."</span>)],</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>   allow_export_during: Annotated[<span class="bu">bool</span>, Option(<span class="st">"--allow-export-during"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Allow export during the command."</span>)],</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>   fill_unchanged: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-f"</span>, <span class="st">"--fill-unchanged"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Fill the notebook even if the source has not changed."</span>)]</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Export, clean, and fill the notebooks in the project.</p>
 <hr>
 </section>

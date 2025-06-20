@@ -60,6 +60,7 @@ def extract_top_level_definitions(code_str: str) -> list:
 
 
 # %%
+#|hide
 code_str = """
 def foo(a: int, b: Union[str, None], c, *args, **kwargs) -> str:
     '''
@@ -161,10 +162,12 @@ def extract_function_meta(code_str):
 
 
 # %%
+#|hide
 func_str = extract_top_level_definitions(code_str)[0]['code']
 extract_function_meta(func_str)
 
 # %%
+#|hide
 func_str = extract_top_level_definitions(code_str)[2]['code']
 extract_function_meta(func_str)
 
@@ -235,6 +238,7 @@ def extract_function_meta_from_obj(func):
 
 
 # %%
+#|hide
 def foo(a, b, c:str, *args, **kwargs) -> str:
     pass
 
@@ -272,6 +276,7 @@ def extract_class_meta(code_str):
 
 
 # %%
+#|hide
 class_str = extract_top_level_definitions(code_str)[3]['code']
 extract_class_meta(class_str)
 
@@ -302,6 +307,7 @@ def extract_class_meta_from_obj(cls):
 
 
 # %%
+#|hide
 class Foo:
     def __init__(self, a, b, c:str):
         "A docstring"
@@ -399,10 +405,12 @@ def render_function_doc(func, title_level=2):
 
 
 # %%
+#|hide
 function_str = extract_top_level_definitions(code_str)[0]['code']
 Markdown(render_function_doc(extract_function_meta(function_str)))
 
 # %%
+#|hide
 function_str = """
 def foo(argument1: int, argument2: str, argument3, argument4, argument5,*args, **kwargs) -> str:
     pass
@@ -445,6 +453,7 @@ def render_class_doc(cls, title_level=2):
 
 
 # %%
+#|hide
 class_str = extract_top_level_definitions(code_str)[3]['code']
 print(render_class_doc(extract_class_meta(class_str)))
 

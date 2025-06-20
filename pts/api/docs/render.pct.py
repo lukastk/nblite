@@ -124,6 +124,7 @@ def build_sidebar_section(parent_path: Path) -> dict:
 
 
 # %%
+#|hide
 build_sidebar_section(root_path / 'nbs')
 
 
@@ -139,6 +140,7 @@ def generate_quarto_yml(docs_nbs_path: Path, src_path: Path, config: NBLiteConfi
 
 
 # %%
+#|hide
 with TemporaryDirectory() as tmp_dir:
     tmp_dir = Path(tmp_dir)
     convert_to_ipynb_and_copy_to_folder(tmp_dir, root_path, config.code_locations['nbs'])
@@ -192,24 +194,6 @@ def render_docs(output_folder:Union[str,None], docs_cl:Union[str,None] = None, r
         else:
             subprocess.run(['quarto', 'render', '--output-dir', doc_folder_name], cwd=tmp_dir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         shutil.copytree(Path(tmp_dir) / doc_folder_name, output_folder, dirs_exist_ok=True)
-
-
-# %%
-#|export
-def foo():
-    pass
-
-def bar():
-    pass
-
-async def baz():
-    pass
-
-
-# %%
-#|export
-async def baz2():
-    pass
 
 
 # %%

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.21] - 2025-06-20
+
+### 🚀 Features
+
+- *(nblite.docs)* Removed doc rendering of #|exporti cells
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update docs
+- Update version in pyproject.toml
+
 ## [0.5.20] - 2025-06-10
 
 ### 🐛 Bug Fixes

@@ -208,7 +208,7 @@ def get_unclean_nbs(root_path: str = None, ignore_underscores: bool = False):
 
 
 # %%
-get_unclean_nbs('../../test_proj')
+unclean_nbs = get_unclean_nbs('../../test_proj')
 
 # %%
 #|hide

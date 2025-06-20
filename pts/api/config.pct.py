@@ -258,7 +258,7 @@ def _find_config_file(curr_folder: Path) -> str:
 
 
 # %%
-_find_config_file(Path('../../test_proj'))
+_find_config_file(Path('../../test_proj')).name
 
 # %%
 #|hide
@@ -293,7 +293,7 @@ def get_project_root_and_config(curr_folder:Union[Path, None] = None) -> Path:
 
 # %%
 root_path, config = get_project_root_and_config('../../test_proj')
-print(root_path)
+Path(root_path).name
 
 # %%
 #|hide

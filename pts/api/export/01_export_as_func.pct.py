@@ -42,7 +42,6 @@ def get_nb_as_py_file(nb_path: str, lib_name: str, nb_format=None):
 # %%
 root_path = Path('../../../test_proj/')
 py_content = get_nb_as_py_file(root_path / 'nbs' / 'func_notebook.ipynb', 'my_module')
-print(py_content)
 
 # %%
 show_doc(get_top_exports)

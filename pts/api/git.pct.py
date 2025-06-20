@@ -48,10 +48,9 @@ def has_unstaged_changes(file_path):
 fps = [
     '../../test_proj/nbs/notebook1.ipynb',
     '../../test_proj/nbs/notebook2.ipynb',
-    '../../test_proj/nbs/submodule/notebook3.ipynb',
+    '../../test_proj/nbs/submodule/notebook3.ipyÂnb',
 ]
-for fp in fps:
-    print(fp, has_unstaged_changes(fp))
+unstaged_files = [fp for fp in fps if has_unstaged_changes(fp)]
 
 # %%
 #|hide
@@ -72,7 +71,7 @@ def get_git_root():
 
 
 # %%
-get_git_root()
+git_root_path = get_git_root()
 
 # %%
 #|hide
@@ -114,7 +113,7 @@ def list_unstaged_and_untracked_files():
 
 
 # %%
-list_unstaged_and_untracked_files()
+unstaged_and_untracked_files = list_unstaged_and_untracked_files()
 
 # %%
 #|hide
@@ -146,8 +145,8 @@ fps = [
     '../../test_proj/nbs/notebook2.ipynb',
     '../../test_proj/nbs/submodule/notebook3.ipynb',
 ]
-for fp in fps:
-    print(fp, is_file_staged(fp))
+
+staged_files = [fp for fp in fps if is_file_staged(fp)]
 
 # %%
 #|hide
@@ -191,4 +190,4 @@ def get_unstaged_nb_twins(root_path: str = None):
 
 
 # %%
-get_unstaged_nb_twins('../../test_proj')
+unstaged_twins = get_unstaged_nb_twins('../../test_proj')

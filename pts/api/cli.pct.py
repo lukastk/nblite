@@ -327,8 +327,8 @@ def cli_clean(
     remove_cell_metadata: Annotated[bool, Option(help="Remove the metadata from the notebook.")]=True,
     remove_top_metadata: Annotated[bool, Option(help="Remove the top-level metadata from the notebook.")]=False,
     root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None,
-    include_underscores: Annotated[bool, Option("-i", "--include-underscores", help="Include notebooks that begin with an underscore in their filenames or in their parent folders.")] = False,
-    include_periods: Annotated[bool, Option("-p", "--include-periods", help="Include notebooks that begin with a period in their filenames or in their parent folders.")] = False,
+    include_underscores: Annotated[bool, Option("-i", "--include-underscores", help="Include notebooks that begin with an underscore in their filenames or in their parent folders.")] = True,
+    include_periods: Annotated[bool, Option("-p", "--include-periods", help="Include notebooks that begin with a period in their filenames or in their parent folders.")] = True,
 ):
     """
     Clean notebooks in an nblite project by removing outputs and metadata.

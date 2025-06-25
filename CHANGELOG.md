@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.23] - 2025-06-25
+
+### 🐛 Bug Fixes
+
+- Nbl clean was set to ignore underscored notebooks
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update docs
+- Update version in pyproject.toml
+
 ## [0.5.22] - 2025-06-20
 
 ### 🐛 Bug Fixes

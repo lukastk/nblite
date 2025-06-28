@@ -83,7 +83,10 @@ show_doc(this_module.export_to_lib_as_func)
 def export_to_lib_as_func(nb_path: str, lib_path: str, nb_format: str = None):
     # Get the function signature from the notebook    
     directive = lookup_directive(get_nb_directives(nb_path, nb_format), 'set_func_signature')
-    func_sig = directive['cell']['source_without_directives'].strip()    
+    if directive is None:
+        func_sig = "def main(): ..."
+    else:
+        func_sig = directive['cell']['source_without_directives'].strip()     
     if func_sig.endswith('...'): func_sig = func_sig[:-3]
     elif func_sig.endswith('pass'): func_sig = func_sig[:-4]
     else: raise Exception('Invalid function signature')

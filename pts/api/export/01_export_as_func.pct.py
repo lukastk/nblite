@@ -34,6 +34,8 @@ def get_nb_as_py_file(nb_path: str, lib_name: str, nb_format=None):
         temp_lib_path.mkdir(parents=True, exist_ok=True)
         export_to_lib(nb_path, temp_lib_path, nb_format)
         py_file_path = get_nb_module_export_path(nb_path, temp_lib_path)
+        if py_file_path is None:
+            raise Exception(f"Failed to get exported Python module path for notebook {nb_path}. Check if the notebook has any #|export directives.")
         py_file_content = Path(py_file_path).read_text()
         return py_file_content
     raise Exception('Failed to get the content of the notebook as a python file')

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2025-06-28
+
+### 🚀 Features
+
+- *(cli)* Breaking change. Now ignores files and folders beginning with dunders, as opposed to underscores.
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update docs
+- Update version in pyproject.toml
+
 ## [0.5.23] - 2025-06-25
 
 ### 🐛 Bug Fixes

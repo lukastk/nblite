@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.1] - 2025-06-28
+
+### 🚀 Features
+
+- Can now skip 'set_func_signature' in func notebooks. Defaults to 'main()'.
+
+### 🐛 Bug Fixes
+
+- Added warning when trying to export a notebook func without any export directives.
+
+### 🧪 Testing
+
+- Added test notebook for d5ece3534af8a8ccbcc409b86813e00147737339
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update docs
+- Update version in pyproject.toml
+
 ## [0.6.0] - 2025-06-28
 
 ### 🚀 Features

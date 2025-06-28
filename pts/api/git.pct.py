@@ -172,7 +172,7 @@ def get_unstaged_nb_twins(root_path: str = None):
     # Find all twins for which at least one is staged
     staged_twin_nbs = set()
     for cl in config.code_locations.values():
-        cl_nbs = get_code_location_nbs(root_path, cl, ignore_underscores=True)
+        cl_nbs = get_code_location_nbs(root_path, cl, ignore_dunders=True)
         for nb_path in cl_nbs:
             if is_file_staged(nb_path):
                 staged_twin_nbs.add(get_nb_twin_paths(nb_path, root_path))

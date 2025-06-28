@@ -79,8 +79,8 @@ def export(root_path:Union[str,None] = None, config_path:Union[str,None] = None,
         to_conf = config.code_locations[rule.to_key]
         from_file_ext = from_conf.file_ext
         
-        ignore_underscores = to_conf.format == 'module' # Don't export underscored nbs to module code locations
-        from_nb_paths = get_code_location_nbs(root_path, from_conf, ignore_underscores=ignore_underscores)
+        ignore_dunders = to_conf.format == 'module' # Don't export dundered nbs to module code locations
+        from_nb_paths = get_code_location_nbs(root_path, from_conf, ignore_dunders=ignore_dunders)
         
         if to_conf.format == 'module':            
             for fp in from_nb_paths:

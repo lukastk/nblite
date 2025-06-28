@@ -327,8 +327,8 @@ def cli_clean(
     remove_cell_metadata: Annotated[bool, Option(help="Remove the metadata from the notebook.")]=True,
     remove_top_metadata: Annotated[bool, Option(help="Remove the top-level metadata from the notebook.")]=False,
     root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None,
-    include_underscores: Annotated[bool, Option("-i", "--include-underscores", help="Include notebooks that begin with an underscore in their filenames or in their parent folders.")] = True,
-    include_periods: Annotated[bool, Option("-p", "--include-periods", help="Include notebooks that begin with a period in their filenames or in their parent folders.")] = True,
+    exclude_dunders: Annotated[bool, Option("--exclude-dunders", help="Exclude notebooks with that begin with a dunder (double underscore '__') in their filenames or in any of their parent folders. ")] = False,
+    exclude_periods: Annotated[bool, Option("--exclude-periods", help="Exclude notebooks with that begin with a period in their filenames or in their parent folders.")] = False,
 ):
     """
     Clean notebooks in an nblite project by removing outputs and metadata.
@@ -346,7 +346,7 @@ def cli_clean(
         nb_paths = []
         for cl in config.code_locations.values():
             if cl.format != 'ipynb': continue
-            nb_paths.extend(get_code_location_nbs(root_path, cl, ignore_underscores=not include_underscores, ignore_periods=not include_periods))
+            nb_paths.extend(get_code_location_nbs(root_path, cl, ignore_dunders=exclude_dunders, ignore_periods=exclude_periods))
 
     for nb_path in nb_paths:
         clean_ipynb(nb_path=nb_path, remove_outputs=remove_outputs, remove_cell_metadata=remove_cell_metadata, remove_top_metadata=remove_top_metadata)
@@ -364,7 +364,7 @@ def cli_fill(
     remove_cell_metadata: Annotated[bool, Option("-m", "--remove-metadata", help="Remove the metadata from notebook cells.")]=True,
     root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None,
     cell_exec_timeout: Annotated[Union[int,None], Option("-t", "--timeout", help="The timeout for the cell execution.")] = None,
-    include_underscores: Annotated[bool, Option("-i", "--include-underscores", help="Include notebooks that begin with an underscore in their filenames or in their parent folders.")] = False,
+    include_dunders: Annotated[bool, Option("-i", "--include-dunders", help="Include notebooks with that begin with a dunder (double underscore '__') in their filenames or in any of their parent folders. ")] = False,
     include_periods: Annotated[bool, Option("-p", "--include-periods", help="Include notebooks that begin with a period in their filenames or in their parent folders.")] = False,
     dry_run: Annotated[bool, Option(help="Dry run the command.")] = False,
     n_workers: Annotated[int, Option("-n", "--n-workers", help="The number of workers to use.")] = 4,
@@ -391,7 +391,7 @@ def cli_fill(
         nb_paths = []
         for cl in config.code_locations.values():
             if cl.format != 'ipynb': continue
-            nb_paths.extend(get_code_location_nbs(root_path, cl, ignore_underscores=not include_underscores, ignore_periods=not include_periods))
+            nb_paths.extend(get_code_location_nbs(root_path, cl, ignore_dunders=not include_dunders, ignore_periods=not include_periods))
     nb_paths = [Path(p).resolve() for p in nb_paths]
     nb_paths.sort()
         
@@ -458,13 +458,13 @@ def cli_test(
     nb_paths: Annotated[Union[List[str], None], Argument(help="Specify the jupyter notebooks to fill. If omitted, all ipynb files in the project's code locations will be filled.")] = None,
     root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None,
     cell_exec_timeout: Annotated[Union[int,None], Option("-t", "--timeout", help="The timeout for the cell execution.")] = None,
-    include_underscores: Annotated[bool, Option("-i", "--include-underscores", help="Include notebooks that begin with an underscore in their filenames or in their parent folders.")] = False,
+    include_dunders: Annotated[bool, Option("-i", "--include-dunders", help="Include notebooks with that begin with a dunder (double underscore '__') in their filenames or in any of their parent folders. ")] = False,
     include_periods: Annotated[bool, Option("-p", "--include-periods", help="Include notebooks that begin with a period in their filenames or in their parent folders.")] = False,
 ):
     """
     Alias for `nbl fill --dry-run`. Used to test that all cells in the notebooks can be executed without errors.
     """
-    cli_fill(nb_paths=nb_paths, root_path=root_path, dry_run=True, cell_exec_timeout=cell_exec_timeout, include_underscores=include_underscores, include_periods=include_periods)
+    cli_fill(nb_paths=nb_paths, root_path=root_path, dry_run=True, cell_exec_timeout=cell_exec_timeout, include_dunders=include_dunders, include_periods=include_periods)
 
 
 # %% [markdown]
@@ -493,7 +493,7 @@ def cli_validate_staging(
     unclean_nbs = []
     for cl in config.code_locations.values():
         if cl.format != 'ipynb': continue
-        cl_nbs = get_code_location_nbs(root_path, cl, ignore_underscores=False)
+        cl_nbs = get_code_location_nbs(root_path, cl, ignore_dunders=False)
         for nb_path in cl_nbs:
             if not is_file_staged(nb_path): continue
             with tempfile.NamedTemporaryFile(suffix='.ipynb') as tmp_file:
@@ -640,7 +640,7 @@ def cli_clear_downstream(
 def cli_prepare(
     root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None,
     cell_exec_timeout: Annotated[Union[int,None], Option("-t", "--timeout", help="The timeout for the cell execution.")] = None,
-    include_underscores: Annotated[bool, Option("-i", "--include-underscores", help="Include notebooks that begin with an underscore in their filenames or in their parent folders.")] = False,
+    include_dunders: Annotated[bool, Option("-i", "--include-dunders", help="Include notebooks with that begin with a dunder (double underscore '__') in their filenames or in any of their parent folders. ")] = False,
     include_periods: Annotated[bool, Option("-p", "--include-periods", help="Include notebooks that begin with a period in their filenames or in their parent folders.")] = False,
     dry_run: Annotated[bool, Option(help="Dry run the command.")] = False,
     n_workers: Annotated[int, Option("-n", "--n-workers", help="The number of workers to use.")] = 4,
@@ -659,7 +659,7 @@ def cli_prepare(
         root_path=root_path,
         allow_export_during=allow_export_during,
         cell_exec_timeout=cell_exec_timeout,
-        include_underscores=include_underscores,
+        include_dunders=include_dunders,
         include_periods=include_periods,
         dry_run=dry_run,
         n_workers=n_workers,

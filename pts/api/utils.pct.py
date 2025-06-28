@@ -108,9 +108,9 @@ show_doc(this_module.get_code_location_nbs)
 
 # %%
 #|export
-def get_code_location_nbs(root_path: str, cl: CodeLocation, ignore_underscores: bool = True, ignore_periods: bool = True):
-    """Returns all notebooks in a code location. If ignore_underscores is True,
-    notebooks with underscores in their names, or notebooks in folders that start with underscores, are ignored."""
+def get_code_location_nbs(root_path: str, cl: CodeLocation, ignore_dunders: bool = True, ignore_periods: bool = True):
+    """Returns all notebooks in a code location. If ignore_dunders is True,
+    notebooks that being with a dunder (double underscore '__') in their names, or notebooks in folders that start with dunders, are ignored."""
     
     cl_path = Path(root_path) / cl.path
     if not cl_path.exists(): raise ValueError(f"Code location path '{cl_path}' does not exist.")
@@ -120,7 +120,7 @@ def get_code_location_nbs(root_path: str, cl: CodeLocation, ignore_underscores: 
         rel_fp = fp.relative_to(cl_path)
         if fp.is_file() and fp.name.endswith(cl.file_ext):
             if '.ipynb_checkpoints' in rel_fp.parts: continue
-            if ignore_underscores and any(p.startswith('_') for p in rel_fp.parts): continue
+            if ignore_dunders and any(p.startswith('_') for p in rel_fp.parts): continue
             if ignore_periods and any(p.startswith('.') for p in rel_fp.parts): continue
             nbs.append(fp)
     return nbs
@@ -130,7 +130,7 @@ def get_code_location_nbs(root_path: str, cl: CodeLocation, ignore_underscores: 
 get_code_location_nbs('../../test_proj', CodeLocation(path='nbs', format='ipynb'))
 
 # %%
-get_code_location_nbs('../../test_proj', CodeLocation(path='nbs', format='ipynb'), ignore_underscores=False)
+get_code_location_nbs('../../test_proj', CodeLocation(path='nbs', format='ipynb'), ignore_dunders=False)
 
 # %%
 #|hide
@@ -186,7 +186,7 @@ show_doc(this_module.get_unclean_nbs)
 
 # %%
 #|export
-def get_unclean_nbs(root_path: str = None, ignore_underscores: bool = False):
+def get_unclean_nbs(root_path: str = None, ignore_dunders: bool = False):
     """
     Get all notebooks that have metadata or execution count.
     
@@ -202,7 +202,7 @@ def get_unclean_nbs(root_path: str = None, ignore_underscores: bool = False):
     unclean_nbs = []
     for cl in config.code_locations.values():
         if not cl.format == 'ipynb': continue
-        cl_nbs = get_code_location_nbs(root_path, cl, ignore_underscores=ignore_underscores)
+        cl_nbs = get_code_location_nbs(root_path, cl, ignore_dunders=ignore_dunders)
         unclean_nbs.extend([nb_path.relative_to(root_path) for nb_path in cl_nbs if is_nb_unclean(nb_path)])
     return unclean_nbs
 

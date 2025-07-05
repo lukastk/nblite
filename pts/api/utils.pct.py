@@ -120,7 +120,7 @@ def get_code_location_nbs(root_path: str, cl: CodeLocation, ignore_dunders: bool
         rel_fp = fp.relative_to(cl_path)
         if fp.is_file() and fp.name.endswith(cl.file_ext):
             if '.ipynb_checkpoints' in rel_fp.parts: continue
-            if ignore_dunders and any(p.startswith('_') for p in rel_fp.parts): continue
+            if ignore_dunders and any(p.startswith('__') for p in rel_fp.parts): continue
             if ignore_periods and any(p.startswith('.') for p in rel_fp.parts): continue
             nbs.append(fp)
     return nbs
@@ -260,4 +260,4 @@ def is_ignorable_path(path: str, cl_path: str):
     if not cl_path.is_absolute(): raise ValueError(f"Code location path '{cl_path}' must be absolute.")
     
     rel_path = path.relative_to(cl_path)
-    return any(p.startswith('_') or p.startswith('.') for p in rel_path.parts)
+    return any(p.startswith('__') or p.startswith('.') for p in rel_path.parts)

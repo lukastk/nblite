@@ -75,7 +75,7 @@ def convert_to_ipynb_and_copy_to_folder(dest_folder: Path, root_path: Path, cl: 
         if f.parent.name.startswith('.'): continue
         
         rel_path = f.relative_to(nbs_folder)
-        if any(p.startswith('_') for p in rel_path.parts): continue
+        if any(p.startswith('__') for p in rel_path.parts): continue
         
         if f.name.endswith(cl_file_ext):
             if cl.format != "ipynb":
@@ -103,7 +103,7 @@ def __process_subfolder(folder_path: Path, rel_path: Path) -> dict:
     sub_contents = []
     for subfolder_path in folder_path.glob('*'):
         if not subfolder_path.is_dir(): continue
-        if any(p.startswith('_') for p in subfolder_path.relative_to(rel_path).parts): continue
+        if any(p.startswith('__') for p in subfolder_path.relative_to(rel_path).parts): continue
         sub_contents.append(__process_subfolder(subfolder_path, rel_path))
     if len(sub_contents) > 0:
         contents['contents'] = [{'auto': f"{rel_folder_path}/*"}, *sub_contents]
@@ -118,7 +118,7 @@ def build_sidebar_section(parent_path: Path) -> dict:
     contents = [{'auto': f"/*"}]
     for subfolder_path in parent_path.glob('*'):
         if not subfolder_path.is_dir(): continue
-        if any(p.startswith('_') for p in subfolder_path.relative_to(parent_path).parts): continue
+        if any(p.startswith('__') for p in subfolder_path.relative_to(parent_path).parts): continue
         contents.append(__process_subfolder(subfolder_path, parent_path))
     return contents
 

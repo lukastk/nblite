@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.2] - 2025-07-05
+
+### 🐛 Bug Fixes
+
+- *(export.base.clear_code_location)* Was using old def of hidden files
+- Added dunders to hidden files
+- Wrong hiddden file detection
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update docs
+- Update version in pyproject.toml
+
 ## [0.6.1] - 2025-06-28
 
 ### 🚀 Features

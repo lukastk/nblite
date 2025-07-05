@@ -673,7 +673,7 @@ def clear_code_location(cl_key: str, root_path: Union[str,None]=None):
     
     for file in (root_path / cl_path).glob(f'**/*.{file_ext}'):
         if not file.is_file(): continue
-        if cl_format == 'module' and file.name.startswith('_'): continue # Skip hidden files in module code locations
+        if cl_format == 'module' and file.name.startswith('__') or file.name.startswith('.'): continue # Skip hidden files in module code locations
         file.unlink()
         
     # Remove empty folders

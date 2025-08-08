@@ -308,7 +308,7 @@ def get_top_level_code_locations(config: NBLiteConfig) -> List[str]:
     Returns the top level code locations in the export pipeline.
     """
     all_to_keys = set([rule.to_key for rule in config.export_pipeline])
-    return [rule.from_key for rule in config.export_pipeline if rule.from_key not in all_to_keys]
+    return [cl for cl in config.code_locations.keys() if cl not in all_to_keys]
 
 
 # %%

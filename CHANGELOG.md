@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.3] - 2025-08-08
+
+### 🐛 Bug Fixes
+
+- Top-level code locations that did not have a export rule would be deleted in 'nbl clear'
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update docs
+- Update version in pyproject.toml
+
 ## [0.6.2] - 2025-07-05
 
 ### 🐛 Bug Fixes

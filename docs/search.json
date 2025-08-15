@@ -220,7 +220,7 @@
     "href": "api/docs/render.html#render_docs",
     "title": "docs.render",
     "section": "render_docs",
-    "text": "render_docs\nrender_docs(\n   output_folder: Union[str,None],\n   docs_cl: Union[str,None],\n   root_path: Union[str,None],\n   config_path: Union[str,None],\n   verbose: bool\n)\n\n\nrender_docs(root_path / '_docs', root_path=root_path, docs_cl='pcts')\n\n/var/folders/22/k6clk3m10258k07mjcnlswt40000gn/T/ipykernel_29672/1416230047.py:28: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n  _, nb = nbformat.validator.normalize(nb)\n\n\n\nrender_docs(root_path / '_docs', root_path=root_path, docs_cl='nbs')",
+    "text": "render_docs\nrender_docs(\n   output_folder: Union[str,None],\n   docs_cl: Union[str,None],\n   root_path: Union[str,None],\n   config_path: Union[str,None],\n   verbose: bool\n)\n\n\nrender_docs(root_path / '_docs', root_path=root_path, docs_cl='pcts')\n\n/var/folders/22/k6clk3m10258k07mjcnlswt40000gn/T/ipykernel_79580/1416230047.py:28: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n  _, nb = nbformat.validator.normalize(nb)\n\n\n\nrender_docs(root_path / '_docs', root_path=root_path, docs_cl='nbs')",
     "crumbs": [
       "api",
       "docs",
@@ -540,7 +540,7 @@
     "href": "api/cli.html#cli_fill",
     "title": "cli",
     "section": "cli_fill",
-    "text": "cli_fill\ncli_fill(\n   nb_paths: Annotated[Union[List[str], None], Argument(help=\"Specify the jupyter notebooks to fill. If omitted, all ipynb files in the project's code locations will be filled.\")],\n   remove_prev_outputs: Annotated[bool, Option(\"-r\", \"--remove-prev-outputs\", help=\"Remove the pre-existing outputs from the notebooks.\")],\n   remove_cell_metadata: Annotated[bool, Option(\"-m\", \"--remove-metadata\", help=\"Remove the metadata from notebook cells.\")],\n   root_path: Annotated[Union[str,None], Option(\"-r\", \"--root\", help=\"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.\")],\n   cell_exec_timeout: Annotated[Union[int,None], Option(\"-t\", \"--timeout\", help=\"The timeout for the cell execution.\")],\n   include_dunders: Annotated[bool, Option(\"-i\", \"--include-dunders\", help=\"Include notebooks with that begin with a dunder (double underscore '__') in their filenames or in any of their parent folders. \")],\n   include_periods: Annotated[bool, Option(\"-p\", \"--include-periods\", help=\"Include notebooks that begin with a period in their filenames or in their parent folders.\")],\n   dry_run: Annotated[bool, Option(help=\"Dry run the command.\")],\n   n_workers: Annotated[int, Option(\"-n\", \"--n-workers\", help=\"The number of workers to use.\")],\n   allow_export_during: Annotated[bool, Option(\"--allow-export-during\", help=\"Allow export during the command.\")],\n   fill_unchanged: Annotated[bool, Option(\"-f\", \"--fill-unchanged\", help=\"Fill the notebook even if the source has not changed.\")]\n)\nClean notebooks in an nblite project by removing outputs and metadata.\nIf nb_path is not provided, all notebooks in the project will be cleaned.",
+    "text": "cli_fill\ncli_fill(\n   nb_paths: Annotated[Union[List[str], None], Argument(help=\"Specify the jupyter notebooks to fill. If omitted, all ipynb files in the project's code locations will be filled.\")],\n   remove_prev_outputs: Annotated[bool, Option(\"-r\", \"--remove-prev-outputs\", help=\"Remove the pre-existing outputs from the notebooks.\")],\n   remove_cell_metadata: Annotated[bool, Option(\"-m\", \"--remove-metadata\", help=\"Remove the metadata from notebook cells.\")],\n   root_path: Annotated[Union[str,None], Option(\"-r\", \"--root\", help=\"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.\")],\n   cell_exec_timeout: Annotated[Union[int,None], Option(\"-t\", \"--timeout\", help=\"The timeout for the cell execution.\")],\n   include_dunders: Annotated[bool, Option(\"-i\", \"--include-dunders\", help=\"Include notebooks with that begin with a dunder (double underscore '__') in their filenames or in any of their parent folders. \")],\n   include_periods: Annotated[bool, Option(\"-p\", \"--include-periods\", help=\"Include notebooks that begin with a period in their filenames or in their parent folders.\")],\n   dry_run: Annotated[bool, Option(help=\"Dry run the command.\")],\n   n_workers: Annotated[int, Option(\"-n\", \"--n-workers\", help=\"The number of workers to use.\")],\n   allow_export_during: Annotated[bool, Option(\"--allow-export-during\", help=\"Allow export during the command.\")],\n   fill_unchanged: Annotated[bool, Option(\"-f\", \"--fill-unchanged\", help=\"Fill the notebook even if the source has not changed.\")],\n   silent: Annotated[bool, Option(\"--silent\", help=\"Suppress output.\")]\n)\nClean notebooks in an nblite project by removing outputs and metadata.\nIf nb_path is not provided, all notebooks in the project will be cleaned.",
     "crumbs": [
       "api",
       "cli"
@@ -562,7 +562,29 @@
     "href": "api/cli.html#cli_test",
     "title": "cli",
     "section": "cli_test",
-    "text": "cli_test\ncli_test(\n   nb_paths: Annotated[Union[List[str], None], Argument(help=\"Specify the jupyter notebooks to fill. If omitted, all ipynb files in the project's code locations will be filled.\")],\n   root_path: Annotated[Union[str,None], Option(\"-r\", \"--root\", help=\"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.\")],\n   cell_exec_timeout: Annotated[Union[int,None], Option(\"-t\", \"--timeout\", help=\"The timeout for the cell execution.\")],\n   include_dunders: Annotated[bool, Option(\"-i\", \"--include-dunders\", help=\"Include notebooks with that begin with a dunder (double underscore '__') in their filenames or in any of their parent folders. \")],\n   include_periods: Annotated[bool, Option(\"-p\", \"--include-periods\", help=\"Include notebooks that begin with a period in their filenames or in their parent folders.\")]\n)\nAlias for nbl fill --dry-run. Used to test that all cells in the notebooks can be executed without errors.",
+    "text": "cli_test\ncli_test(\n   nb_paths: Annotated[Union[List[str], None], Argument(help=\"Specify the jupyter notebooks to fill. If omitted, all ipynb files in the project's code locations will be filled.\")],\n   root_path: Annotated[Union[str,None], Option(\"-r\", \"--root\", help=\"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.\")],\n   cell_exec_timeout: Annotated[Union[int,None], Option(\"-t\", \"--timeout\", help=\"The timeout for the cell execution.\")],\n   n_workers: Annotated[int, Option(\"-n\", \"--n-workers\", help=\"The number of workers to use.\")],\n   include_dunders: Annotated[bool, Option(\"-i\", \"--include-dunders\", help=\"Include notebooks with that begin with a dunder (double underscore '__') in their filenames or in any of their parent folders. \")],\n   include_periods: Annotated[bool, Option(\"-p\", \"--include-periods\", help=\"Include notebooks that begin with a period in their filenames or in their parent folders.\")],\n   test_unchanged: Annotated[bool, Option(\"-f\", \"--test-unchanged\", help=\"Test the notebook even if the source has not changed.\")],\n   silent: Annotated[bool, Option(\"--silent\", help=\"Suppress output.\")]\n)\nAlias for nbl fill --dry-run. Used to test that all cells in the notebooks can be executed without errors.",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#nbl-run",
+    "href": "api/cli.html#nbl-run",
+    "title": "cli",
+    "section": "nbl run",
+    "text": "nbl run",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#cli_run",
+    "href": "api/cli.html#cli_run",
+    "title": "cli",
+    "section": "cli_run",
+    "text": "cli_run\ncli_run(\n   nb_paths: Annotated[List[str], Argument(help=\"Specify the jupyter notebooks to fill. This argument is required.\")],\n   n_workers: Annotated[int, Option(\"-n\", \"--n-workers\", help=\"The number of workers to use.\")],\n   root_path: Annotated[Union[str,None], Option(\"-r\", \"--root\", help=\"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.\")],\n   cell_exec_timeout: Annotated[Union[int,None], Option(\"-t\", \"--timeout\", help=\"The timeout for the cell execution.\")],\n   silent: Annotated[bool, Option(\"--silent\", help=\"Suppress output.\")]\n)\nRun the specified notebooks in an nblite project.",
     "crumbs": [
       "api",
       "cli"

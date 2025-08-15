@@ -356,6 +356,101 @@ def cli_clean(
 # ## `nbl fill`
 
 # %%
+#|exporti
+def _fill_helper(
+    nb_paths,
+    remove_prev_outputs,
+    remove_cell_metadata,
+    root_path,
+    cell_exec_timeout,
+    include_dunders,
+    include_periods,
+    dry_run,
+    n_workers,
+    allow_export_during,
+    fill_unchanged,
+    silent,
+    table_title,
+    checked_notebook_status_str
+):
+    if not allow_export_during:
+        os.environ[DISABLE_NBLITE_EXPORT_ENV_VAR] = 'false' # Disable export for the duration of the command, as it can interfere with the execution of the notebooks
+
+    if root_path is None:
+        if nb_paths is not None: root_path = Path(nb_paths[0]).parent
+        root_path, config = get_project_root_and_config(root_path)
+    else:
+        root_path = Path(root_path)
+        config = read_config(root_path / nblite_config_file_name)
+
+    if nb_paths is None:
+        nb_paths = []
+        for cl in config.code_locations.values():
+            if cl.format != 'ipynb': continue
+            nb_paths.extend(get_code_location_nbs(root_path, cl, ignore_dunders=not include_dunders, ignore_periods=not include_periods))
+    nb_paths = [Path(p).resolve() for p in nb_paths]
+    nb_paths.sort()
+
+    nb_exceptions = {}
+
+    def process_notebook(nb_path):
+        task_statuses[nb_path] = ('▶️', 'Executing')
+        rel_path = nb_path.relative_to(root_path)
+
+        try:
+            fill_ipynb(nb_path, cell_exec_timeout, remove_prev_outputs, remove_cell_metadata, dry_run=dry_run)
+        except BaseException as e:
+            task_statuses[nb_path] = ('❌', 'Error')
+            nb_exceptions[nb_path] = e
+            return
+        task_statuses[nb_path] = ('✅', checked_notebook_status_str)
+
+    import rich
+    from rich.live import Live
+    from rich.table import Table
+    from rich.panel import Panel
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    tasks = nb_paths.copy()
+    task_statuses = {task: ('…', 'In queue') for task in tasks}
+
+    # Remove notebooks that have not changed
+    if not fill_unchanged:
+        for nb_path in nb_paths:
+            _, has_changed = get_nb_source_and_output_hash(nb_path)
+            if not has_changed:
+                task_statuses[nb_path] = ('⏭️', 'Skipped (unchanged)')
+                tasks.remove(nb_path)
+
+    def make_table():
+        table = Table(title=f"{table_title}")
+        table.add_column("Notebook")
+        table.add_column("Status")
+        table.add_column("Status (desc)")
+        for nb_path in nb_paths:
+            table.add_row(nb_path.relative_to(root_path).as_posix(), *task_statuses[nb_path])
+        return table
+
+    if silent:
+        with ThreadPoolExecutor(max_workers=n_workers) as executor:
+            futures = {executor.submit(process_notebook, task): task for task in tasks}
+            for _ in as_completed(futures):
+                pass
+    else:
+        with Live(make_table(), refresh_per_second=4) as live:
+            with ThreadPoolExecutor(max_workers=n_workers) as executor:
+                futures = {executor.submit(process_notebook, task): task for task in tasks}
+                for future in as_completed(futures):
+                    live.update(make_table())
+
+    if nb_exceptions: print('\n\n')
+    for nb_path, e in nb_exceptions.items():
+        rich.print(Panel(f"[bold purple]Error in '{nb_path.relative_to(root_path).as_posix()}'", expand=False))
+        typer.echo(e)
+        typer.echo('\n')
+
+
+# %%
 #|export
 @app.command(name='fill')
 def cli_fill(
@@ -370,82 +465,29 @@ def cli_fill(
     n_workers: Annotated[int, Option("-n", "--n-workers", help="The number of workers to use.")] = 4,
     allow_export_during: Annotated[bool, Option("--allow-export-during", help="Allow export during the command.")] = False,
     fill_unchanged: Annotated[bool, Option("-f", "--fill-unchanged", help="Fill the notebook even if the source has not changed.")] = False,
+    silent: Annotated[bool, Option("--silent", help="Suppress output.")]=False,
 ):
     """
     Clean notebooks in an nblite project by removing outputs and metadata.
     
     If `nb_path` is not provided, all notebooks in the project will be cleaned.
     """
-    
-    if not allow_export_during:
-        os.environ[DISABLE_NBLITE_EXPORT_ENV_VAR] = 'false' # Disable export for the duration of the command, as it can interfere with the execution of the notebooks
-    
-    if root_path is None:
-        if nb_paths is not None: root_path = Path(nb_paths[0]).parent
-        root_path, config = get_project_root_and_config(root_path)
-    else:
-        root_path = Path(root_path)
-        config = read_config(root_path / nblite_config_file_name)
-    
-    if nb_paths is None:
-        nb_paths = []
-        for cl in config.code_locations.values():
-            if cl.format != 'ipynb': continue
-            nb_paths.extend(get_code_location_nbs(root_path, cl, ignore_dunders=not include_dunders, ignore_periods=not include_periods))
-    nb_paths = [Path(p).resolve() for p in nb_paths]
-    nb_paths.sort()
-        
-    nb_exceptions = {}
-        
-    def process_notebook(nb_path):
-        task_statuses[nb_path] = ('▶️', 'Executing')
-        rel_path = nb_path.relative_to(root_path)
-        
-        try:
-            fill_ipynb(nb_path, cell_exec_timeout, remove_prev_outputs, remove_cell_metadata, dry_run=dry_run)
-        except BaseException as e:
-            task_statuses[nb_path] = ('❌', 'Error')
-            nb_exceptions[nb_path] = e
-            return
-        task_statuses[nb_path] = ('✅', 'Filled')
-    
-    import rich
-    from rich.live import Live
-    from rich.table import Table
-    from rich.panel import Panel
-    from concurrent.futures import ThreadPoolExecutor, as_completed
-    
-    tasks = nb_paths.copy()
-    task_statuses = {task: ('…', 'In queue') for task in tasks}
-    
-    # Remove notebooks that have not changed
-    if not fill_unchanged:
-        for nb_path in nb_paths:
-            _, has_changed = get_nb_source_and_output_hash(nb_path)
-            if not has_changed:
-                task_statuses[nb_path] = ('⏭️', 'Skipped (unchanged)')
-                tasks.remove(nb_path)
-    
-    def make_table():
-        table = Table(title="Filling notebooks") if not dry_run else Table(title="Filling notebooks (dry run)")
-        table.add_column("Notebook")
-        table.add_column("Status")
-        table.add_column("Status (desc)")
-        for nb_path in nb_paths:
-            table.add_row(nb_path.relative_to(root_path).as_posix(), *task_statuses[nb_path])
-        return table
-    
-    with Live(make_table(), refresh_per_second=4) as live:
-        with ThreadPoolExecutor(max_workers=n_workers) as executor:
-            futures = {executor.submit(process_notebook, task): task for task in tasks}
-            for future in as_completed(futures):
-                live.update(make_table())
-               
-    if nb_exceptions: print('\n\n')
-    for nb_path, e in nb_exceptions.items():
-        rich.print(Panel(f"[bold purple]Error in '{nb_path.relative_to(root_path).as_posix()}'", expand=False))
-        typer.echo(e)
-        typer.echo('\n')
+    _fill_helper(
+        nb_paths,
+        remove_prev_outputs,
+        remove_cell_metadata,
+        root_path,
+        cell_exec_timeout,
+        include_dunders,
+        include_periods,
+        dry_run,
+        n_workers,
+        allow_export_during,
+        fill_unchanged,
+        silent,
+        table_title='Filling notebooks' if not dry_run else 'Filling notebooks (dry run)',
+        checked_notebook_status_str='Filled'
+    )
 
 
 # %% [markdown]
@@ -458,13 +500,83 @@ def cli_test(
     nb_paths: Annotated[Union[List[str], None], Argument(help="Specify the jupyter notebooks to fill. If omitted, all ipynb files in the project's code locations will be filled.")] = None,
     root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None,
     cell_exec_timeout: Annotated[Union[int,None], Option("-t", "--timeout", help="The timeout for the cell execution.")] = None,
+    n_workers: Annotated[int, Option("-n", "--n-workers", help="The number of workers to use.")] = 4,
     include_dunders: Annotated[bool, Option("-i", "--include-dunders", help="Include notebooks with that begin with a dunder (double underscore '__') in their filenames or in any of their parent folders. ")] = False,
     include_periods: Annotated[bool, Option("-p", "--include-periods", help="Include notebooks that begin with a period in their filenames or in their parent folders.")] = False,
+    test_unchanged: Annotated[bool, Option("-f", "--test-unchanged", help="Test the notebook even if the source has not changed.")] = False,
+    silent: Annotated[bool, Option("--silent", help="Suppress output.")]=False,
 ):
     """
     Alias for `nbl fill --dry-run`. Used to test that all cells in the notebooks can be executed without errors.
     """
-    cli_fill(nb_paths=nb_paths, root_path=root_path, dry_run=True, cell_exec_timeout=cell_exec_timeout, include_dunders=include_dunders, include_periods=include_periods)
+    remove_prev_outputs = False
+    remove_cell_metadata = False
+    dry_run = True
+    allow_export_during = False
+    fill_unchanged = test_unchanged
+    
+    _fill_helper(
+        nb_paths,
+        remove_prev_outputs,
+        remove_cell_metadata,
+        root_path,
+        cell_exec_timeout,
+        include_dunders,
+        include_periods,
+        dry_run,
+        n_workers,
+        allow_export_during,
+        fill_unchanged,
+        silent,
+        table_title='Testing notebooks',
+        checked_notebook_status_str='Tested',
+    )
+
+
+# %% [markdown]
+# ## `nbl run`
+
+# %%
+#|export
+@app.command(name='run')
+def cli_run(
+    nb_paths: Annotated[List[str], Argument(help="Specify the jupyter notebooks to fill. This argument is required.")],
+    n_workers: Annotated[int, Option("-n", "--n-workers", help="The number of workers to use.")] = 4,
+    root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None,
+    cell_exec_timeout: Annotated[Union[int,None], Option("-t", "--timeout", help="The timeout for the cell execution.")] = None,
+    silent: Annotated[bool, Option("--silent", help="Suppress output.")]=False,
+):
+    """
+    Run the specified notebooks in an nblite project.
+    """
+    if not nb_paths:
+        typer.echo("Error: At least one notebook path must be provided.")
+        raise typer.Exit(1)
+
+    remove_prev_outputs = False
+    remove_cell_metadata = False
+    include_dunders = True
+    include_periods = True
+    dry_run = True
+    allow_export_during = False
+    fill_unchanged = True
+
+    _fill_helper(
+        nb_paths,
+        remove_prev_outputs,
+        remove_cell_metadata,
+        root_path,
+        cell_exec_timeout,
+        include_dunders,
+        include_periods,
+        dry_run,
+        n_workers,
+        allow_export_during,
+        fill_unchanged,
+        silent,
+        table_title='Running notebooks',
+        checked_notebook_status_str='Finished',
+    )
 
 
 # %% [markdown]

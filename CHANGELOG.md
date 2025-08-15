@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.4] - 2025-08-15
+
+### 🚀 Features
+
+- *(cli)* Nbl run
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update docs
+- Update version in pyproject.toml
+
 ## [0.6.3] - 2025-08-08
 
 ### 🐛 Bug Fixes

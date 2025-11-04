@@ -220,7 +220,7 @@
     "href": "api/docs/render.html#render_docs",
     "title": "docs.render",
     "section": "render_docs",
-    "text": "render_docs\nrender_docs(\n   output_folder: Union[str,None],\n   docs_cl: Union[str,None],\n   root_path: Union[str,None],\n   config_path: Union[str,None],\n   verbose: bool\n)\n\n\nrender_docs(root_path / '_docs', root_path=root_path, docs_cl='pcts')\n\n/var/folders/22/k6clk3m10258k07mjcnlswt40000gn/T/ipykernel_16622/1416230047.py:28: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n  _, nb = nbformat.validator.normalize(nb)\n\n\n\nrender_docs(root_path / '_docs', root_path=root_path, docs_cl='nbs')",
+    "text": "render_docs\nrender_docs(\n   output_folder: Union[str,None],\n   docs_cl: Union[str,None],\n   root_path: Union[str,None],\n   config_path: Union[str,None],\n   verbose: bool\n)\n\n\nrender_docs(root_path / '_docs', root_path=root_path, docs_cl='pcts')\n\n/var/folders/gc/wx3wyw4538vdtn_n2dyjn80m0000gn/T/ipykernel_82512/1416230047.py:28: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n  _, nb = nbformat.validator.normalize(nb)\n\n\n\nrender_docs(root_path / '_docs', root_path=root_path, docs_cl='nbs')",
     "crumbs": [
       "api",
       "docs",
@@ -569,6 +569,28 @@
     ]
   },
   {
+    "objectID": "api/cli.html#nbl-nb-to-script",
+    "href": "api/cli.html#nbl-nb-to-script",
+    "title": "cli",
+    "section": "nbl nb-to-script",
+    "text": "nbl nb-to-script",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
+    "objectID": "api/cli.html#cli_nb_to_script",
+    "href": "api/cli.html#cli_nb_to_script",
+    "title": "cli",
+    "section": "cli_nb_to_script",
+    "text": "cli_nb_to_script\ncli_nb_to_script(\n   nb_path: Annotated[str, Argument(help=\"The path to the notebook to convert to a script.\")],\n   disregard_skip_directives: Annotated[bool, Option(\"--disregard-skip-directives\", \"-d\", help=\"Disregard the skip directives in the notebook.\")]\n)\nConvert a notebook to a script.",
+    "crumbs": [
+      "api",
+      "cli"
+    ]
+  },
+  {
     "objectID": "api/cli.html#nbl-run",
     "href": "api/cli.html#nbl-run",
     "title": "cli",
@@ -584,7 +606,7 @@
     "href": "api/cli.html#cli_run",
     "title": "cli",
     "section": "cli_run",
-    "text": "cli_run\ncli_run(\n   nb_paths: Annotated[List[str], Argument(help=\"Specify the jupyter notebooks to fill. This argument is required.\")],\n   n_workers: Annotated[int, Option(\"-n\", \"--n-workers\", help=\"The number of workers to use.\")],\n   root_path: Annotated[Union[str,None], Option(\"-r\", \"--root\", help=\"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.\")],\n   cell_exec_timeout: Annotated[Union[int,None], Option(\"-t\", \"--timeout\", help=\"The timeout for the cell execution.\")],\n   silent: Annotated[bool, Option(\"--silent\", help=\"Suppress output.\")]\n)\nRun the specified notebooks in an nblite project.",
+    "text": "cli_run\ncli_run(\n   nb_paths: Annotated[List[str], Argument(help=\"Specify the jupyter notebooks to fill. This argument is required.\")],\n   n_workers: Annotated[int, Option(\"-n\", \"--n-workers\", help=\"The number of workers to use.\")],\n   cell_exec_timeout: Annotated[Union[int,None], Option(\"-t\", \"--timeout\", help=\"The timeout for the cell execution.\")],\n   silent: Annotated[bool, Option(\"--silent\", help=\"Suppress output.\")]\n)\nRun the specified notebooks in an nblite project.",
     "crumbs": [
       "api",
       "cli"
@@ -953,11 +975,35 @@
     ]
   },
   {
+    "objectID": "api/export/00_base.html#remove_skipped_cells_from_nb",
+    "href": "api/export/00_base.html#remove_skipped_cells_from_nb",
+    "title": "export.base",
+    "section": "remove_skipped_cells_from_nb",
+    "text": "remove_skipped_cells_from_nb\nremove_skipped_cells_from_nb(\n   nb: nbformat.notebooknode.NotebookNode\n) -&gt; tuple[nbformat.notebooknode.NotebookNode, list[dict]]\nRemove cells that are skipped by adding the following directives to the cell:\n\n#|skip_evals: Skip current and subsequent cells, until #|skip_evals_stop is encountered.\n#|skip_evals_stop: Stop skipping cells.\n#|eval: false: Skip the cell.\n\nArguments: - nb: The notebook to remove skipped cells from.",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
     "objectID": "api/export/00_base.html#fill_ipynb",
     "href": "api/export/00_base.html#fill_ipynb",
     "title": "export.base",
     "section": "fill_ipynb",
     "text": "fill_ipynb\nfill_ipynb(\n   nb_path: str,\n   cell_exec_timeout,\n   remove_pre_existing_outputs: bool,\n   remove_cell_metadata: bool,\n   working_dir: Union[str,None],\n   dry_run: bool\n) -&gt; nbformat.notebooknode.NotebookNode\nExecute a notebook and fills it with the outputs.\nCells can be skipped by adding the following directives to the cell: - #|skip_evals: Skip current and subsequent cells, until #|skip_evals_stop is encountered. - #|skip_evals_stop: Stop skipping cells. - #|eval: false: Skip the cell.\nArguments: - nb_path: Path to the notebook to fill. - cell_exec_timeout: Timeout for cell execution. - remove_pre_existing_outputs: Whether to remove the pre-existing outputs from the notebook. - remove_metadata: Whether to remove the metadata from the notebook.\n\n\nfill_ipynb(root_path / 'nbs' / 'notebook1.ipynb');",
+    "crumbs": [
+      "api",
+      "export",
+      "export.base"
+    ]
+  },
+  {
+    "objectID": "api/export/00_base.html#nb_to_script",
+    "href": "api/export/00_base.html#nb_to_script",
+    "title": "export.base",
+    "section": "nb_to_script",
+    "text": "nb_to_script\nnb_to_script(nb: nbformat.notebooknode.NotebookNode) -&gt; str\nConvert a notebook to a script.\n\n\nnb = nbformat.read(root_path / 'nbs' / 'notebook1.ipynb', as_version=4)\nprint(nb_to_script(nb)[:100])\n\n# %%\n#|default_exp notebook1\n\n# %%\n#|hide\nimport nblite; from nblite import show_doc; nblite.nbl_exp",
     "crumbs": [
       "api",
       "export",

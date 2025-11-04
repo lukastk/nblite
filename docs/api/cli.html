@@ -270,6 +270,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#cli_fill" id="toc-cli_fill" class="nav-link" data-scroll-target="#cli_fill">cli_fill</a></li>
   <li><a href="#nbl-test" id="toc-nbl-test" class="nav-link" data-scroll-target="#nbl-test"><code>nbl test</code></a></li>
   <li><a href="#cli_test" id="toc-cli_test" class="nav-link" data-scroll-target="#cli_test">cli_test</a></li>
+  <li><a href="#nbl-nb-to-script" id="toc-nbl-nb-to-script" class="nav-link" data-scroll-target="#nbl-nb-to-script"><code>nbl nb-to-script</code></a></li>
+  <li><a href="#cli_nb_to_script" id="toc-cli_nb_to_script" class="nav-link" data-scroll-target="#cli_nb_to_script">cli_nb_to_script</a></li>
   <li><a href="#nbl-run" id="toc-nbl-run" class="nav-link" data-scroll-target="#nbl-run"><code>nbl run</code></a></li>
   <li><a href="#cli_run" id="toc-cli_run" class="nav-link" data-scroll-target="#cli_run">cli_run</a></li>
   <li><a href="#nbl-validate-staging" id="toc-nbl-validate-staging" class="nav-link" data-scroll-target="#nbl-validate-staging"><code>nbl validate-staging</code></a></li>
@@ -463,18 +465,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Alias for <code>nbl fill --dry-run</code>. Used to test that all cells in the notebooks can be executed without errors.</p>
 <hr>
 </section>
+<section id="nbl-nb-to-script" class="level2">
+<h2 class="anchored" data-anchor-id="nbl-nb-to-script"><code>nbl nb-to-script</code></h2>
+</section>
+<section id="cli_nb_to_script" class="level2">
+<h2 class="anchored" data-anchor-id="cli_nb_to_script">cli_nb_to_script</h2>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>cli_nb_to_script(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>   nb_path: Annotated[<span class="bu">str</span>, Argument(<span class="bu">help</span><span class="op">=</span><span class="st">"The path to the notebook to convert to a script."</span>)],</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>   disregard_skip_directives: Annotated[<span class="bu">bool</span>, Option(<span class="st">"--disregard-skip-directives"</span>, <span class="st">"-d"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Disregard the skip directives in the notebook."</span>)]</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Convert a notebook to a script.</p>
+<hr>
+</section>
 <section id="nbl-run" class="level2">
 <h2 class="anchored" data-anchor-id="nbl-run"><code>nbl run</code></h2>
 </section>
 <section id="cli_run" class="level2">
 <h2 class="anchored" data-anchor-id="cli_run">cli_run</h2>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>cli_run(</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>   nb_paths: Annotated[List[<span class="bu">str</span>], Argument(<span class="bu">help</span><span class="op">=</span><span class="st">"Specify the jupyter notebooks to fill. This argument is required."</span>)],</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>   n_workers: Annotated[<span class="bu">int</span>, Option(<span class="st">"-n"</span>, <span class="st">"--n-workers"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The number of workers to use."</span>)],</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>   root_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="st">"-r"</span>, <span class="st">"--root"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file."</span>)],</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>   cell_exec_timeout: Annotated[Union[<span class="bu">int</span>,<span class="va">None</span>], Option(<span class="st">"-t"</span>, <span class="st">"--timeout"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The timeout for the cell execution."</span>)],</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>   silent: Annotated[<span class="bu">bool</span>, Option(<span class="st">"--silent"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Suppress output."</span>)]</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>cli_run(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>   nb_paths: Annotated[List[<span class="bu">str</span>], Argument(<span class="bu">help</span><span class="op">=</span><span class="st">"Specify the jupyter notebooks to fill. This argument is required."</span>)],</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>   n_workers: Annotated[<span class="bu">int</span>, Option(<span class="st">"-n"</span>, <span class="st">"--n-workers"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The number of workers to use."</span>)],</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>   cell_exec_timeout: Annotated[Union[<span class="bu">int</span>,<span class="va">None</span>], Option(<span class="st">"-t"</span>, <span class="st">"--timeout"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The timeout for the cell execution."</span>)],</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>   silent: Annotated[<span class="bu">bool</span>, Option(<span class="st">"--silent"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Suppress output."</span>)]</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Run the specified notebooks in an nblite project.</p>
 <hr>
 </section>
@@ -483,9 +496,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="cli_validate_staging" class="level2">
 <h2 class="anchored" data-anchor-id="cli_validate_staging">cli_validate_staging</h2>
-<div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>cli_validate_staging(</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>   root_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="st">"-r"</span>, <span class="st">"--root"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file."</span>)]</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>cli_validate_staging(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>   root_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="st">"-r"</span>, <span class="st">"--root"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file."</span>)]</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Validate the staging of the project.</p>
 <p>The staging is valid if all notebooks are clean and the twins of all notebooks that are staged have no unstaged changes.</p>
 <p>The command will exit with code 1 if the staging is invalid.</p>
@@ -496,9 +509,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="cli_install_hooks" class="level2">
 <h2 class="anchored" data-anchor-id="cli_install_hooks">cli_install_hooks</h2>
-<div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>cli_install_hooks(</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>   root_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="st">"-r"</span>, <span class="st">"--root"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file."</span>)]</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>cli_install_hooks(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>   root_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="st">"-r"</span>, <span class="st">"--root"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file."</span>)]</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Install the git hooks for the project.</p>
 <hr>
 </section>
@@ -507,10 +520,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="cli_git_add" class="level2">
 <h2 class="anchored" data-anchor-id="cli_git_add">cli_git_add</h2>
-<div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>cli_git_add(</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>   file_paths: Annotated[List[<span class="bu">str</span>], Argument(<span class="bu">help</span><span class="op">=</span><span class="st">"The file paths to add to the staging area."</span>, autocompletion<span class="op">=</span>_get_nbs)],</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>   extra_args: Annotated[List[<span class="bu">str</span>], Option(<span class="st">"--"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Extra arguments to pass to git add."</span>)]</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>cli_git_add(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>   file_paths: Annotated[List[<span class="bu">str</span>], Argument(<span class="bu">help</span><span class="op">=</span><span class="st">"The file paths to add to the staging area."</span>, autocompletion<span class="op">=</span>_get_nbs)],</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>   extra_args: Annotated[List[<span class="bu">str</span>], Option(<span class="st">"--"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Extra arguments to pass to git add."</span>)]</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Like <code>git add</code>, but also runs <code>nbl export</code>, cleans any notebooks that are passed, and stages their twins.</p>
 <hr>
 </section>
@@ -519,10 +532,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="cli_clear_downstream" class="level2">
 <h2 class="anchored" data-anchor-id="cli_clear_downstream">cli_clear_downstream</h2>
-<div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>cli_clear_downstream(</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>   code_location: Annotated[Optional[<span class="bu">str</span>], Argument(<span class="bu">help</span><span class="op">=</span><span class="st">"The code location to clear downstream from."</span>)],</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>   <span class="bu">all</span>: Annotated[<span class="bu">bool</span>, Option(<span class="bu">help</span><span class="op">=</span><span class="st">"Clear all downstream notebooks."</span>)]</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>cli_clear_downstream(</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>   code_location: Annotated[Optional[<span class="bu">str</span>], Argument(<span class="bu">help</span><span class="op">=</span><span class="st">"The code location to clear downstream from."</span>)],</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>   <span class="bu">all</span>: Annotated[<span class="bu">bool</span>, Option(<span class="bu">help</span><span class="op">=</span><span class="st">"Clear all downstream notebooks."</span>)]</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Clear a code location or all code locations downstream from the top-level code location.</p>
 <hr>
 </section>
@@ -531,16 +544,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="cli_prepare" class="level2">
 <h2 class="anchored" data-anchor-id="cli_prepare">cli_prepare</h2>
-<div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>cli_prepare(</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>   root_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="st">"-r"</span>, <span class="st">"--root"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file."</span>)],</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>   cell_exec_timeout: Annotated[Union[<span class="bu">int</span>,<span class="va">None</span>], Option(<span class="st">"-t"</span>, <span class="st">"--timeout"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The timeout for the cell execution."</span>)],</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>   include_dunders: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-i"</span>, <span class="st">"--include-dunders"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Include notebooks with that begin with a dunder (double underscore '__') in their filenames or in any of their parent folders. "</span>)],</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>   include_periods: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-p"</span>, <span class="st">"--include-periods"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Include notebooks that begin with a period in their filenames or in their parent folders."</span>)],</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>   dry_run: Annotated[<span class="bu">bool</span>, Option(<span class="bu">help</span><span class="op">=</span><span class="st">"Dry run the command."</span>)],</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>   n_workers: Annotated[<span class="bu">int</span>, Option(<span class="st">"-n"</span>, <span class="st">"--n-workers"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The number of workers to use."</span>)],</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>   allow_export_during: Annotated[<span class="bu">bool</span>, Option(<span class="st">"--allow-export-during"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Allow export during the command."</span>)],</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>   fill_unchanged: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-f"</span>, <span class="st">"--fill-unchanged"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Fill the notebook even if the source has not changed."</span>)]</span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>cli_prepare(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>   root_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="st">"-r"</span>, <span class="st">"--root"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file."</span>)],</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>   cell_exec_timeout: Annotated[Union[<span class="bu">int</span>,<span class="va">None</span>], Option(<span class="st">"-t"</span>, <span class="st">"--timeout"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The timeout for the cell execution."</span>)],</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>   include_dunders: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-i"</span>, <span class="st">"--include-dunders"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Include notebooks with that begin with a dunder (double underscore '__') in their filenames or in any of their parent folders. "</span>)],</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>   include_periods: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-p"</span>, <span class="st">"--include-periods"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Include notebooks that begin with a period in their filenames or in their parent folders."</span>)],</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>   dry_run: Annotated[<span class="bu">bool</span>, Option(<span class="bu">help</span><span class="op">=</span><span class="st">"Dry run the command."</span>)],</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>   n_workers: Annotated[<span class="bu">int</span>, Option(<span class="st">"-n"</span>, <span class="st">"--n-workers"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The number of workers to use."</span>)],</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>   allow_export_during: Annotated[<span class="bu">bool</span>, Option(<span class="st">"--allow-export-during"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Allow export during the command."</span>)],</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>   fill_unchanged: Annotated[<span class="bu">bool</span>, Option(<span class="st">"-f"</span>, <span class="st">"--fill-unchanged"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"Fill the notebook even if the source has not changed."</span>)]</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Export, clean, and fill the notebooks in the project.</p>
 <hr>
 </section>
@@ -549,11 +562,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="cli_render_docs" class="level2">
 <h2 class="anchored" data-anchor-id="cli_render_docs">cli_render_docs</h2>
-<div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>cli_render_docs(</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>   root_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="st">"-r"</span>, <span class="st">"--root"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file."</span>)],</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>   docs_cl: Annotated[Optional[<span class="bu">str</span>], Option(<span class="st">"-d"</span>, <span class="st">"--docs-cl"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The code location to render the documentation for. If not provided, the code location will be retrieved from the nblite.toml file."</span>)],</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>   output_folder: Annotated[Optional[<span class="bu">str</span>], Option(<span class="st">"-o"</span>, <span class="st">"--output-folder"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The folder to output the documentation to. Default is '_docs'."</span>)]</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>cli_render_docs(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>   root_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="st">"-r"</span>, <span class="st">"--root"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file."</span>)],</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>   docs_cl: Annotated[Optional[<span class="bu">str</span>], Option(<span class="st">"-d"</span>, <span class="st">"--docs-cl"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The code location to render the documentation for. If not provided, the code location will be retrieved from the nblite.toml file."</span>)],</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>   output_folder: Annotated[Optional[<span class="bu">str</span>], Option(<span class="st">"-o"</span>, <span class="st">"--output-folder"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The folder to output the documentation to. Default is '_docs'."</span>)]</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Render the documentation for the project using Quarto.</p>
 <hr>
 </section>
@@ -562,10 +575,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="cli_render_docs-1" class="level2">
 <h2 class="anchored" data-anchor-id="cli_render_docs-1">cli_render_docs</h2>
-<div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>cli_render_docs(</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>   root_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="st">"-r"</span>, <span class="st">"--root"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file."</span>)],</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>   docs_cl: Annotated[Optional[<span class="bu">str</span>], Option(<span class="st">"-d"</span>, <span class="st">"--docs-cl"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The code location to render the documentation for. If not provided, the code location will be retrieved from the nblite.toml file."</span>)]</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>cli_render_docs(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>   root_path: Annotated[Union[<span class="bu">str</span>,<span class="va">None</span>], Option(<span class="st">"-r"</span>, <span class="st">"--root"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file."</span>)],</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>   docs_cl: Annotated[Optional[<span class="bu">str</span>], Option(<span class="st">"-d"</span>, <span class="st">"--docs-cl"</span>, <span class="bu">help</span><span class="op">=</span><span class="st">"The code location to render the documentation for. If not provided, the code location will be retrieved from the nblite.toml file."</span>)]</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Preview the documentation for the project using Quarto.</p>
 <hr>
 

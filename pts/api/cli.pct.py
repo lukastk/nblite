@@ -28,7 +28,7 @@ import os
 
 from nblite.const import nblite_config_file_name, nblite_assets_path, DISABLE_NBLITE_EXPORT_ENV_VAR
 from nblite.config import get_project_root_and_config, read_config, get_downstream_module, get_top_level_code_locations
-from nblite.export import convert_nb, generate_readme, get_nb_twin_paths, clear_code_location, clear_downstream_code_locations, get_nb_source_and_output_hash, generate_md_file
+from nblite.export import convert_nb, generate_readme, get_nb_twin_paths, clear_code_location, clear_downstream_code_locations, get_nb_source_and_output_hash, generate_md_file, nb_to_script, remove_skipped_cells_from_nb
 from nblite.utils import get_code_location_nbs, is_nb_unclean, get_relative_path, is_code_loc_nb, get_code_location_nbs
 from nblite.git import get_unstaged_nb_twins, get_git_root, is_file_staged, has_unstaged_changes
 from nblite.docs import render_docs, preview_docs
@@ -535,6 +535,27 @@ def cli_test(
         table_title='Testing notebooks',
         checked_notebook_status_str='Tested',
     )
+
+
+# %% [markdown]
+# ## `nbl nb-to-script`
+
+# %%
+#|export
+@app.command(name='nb-to-script')
+def cli_nb_to_script(
+    nb_path: Annotated[str, Argument(help="The path to the notebook to convert to a script.")],
+    disregard_skip_directives: Annotated[bool, Option("--disregard-skip-directives", "-d", help="Disregard the skip directives in the notebook.")] = False,
+):
+    """
+    Convert a notebook to a script.
+    """
+    import nbformat
+    nb = nbformat.read(nb_path, as_version=4)
+    if not disregard_skip_directives:
+        nb, _ = remove_skipped_cells_from_nb(nb)
+    script = nb_to_script(nb)
+    typer.echo(script)
 
 
 # %% [markdown]

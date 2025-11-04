@@ -301,6 +301,56 @@ has_changed
 
 # %%
 #|hide
+show_doc(this_module.remove_skipped_cells_from_nb)
+
+
+# %%
+#|export
+def remove_skipped_cells_from_nb(
+    nb:nbformat.notebooknode.NotebookNode,
+) -> tuple[nbformat.notebooknode.NotebookNode, list[dict]]:
+    """
+    Remove cells that are skipped by adding the following directives to the cell:
+    
+    - `#|skip_evals`: Skip current and subsequent cells, until `#|skip_evals_stop` is encountered.
+    - `#|skip_evals_stop`: Stop skipping cells.
+    - `#|eval: false`: Skip the cell.
+    
+    Args:
+        nb: The notebook to remove skipped cells from.
+    """
+    # Parse directives for skipping cell evaluations
+    skip_evals_mode = False
+    skipped_cells = []
+    for cell in nb.cells:
+        skip_cell = False
+        if cell['cell_type'] != 'code': continue
+        for line in cell['source'].split('\n'):
+            line = line.strip()
+            if not line.startswith('#|'): continue
+            directive = line.split('#|', 1)[1].strip()
+            if directive == 'skip_evals':
+                if skip_evals_mode:
+                    raise ValueError("Already in skip_evals mode")
+                skip_evals_mode = True
+            elif directive == 'skip_evals_stop':
+                
+                if not skip_evals_mode:
+                    raise ValueError("Not in skip_evals mode")
+                skip_evals_mode = False
+            elif directive.split(':', 1)[0].strip() == "eval":
+                if directive.split(':', 1)[1].strip() == 'false':
+                    skip_cell = True
+            
+        if skip_evals_mode or skip_cell:
+            cell['cell_type'] = 'skip'
+            skipped_cells.append(cell)
+
+    return nb, skipped_cells
+
+
+# %%
+#|hide
 show_doc(this_module.fill_ipynb)
 
 
@@ -346,30 +396,7 @@ def fill_ipynb(
                 cell.outputs = []
 
     # Parse directives for skipping cell evaluations
-    skip_evals_mode = False
-    skipped_cells = []
-    for cell in nb.cells:
-        skip_cell = False
-        if cell['cell_type'] != 'code': continue
-        for line in cell['source'].split('\n'):
-            line = line.strip()
-            if not line.startswith('#|'): continue
-            directive = line.split('#|', 1)[1].strip()
-            if directive == 'skip_evals':
-                if skip_evals_mode:
-                    raise ValueError("Already in skip_evals mode")
-                skip_evals_mode = True
-            elif directive == 'skip_evals_stop':
-                if not skip_evals_mode:
-                    raise ValueError("Not in skip_evals mode")
-                skip_evals_mode = False
-            elif directive.split(':', 1)[0].strip() == "eval":
-                if directive.split(':', 1)[1].strip() == 'false':
-                    skip_cell = True
-            
-        if skip_evals_mode or skip_cell:
-            cell['cell_type'] = 'skip'
-            skipped_cells.append(cell)
+    nb, skipped_cells = remove_skipped_cells_from_nb(nb)
 
     # Create the execute preprocessor
     ep = ExecutePreprocessor(timeout=cell_exec_timeout, kernel_name="python3")
@@ -398,6 +425,24 @@ def fill_ipynb(
 
 # %%
 fill_ipynb(root_path / 'nbs' / 'notebook1.ipynb');
+
+# %%
+#|hide
+show_doc(this_module.nb_to_script)
+
+
+# %%
+#|export
+def nb_to_script(nb: nbformat.notebooknode.NotebookNode) -> str:
+    """
+    Convert a notebook to a script.
+    """
+    return "\n\n".join([f"# %%\n{cell['source']}" for i, cell in enumerate(nb.cells) if cell['cell_type'] == 'code'])
+
+
+# %%
+nb = nbformat.read(root_path / 'nbs' / 'notebook1.ipynb', as_version=4)
+print(nb_to_script(nb)[:100])
 
 # %%
 #|hide

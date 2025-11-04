@@ -15,6 +15,7 @@ dependencies = [
     "rich>=13.9.4",
     "toml>=0.10",
     "typer",
+    "jupyterlab>=4.3.5",
 ]
 
 [build-system]
@@ -24,7 +25,6 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "git-cliff>=2.8.0",
-    "jupyterlab>=4.3.5",
     "twine>=6.1.0",
 ]
 

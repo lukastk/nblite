@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.5] - 2025-10-04
+
+### 🐛 Bug Fixes
+
+- Bug in get_nb_path_info
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Changed prepare script
+- Update docs
+- Update version in pyproject.toml
+
 ## [0.6.4] - 2025-08-15
 
 ### 🚀 Features

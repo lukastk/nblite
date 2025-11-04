@@ -48,7 +48,8 @@ def get_nb_path_info(nb_path: str, root_path: str, config: NBLiteConfig):
     nb_path = Path(nb_path).resolve()
     root_path = Path(root_path).resolve()
     rel_nb_path = nb_path.relative_to(root_path)
-    if not rel_nb_path.parts[0] in [loc.path for loc in config.code_locations.values()]:
+    
+    if not any([rel_nb_path.as_posix().startswith(loc.path) for loc in config.code_locations.values()]):
         raise ValueError(f"Notebook '{nb_path}' is not in a valid code location.")
         
     for loc in config.code_locations.values():

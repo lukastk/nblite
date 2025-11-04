@@ -2,10 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.6] - 2025-11-04
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Modified prepare.sh script to always use latest version of nblite
+- Update docs
+- Update version in pyproject.toml
+
 ## [0.6.5] - 2025-10-04
+
+### 🚀 Features
+
+- 'nbl run' can now be run on any notebook without a nblite.toml file
+- 'nbl nb-to-script'
 
 ### 🐛 Bug Fixes
 
+- Jupyterlab was a dev dependency rather than a dependency
 - Bug in get_nb_path_info
 
 ### ⚙️ Miscellaneous Tasks

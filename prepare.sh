@@ -1,6 +1,6 @@
 uv pip install -e test_proj/
-uvx --from nblite nbl export 
+uvx --from nblite@latest nbl export 
 cd test_proj
-nbl prepare --include-dunders --fill-unchanged
+uvx --from nblite@latest nbl prepare --include-dunders --fill-unchanged
 cd ..
-nbl prepare --allow-export-during --fill-unchanged -n 2
+uvx --from nblite@latest nbl prepare --allow-export-during --fill-unchanged -n 2

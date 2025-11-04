@@ -371,17 +371,21 @@ def _fill_helper(
     fill_unchanged,
     silent,
     table_title,
-    checked_notebook_status_str
+    checked_notebook_status_str,
+    skip_config=False,
 ):
     if not allow_export_during:
-        os.environ[DISABLE_NBLITE_EXPORT_ENV_VAR] = 'false' # Disable export for the duration of the command, as it can interfere with the execution of the notebooks
+        os.environ[DISABLE_NBLITE_EXPORT_ENV_VAR] = 'true' # Disable export for the duration of the command, as it can interfere with the execution of the notebooks
 
-    if root_path is None:
-        if nb_paths is not None: root_path = Path(nb_paths[0]).parent
-        root_path, config = get_project_root_and_config(root_path)
+    if not skip_config:
+        if root_path is None:
+            if nb_paths is not None: root_path = Path(nb_paths[0]).parent
+            root_path, config = get_project_root_and_config(root_path)
+        else:
+            root_path = Path(root_path)
+            config = read_config(root_path / nblite_config_file_name)
     else:
-        root_path = Path(root_path)
-        config = read_config(root_path / nblite_config_file_name)
+        root_path = Path(".").resolve()
 
     if nb_paths is None:
         nb_paths = []
@@ -542,7 +546,6 @@ def cli_test(
 def cli_run(
     nb_paths: Annotated[List[str], Argument(help="Specify the jupyter notebooks to fill. This argument is required.")],
     n_workers: Annotated[int, Option("-n", "--n-workers", help="The number of workers to use.")] = 4,
-    root_path: Annotated[Union[str,None], Option("-r", "--root", help="The root path of the project. If not provided, the project root will be determined by searching for a nblite.toml file.")] = None,
     cell_exec_timeout: Annotated[Union[int,None], Option("-t", "--timeout", help="The timeout for the cell execution.")] = None,
     silent: Annotated[bool, Option("--silent", help="Suppress output.")]=False,
 ):
@@ -555,6 +558,7 @@ def cli_run(
 
     remove_prev_outputs = False
     remove_cell_metadata = False
+    root_path = None
     include_dunders = True
     include_periods = True
     dry_run = True
@@ -576,6 +580,7 @@ def cli_run(
         silent,
         table_title='Running notebooks',
         checked_notebook_status_str='Finished',
+        skip_config=True,
     )
 
 

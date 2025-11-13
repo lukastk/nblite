@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.7] - 2025-11-13
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Fixed typo
+- Update docs
+- Update version in pyproject.toml
+
 ## [0.6.6] - 2025-11-04
 
 ### ⚙️ Miscellaneous Tasks

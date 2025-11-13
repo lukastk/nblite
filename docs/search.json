@@ -220,7 +220,7 @@
     "href": "api/docs/render.html#render_docs",
     "title": "docs.render",
     "section": "render_docs",
-    "text": "render_docs\nrender_docs(\n   output_folder: Union[str,None],\n   docs_cl: Union[str,None],\n   root_path: Union[str,None],\n   config_path: Union[str,None],\n   verbose: bool\n)\n\n\nrender_docs(root_path / '_docs', root_path=root_path, docs_cl='pcts')\n\n/var/folders/gc/wx3wyw4538vdtn_n2dyjn80m0000gn/T/ipykernel_98290/1416230047.py:28: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n  _, nb = nbformat.validator.normalize(nb)\n\n\n\nrender_docs(root_path / '_docs', root_path=root_path, docs_cl='nbs')",
+    "text": "render_docs\nrender_docs(\n   output_folder: Union[str,None],\n   docs_cl: Union[str,None],\n   root_path: Union[str,None],\n   config_path: Union[str,None],\n   verbose: bool\n)\n\n\nrender_docs(root_path / '_docs', root_path=root_path, docs_cl='pcts')\n\n/var/folders/gc/wx3wyw4538vdtn_n2dyjn80m0000gn/T/ipykernel_19237/1416230047.py:28: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n  _, nb = nbformat.validator.normalize(nb)\n\n\n\nrender_docs(root_path / '_docs', root_path=root_path, docs_cl='nbs')",
     "crumbs": [
       "api",
       "docs",

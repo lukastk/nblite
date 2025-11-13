@@ -106,7 +106,7 @@ def export_to_lib_as_func(nb_path: str, lib_path: str, nb_format: str = None):
             raise Exception('Return cell must contain only one line')
         return_statement = f'return {return_cell}'
     else:
-        return_statement = 'return'
+        return_statement = ''
     
     # Convert any line ending with #|return_line in an exported cell to a return statement
     py_lines = []
@@ -128,6 +128,7 @@ def export_to_lib_as_func(nb_path: str, lib_path: str, nb_format: str = None):
 
 {func_sig}
 {func_body}
+    {return_statement}
     """.strip()
 
     # Check the syntax

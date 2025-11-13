@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.8] - 2025-11-13
+
+### 🐛 Bug Fixes
+
+- Fixed bug in expost_as_func that removed #|func_return
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update docs
+- Update version in pyproject.toml
+
 ## [0.6.7] - 2025-11-13
 
 ### ⚙️ Miscellaneous Tasks

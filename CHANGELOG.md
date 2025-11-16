@@ -1,3 +1,14 @@
+## [0.6.10] - 2025-11-16
+
+### 🐛 Bug Fixes
+
+- Removed print statement
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update docs
+- Update version in pyproject.toml
 ## [0.6.9] - 2025-11-16
 
 ### 🐛 Bug Fixes

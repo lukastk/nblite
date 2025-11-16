@@ -625,7 +625,8 @@ def _nbdev_nb_export(nbname:str, # Filename of notebook
               procs=None,        # Processors to use
               name:str=None,     # Name of python script {name}.py to create.
               debug:bool=False,  # Debug mode
-              source_nb_path:str=None # Path to source notebook. If not provided, the notebook name will be used.
+              source_nb_path:str=None, # Path to source notebook. If not provided, the notebook name will be used.
+              fake_lib_path:Path=None, # Explicitly set the destination library path to be displayed in the header of the generated module.
              ):
     """
     Copied from `nbdev.export.nb_export` and modified, adding the extra argument
@@ -649,7 +650,7 @@ def _nbdev_nb_export(nbname:str, # Filename of notebook
                 return
             mm = nbdev.export.ModuleMaker(dest=lib_path, name=nm, nb_path=nbname, is_new=bool(name) or mod=='#')
             if source_nb_path is not None:
-                py_file_path = Path(lib_path)/(nm.replace('.','/') + ".py")
+                py_file_path = Path(lib_path if fake_lib_path is None else fake_lib_path)/(nm.replace('.','/') + ".py")
                 relative_path = os.path.relpath(source_nb_path, start=py_file_path)
                 mm.dest2nb = relative_path
                 mm.hdr = f"# %% {relative_path}"
@@ -658,13 +659,13 @@ def _nbdev_nb_export(nbname:str, # Filename of notebook
 
 # %%
 #|export
-def export_to_lib(nb_path, lib_path, nb_format=None):
+def export_to_lib(nb_path, lib_path, nb_format=None, fake_lib_path=None):
     if nb_format is None:
         nb_format = get_nb_format_from_path(nb_path)
 
     with tempfile.NamedTemporaryFile(delete=True, suffix='.ipynb') as tmpfile:
         convert_nb(nb_path, tmpfile.name, nb_format=nb_format)
-        _nbdev_nb_export(tmpfile.name, lib_path, source_nb_path=nb_path)
+        _nbdev_nb_export(tmpfile.name, lib_path, source_nb_path=nb_path, fake_lib_path=fake_lib_path)
 
 
 # %%

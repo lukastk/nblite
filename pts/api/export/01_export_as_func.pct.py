@@ -28,11 +28,11 @@ show_doc(get_nb_as_py_file)
 
 # %%
 #|exporti
-def get_nb_as_py_file(nb_path: str, lib_name: str, nb_format=None):
+def get_nb_as_py_file(nb_path: str, lib_name: str, nb_format=None, fake_lib_path=None):
     with tempfile.TemporaryDirectory() as tmp_dir:  # Create a temporary directory instead
         temp_lib_path = Path(tmp_dir) / lib_name
         temp_lib_path.mkdir(parents=True, exist_ok=True)
-        export_to_lib(nb_path, temp_lib_path, nb_format)
+        export_to_lib(nb_path, temp_lib_path, nb_format, fake_lib_path=fake_lib_path)
         py_file_path = get_nb_module_export_path(nb_path, temp_lib_path)
         if py_file_path is None:
             raise Exception(f"Failed to get exported Python module path for notebook {nb_path}. Check if the notebook has any #|export directives.")
@@ -93,7 +93,8 @@ def export_to_lib_as_func(nb_path: str, lib_path: str, nb_format: str = None):
      
     # Get the content of the notebook as a python file
     lib_name = Path(lib_path).stem
-    py_file_content = get_nb_as_py_file(nb_path, lib_name, nb_format)
+    print(nb_path)
+    py_file_content = get_nb_as_py_file(nb_path, lib_name, nb_format, fake_lib_path=lib_path)
     
     # Get the function header content
     header_content = get_top_exports(nb_path, nb_format)

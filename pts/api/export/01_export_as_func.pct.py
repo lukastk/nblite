@@ -93,7 +93,6 @@ def export_to_lib_as_func(nb_path: str, lib_path: str, nb_format: str = None):
      
     # Get the content of the notebook as a python file
     lib_name = Path(lib_path).stem
-    print(nb_path)
     py_file_content = get_nb_as_py_file(nb_path, lib_name, nb_format, fake_lib_path=lib_path)
     
     # Get the function header content

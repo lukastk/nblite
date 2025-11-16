@@ -1,7 +1,14 @@
-# Changelog
+## [0.6.9] - 2025-11-16
 
-All notable changes to this project will be documented in this file.
+### 🐛 Bug Fixes
 
+- The relative paths of func notebooks are now correct
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md
+- Update docs
+- Update version in pyproject.toml
 ## [0.6.8] - 2025-11-13
 
 ### 🐛 Bug Fixes
@@ -13,7 +20,6 @@ All notable changes to this project will be documented in this file.
 - Update CHANGELOG.md
 - Update docs
 - Update version in pyproject.toml
-
 ## [0.6.7] - 2025-11-13
 
 ### ⚙️ Miscellaneous Tasks
@@ -22,7 +28,6 @@ All notable changes to this project will be documented in this file.
 - Fixed typo
 - Update docs
 - Update version in pyproject.toml
-
 ## [0.6.6] - 2025-11-04
 
 ### ⚙️ Miscellaneous Tasks
@@ -31,7 +36,6 @@ All notable changes to this project will be documented in this file.
 - Modified prepare.sh script to always use latest version of nblite
 - Update docs
 - Update version in pyproject.toml
-
 ## [0.6.5] - 2025-10-04
 
 ### 🚀 Features
@@ -50,7 +54,6 @@ All notable changes to this project will be documented in this file.
 - Changed prepare script
 - Update docs
 - Update version in pyproject.toml
-
 ## [0.6.4] - 2025-08-15
 
 ### 🚀 Features
@@ -62,7 +65,6 @@ All notable changes to this project will be documented in this file.
 - Update CHANGELOG.md
 - Update docs
 - Update version in pyproject.toml
-
 ## [0.6.3] - 2025-08-08
 
 ### 🐛 Bug Fixes
@@ -74,7 +76,6 @@ All notable changes to this project will be documented in this file.
 - Update CHANGELOG.md
 - Update docs
 - Update version in pyproject.toml
-
 ## [0.6.2] - 2025-07-05
 
 ### 🐛 Bug Fixes
@@ -88,7 +89,6 @@ All notable changes to this project will be documented in this file.
 - Update CHANGELOG.md
 - Update docs
 - Update version in pyproject.toml
-
 ## [0.6.1] - 2025-06-28
 
 ### 🚀 Features
@@ -108,7 +108,6 @@ All notable changes to this project will be documented in this file.
 - Update CHANGELOG.md
 - Update docs
 - Update version in pyproject.toml
-
 ## [0.6.0] - 2025-06-28
 
 ### 🚀 Features
@@ -120,7 +119,6 @@ All notable changes to this project will be documented in this file.
 - Update CHANGELOG.md
 - Update docs
 - Update version in pyproject.toml
-
 ## [0.5.23] - 2025-06-25
 
 ### 🐛 Bug Fixes
@@ -132,7 +130,6 @@ All notable changes to this project will be documented in this file.
 - Update CHANGELOG.md
 - Update docs
 - Update version in pyproject.toml
-
 ## [0.5.22] - 2025-06-20
 
 ### 🐛 Bug Fixes
@@ -153,7 +150,6 @@ All notable changes to this project will be documented in this file.
 - Updated publish_new_version.sh script
 - Update docs
 - Update version in pyproject.toml
-
 ## [0.5.21] - 2025-06-20
 
 ### 🚀 Features
@@ -165,7 +161,6 @@ All notable changes to this project will be documented in this file.
 - Update CHANGELOG.md
 - Update docs
 - Update version in pyproject.toml
-
 ## [0.5.20] - 2025-06-10
 
 ### 🐛 Bug Fixes
@@ -176,7 +171,6 @@ All notable changes to this project will be documented in this file.
 
 - Update CHANGELOG.md
 - Update version in pyproject.toml
-
 ## [0.5.19] - 2025-06-10
 
 ### 🐛 Bug Fixes
@@ -187,7 +181,6 @@ All notable changes to this project will be documented in this file.
 
 - Update CHANGELOG.md
 - Update version in pyproject.toml
-
 ## [0.5.18] - 2025-06-09
 
 ### 🚀 Features
@@ -199,7 +192,6 @@ All notable changes to this project will be documented in this file.
 - Update CHANGELOG.md
 - Modified script
 - Update version in pyproject.toml
-
 ## [0.5.17] - 2025-05-27
 
 ### 🚀 Features
@@ -210,7 +202,6 @@ All notable changes to this project will be documented in this file.
 
 - Update CHANGELOG.md
 - Update version in pyproject.toml
-
 ## [0.5.16] - 2025-05-25
 
 ### 🐛 Bug Fixes
@@ -222,7 +213,6 @@ All notable changes to this project will be documented in this file.
 - Update CHANGELOG.md
 - Updated prepare script to install the test module
 - Update version in pyproject.toml
-
 ## [0.5.15] - 2025-05-24
 
 ### 🚀 Features
@@ -237,7 +227,6 @@ All notable changes to this project will be documented in this file.
 
 - Update CHANGELOG.md
 - Update version in pyproject.toml
-
 ## [0.5.14] - 2025-05-23
 
 ### 🐛 Bug Fixes
@@ -250,7 +239,6 @@ All notable changes to this project will be documented in this file.
 - Render docs
 - Nbl prepare
 - Update version in pyproject.toml
-
 ## [0.5.13] - 2025-05-20
 
 ### 🚀 Features
@@ -277,7 +265,6 @@ All notable changes to this project will be documented in this file.
 - Update CHANGELOG.md
 - Ran 'nbl prepare'
 - Update version in pyproject.toml
-
 ## [0.5.12] - 2025-05-10
 
 ### 🚀 Features
@@ -303,7 +290,6 @@ All notable changes to this project will be documented in this file.
 - Nbl prepare
 - New prepare script
 - Update version in pyproject.toml
-
 ## [0.5.11] - 2025-05-09
 
 ### 🚀 Features
@@ -323,7 +309,6 @@ All notable changes to this project will be documented in this file.
 - Update CHANGELOG.md
 - Ran nbl prepare. setup pyproject.toml so to as to install the test module properly
 - Update version in pyproject.toml
-
 ## [0.5.10] - 2025-05-06
 
 ### 🚀 Features
@@ -335,7 +320,6 @@ All notable changes to this project will be documented in this file.
 
 - Update CHANGELOG.md
 - Update version in pyproject.toml
-
 ## [0.5.9] - 2025-05-06
 
 ### 🚀 Features
@@ -346,7 +330,6 @@ All notable changes to this project will be documented in this file.
 
 - Update CHANGELOG.md
 - Update version in pyproject.toml
-
 ## [0.5.8] - 2025-05-05
 
 ### 🚀 Features
@@ -362,7 +345,6 @@ All notable changes to this project will be documented in this file.
 - Update CHANGELOG.md
 - Docs re-render
 - Update version in pyproject.toml
-
 ## [0.5.7] - 2025-05-05
 
 ### 🐛 Bug Fixes
@@ -373,7 +355,6 @@ All notable changes to this project will be documented in this file.
 
 - Update CHANGELOG.md
 - Update version in pyproject.toml
-
 ## [0.5.6] - 2025-05-05
 
 ### 🚀 Features
@@ -388,7 +369,6 @@ All notable changes to this project will be documented in this file.
 
 - Update CHANGELOG.md
 - Update version in pyproject.toml
-
 ## [0.5.5] - 2025-05-04
 
 ### 🐛 Bug Fixes
@@ -399,7 +379,6 @@ All notable changes to this project will be documented in this file.
 
 - Update CHANGELOG.md
 - Update version in pyproject.toml
-
 ## [0.5.4] - 2025-05-04
 
 ### 🚀 Features
@@ -410,7 +389,6 @@ All notable changes to this project will be documented in this file.
 
 - Update CHANGELOG.md
 - Update version in pyproject.toml
-
 ## [0.5.3] - 2025-05-04
 
 ### 🚀 Features
@@ -421,7 +399,6 @@ All notable changes to this project will be documented in this file.
 
 - Update CHANGELOG.md
 - Update version in pyproject.toml
-
 ## [0.5.2] - 2025-05-04
 
 ### 🐛 Bug Fixes
@@ -433,7 +410,6 @@ All notable changes to this project will be documented in this file.
 
 - Update CHANGELOG.md
 - Update version in pyproject.toml
-
 ## [0.5.1] - 2025-05-04
 
 ### 🐛 Bug Fixes
@@ -444,7 +420,6 @@ All notable changes to this project will be documented in this file.
 
 - Update CHANGELOG.md
 - Update version in pyproject.toml
-
 ## [0.5.0] - 2025-05-04
 
 ### 🚀 Features
@@ -465,7 +440,6 @@ All notable changes to this project will be documented in this file.
 
 - Update CHANGELOG.md
 - Update version in pyproject.toml
-
 ## [0.4.2] - 2025-05-03
 
 ### 🚀 Features
@@ -476,7 +450,6 @@ All notable changes to this project will be documented in this file.
 
 - Update CHANGELOG.md
 - Update version in pyproject.toml
-
 ## [0.4.1] - 2025-05-03
 
 ### 🚀 Features
@@ -491,7 +464,6 @@ All notable changes to this project will be documented in this file.
 
 - Update CHANGELOG.md
 - Update version in pyproject.toml
-
 ## [0.4.0] - 2025-05-03
 
 ### 🚀 Features
@@ -505,7 +477,6 @@ All notable changes to this project will be documented in this file.
 - New publish script
 - Uv.lock
 - Update version in pyproject.toml
-
 ## [0.3.4] - 2025-05-01
 
 ### 🚀 Features
@@ -515,7 +486,6 @@ All notable changes to this project will be documented in this file.
 ### ⚙️ Miscellaneous Tasks
 
 - Update version in pyproject.toml
-
 ## [0.3.3] - 2025-04-30
 
 ### 🚀 Features
@@ -526,7 +496,6 @@ All notable changes to this project will be documented in this file.
 
 - Updated changelog
 - 0.3.3
-
 ## [0.3.2] - 2025-04-29
 
 ### 🐛 Bug Fixes
@@ -537,7 +506,6 @@ All notable changes to this project will be documented in this file.
 
 - Updated changelog
 - 0.3.2
-
 ## [0.3.1] - 2025-04-29
 
 ### 🚀 Features
@@ -549,7 +517,6 @@ All notable changes to this project will be documented in this file.
 - Updated version in pyproject.toml
 - Updated CHANGELOG.md
 - V0.3.1
-
 ## [0.3.0] - 2025-04-28
 
 ### 🚀 Features
@@ -568,7 +535,6 @@ All notable changes to this project will be documented in this file.
 ### ⚙️ Miscellaneous Tasks
 
 - Updated changelog
-
 ## [0.2.0] - 2025-03-17
 
 ### 🚀 Features
@@ -588,7 +554,6 @@ All notable changes to this project will be documented in this file.
 
 - Fixed poorly formatted nb
 - New version
-
 ## [0.1.3] - 2025-03-17
 
 ### 🚀 Features
@@ -609,7 +574,6 @@ All notable changes to this project will be documented in this file.
 
 - Added rich dependency (for typer)
 - Bumped version
-
 ## [0.1.2] - 2025-03-16
 
 ### 🚀 Features
@@ -624,13 +588,11 @@ All notable changes to this project will be documented in this file.
 
 - Generated readme
 - New version
-
 ## [0.1.1] - 2025-03-16
 
 ### ⚙️ Miscellaneous Tasks
 
 - Needed to bump the version since 0.1.0 has already been uploaded to pip
-
 ## [0.1.0] - 2025-03-16
 
 ### 🚀 Features
@@ -651,14 +613,12 @@ All notable changes to this project will be documented in this file.
 - Cleaned code with new more agressive cleaning
 - Clean notebook1.ipynb
 - New version
-
 ## [0.0.2] - 2025-03-16
 
 ### 🐛 Bug Fixes
 
 - Added nbconvert as dependency
 - Nbl clean and nbl fill were trying to clean/fill non-ipynb notebooks
-
 ## [0.0.1] - 2025-03-16
 
 ### 🚀 Features
@@ -698,5 +658,3 @@ All notable changes to this project will be documented in this file.
 ### ⚙️ Miscellaneous Tasks
 
 - Added twine and git-cliff as dev dependencies
-
-<!-- generated by git-cliff -->

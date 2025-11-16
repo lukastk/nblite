@@ -96,7 +96,7 @@
     "href": "api/export/01_export_as_func.html#export_to_lib_as_func",
     "title": "export.export_as_func",
     "section": "export_to_lib_as_func",
-    "text": "export_to_lib_as_func\nexport_to_lib_as_func(nb_path: str, lib_path: str, nb_format: str)\n\n\nexport_to_lib_as_func(root_path / 'nbs' / 'func_notebook.ipynb', root_path / 'my_module');\n\n../../../test_proj/nbs/func_notebook.ipynb",
+    "text": "export_to_lib_as_func\nexport_to_lib_as_func(nb_path: str, lib_path: str, nb_format: str)\n\n\nexport_to_lib_as_func(root_path / 'nbs' / 'func_notebook.ipynb', root_path / 'my_module');",
     "crumbs": [
       "api",
       "export",

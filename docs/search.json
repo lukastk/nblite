@@ -60,7 +60,7 @@
     "href": "api/export/01_export_as_func.html",
     "title": "export.export_as_func",
     "section": "",
-    "text": "import nblite.export.export_as_func as this_module\nfrom nblite.export.export_as_func import get_nb_as_py_file, get_top_exports\nshow_doc(get_nb_as_py_file)\n\nget_nb_as_py_file\nget_nb_as_py_file(nb_path: str, lib_name: str, nb_format)\nroot_path = Path('../../../test_proj/')\npy_content = get_nb_as_py_file(root_path / 'nbs' / 'func_notebook.ipynb', 'my_module')\nshow_doc(get_top_exports)\n\nget_top_exports\nget_top_exports(nb_path: str, nb_format)\nGet the content of the notebook as a python file\npy_header_content = get_top_exports(root_path / 'nbs' / 'func_notebook.ipynb')\nprint(py_header_content)\n\n# %% top_export\ndef a_decorator(func):\n    def wrapper(*args, **kwargs):\n        print(\"Function is being called\")\n        result = func(*args, **kwargs)\n        print(\"Function has been called\")\n        return result\n    return wrapper\ndirectives = get_nb_directives(root_path / 'nbs' / 'func_notebook.ipynb')\nfor directive in directives:\n    print(f\"#|{directive['directive']} {directive['args']}\")\n\n#|default_exp test_func_nb\n#|export_as_func true\n#|hide \n#|top_export \n#|set_func_signature \n#|export \n#|func_return\ndirective = lookup_directive(get_nb_directives(root_path / 'nbs' / 'func_notebook.ipynb'), 'set_func_signature')\nfunc_signature_str = directive['cell']['source_without_directives'].strip()",
+    "text": "import nblite.export.export_as_func as this_module\nfrom nblite.export.export_as_func import get_nb_as_py_file, get_top_exports\nshow_doc(get_nb_as_py_file)\n\nget_nb_as_py_file\nget_nb_as_py_file(nb_path: str, lib_name: str, nb_format, fake_lib_path)\nroot_path = Path('../../../test_proj/')\npy_content = get_nb_as_py_file(root_path / 'nbs' / 'func_notebook.ipynb', 'my_module')\nshow_doc(get_top_exports)\n\nget_top_exports\nget_top_exports(nb_path: str, nb_format)\nGet the content of the notebook as a python file\npy_header_content = get_top_exports(root_path / 'nbs' / 'func_notebook.ipynb')\nprint(py_header_content)\n\n# %% top_export\ndef a_decorator(func):\n    def wrapper(*args, **kwargs):\n        print(\"Function is being called\")\n        result = func(*args, **kwargs)\n        print(\"Function has been called\")\n        return result\n    return wrapper\ndirectives = get_nb_directives(root_path / 'nbs' / 'func_notebook.ipynb')\nfor directive in directives:\n    print(f\"#|{directive['directive']} {directive['args']}\")\n\n#|default_exp test_func_nb\n#|export_as_func true\n#|hide \n#|top_export \n#|set_func_signature \n#|export \n#|func_return\ndirective = lookup_directive(get_nb_directives(root_path / 'nbs' / 'func_notebook.ipynb'), 'set_func_signature')\nfunc_signature_str = directive['cell']['source_without_directives'].strip()",
     "crumbs": [
       "api",
       "export",
@@ -72,7 +72,7 @@
     "href": "api/export/01_export_as_func.html#get_nb_as_py_file",
     "title": "export.export_as_func",
     "section": "get_nb_as_py_file",
-    "text": "get_nb_as_py_file\nget_nb_as_py_file(nb_path: str, lib_name: str, nb_format)",
+    "text": "get_nb_as_py_file\nget_nb_as_py_file(nb_path: str, lib_name: str, nb_format, fake_lib_path)",
     "crumbs": [
       "api",
       "export",
@@ -96,7 +96,7 @@
     "href": "api/export/01_export_as_func.html#export_to_lib_as_func",
     "title": "export.export_as_func",
     "section": "export_to_lib_as_func",
-    "text": "export_to_lib_as_func\nexport_to_lib_as_func(nb_path: str, lib_path: str, nb_format: str)\n\n\nexport_to_lib_as_func(root_path / 'nbs' / 'func_notebook.ipynb', root_path / 'my_module');",
+    "text": "export_to_lib_as_func\nexport_to_lib_as_func(nb_path: str, lib_path: str, nb_format: str)\n\n\nexport_to_lib_as_func(root_path / 'nbs' / 'func_notebook.ipynb', root_path / 'my_module');\n\n../../../test_proj/nbs/func_notebook.ipynb",
     "crumbs": [
       "api",
       "export",
@@ -220,7 +220,7 @@
     "href": "api/docs/render.html#render_docs",
     "title": "docs.render",
     "section": "render_docs",
-    "text": "render_docs\nrender_docs(\n   output_folder: Union[str,None],\n   docs_cl: Union[str,None],\n   root_path: Union[str,None],\n   config_path: Union[str,None],\n   verbose: bool\n)\n\n\nrender_docs(root_path / '_docs', root_path=root_path, docs_cl='pcts')\n\n/var/folders/gc/wx3wyw4538vdtn_n2dyjn80m0000gn/T/ipykernel_19237/1416230047.py:28: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n  _, nb = nbformat.validator.normalize(nb)\n\n\n\nrender_docs(root_path / '_docs', root_path=root_path, docs_cl='nbs')",
+    "text": "render_docs\nrender_docs(\n   output_folder: Union[str,None],\n   docs_cl: Union[str,None],\n   root_path: Union[str,None],\n   config_path: Union[str,None],\n   verbose: bool\n)\n\n\nrender_docs(root_path / '_docs', root_path=root_path, docs_cl='pcts')\n\n/var/folders/gc/wx3wyw4538vdtn_n2dyjn80m0000gn/T/ipykernel_54481/1416230047.py:28: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n  _, nb = nbformat.validator.normalize(nb)\n\n\n\nrender_docs(root_path / '_docs', root_path=root_path, docs_cl='nbs')",
     "crumbs": [
       "api",
       "docs",
@@ -309,7 +309,7 @@
     "href": "api/utils.html#get_relative_path",
     "title": "utils",
     "section": "get_relative_path",
-    "text": "get_relative_path\nget_relative_path(from_path: str, to_path: str)\nReturns the relative path to the root path.\n\n\nget_relative_path('.', '/Users/lukastk/')\n\nPath('../../../..')",
+    "text": "get_relative_path\nget_relative_path(from_path: str, to_path: str)\nReturns the relative path to the root path.\n\n\nget_relative_path('.', '/Users/lukastk/')\n\nPath('../../../../../../..')",
     "crumbs": [
       "api",
       "utils"
@@ -931,7 +931,7 @@
     "href": "api/export/00_base.html#get_nb_module_export_path",
     "title": "export.base",
     "section": "get_nb_module_export_path",
-    "text": "get_nb_module_export_path\nget_nb_module_export_path(nb_path: str, lib_path: str) -&gt; str\n\n\nget_nb_module_export_path(root_path / 'nbs/submodule/notebook3.ipynb', root_path / 'my_module')\n\nPath('/Users/lukastk/dev/2025-03-05_00__nblite/test_proj/my_module/submodule/notebook3.py')",
+    "text": "get_nb_module_export_path\nget_nb_module_export_path(nb_path: str, lib_path: str) -&gt; str\n\n\nget_nb_module_export_path(root_path / 'nbs/submodule/notebook3.ipynb', root_path / 'my_module')\n\nPath('/Users/lukastk/.repoyard/local_store/hetzner-box/20250305_000000_YvKoI__nblite/data/test_proj/my_module/submodule/notebook3.py')",
     "crumbs": [
       "api",
       "export",
@@ -943,7 +943,7 @@
     "href": "api/export/00_base.html#get_nb_twin_paths",
     "title": "export.base",
     "section": "get_nb_twin_paths",
-    "text": "get_nb_twin_paths\nget_nb_twin_paths(nb_path: str, root_path: str)\nFor a given notebook in a code location, returns the paths to all its ‘twins’ (the corresponding notebooks in the other code locations).\nThe original given notebook path is also returned.\n\n\nget_nb_twin_paths(root_path / 'nbs/folder/notebook4.ipynb', root_path)\n\n('/Users/lukastk/dev/2025-03-05_00__nblite/test_proj/lgts/folder/notebook4.lgt.py',\n '/Users/lukastk/dev/2025-03-05_00__nblite/test_proj/my_module/notebook4.py',\n '/Users/lukastk/dev/2025-03-05_00__nblite/test_proj/nbs/folder/notebook4.ipynb',\n '/Users/lukastk/dev/2025-03-05_00__nblite/test_proj/pcts/folder/notebook4.pct.py')",
+    "text": "get_nb_twin_paths\nget_nb_twin_paths(nb_path: str, root_path: str)\nFor a given notebook in a code location, returns the paths to all its ‘twins’ (the corresponding notebooks in the other code locations).\nThe original given notebook path is also returned.\n\n\nget_nb_twin_paths(root_path / 'nbs/folder/notebook4.ipynb', root_path)\n\n('/Users/lukastk/.repoyard/local_store/hetzner-box/20250305_000000_YvKoI__nblite/data/test_proj/lgts/folder/notebook4.lgt.py',\n '/Users/lukastk/.repoyard/local_store/hetzner-box/20250305_000000_YvKoI__nblite/data/test_proj/my_module/notebook4.py',\n '/Users/lukastk/.repoyard/local_store/hetzner-box/20250305_000000_YvKoI__nblite/data/test_proj/nbs/folder/notebook4.ipynb',\n '/Users/lukastk/.repoyard/local_store/hetzner-box/20250305_000000_YvKoI__nblite/data/test_proj/pcts/folder/notebook4.pct.py')",
     "crumbs": [
       "api",
       "export",
@@ -1075,7 +1075,7 @@
     "href": "api/export/00_base.html#export_to_lib",
     "title": "export.base",
     "section": "export_to_lib",
-    "text": "export_to_lib\nexport_to_lib(nb_path, lib_path, nb_format)\n\n\nroot_path = Path('../../../test_proj/')\n\nexport_to_lib(\n    root_path / 'nbs' / 'notebook1.ipynb',\n    root_path / 'my_module',\n)\n\nexport_to_lib(\n    root_path / 'nbs' / 'notebook2.ipynb',\n    root_path / 'my_module',\n)\n\n\nexport_to_lib(\n    root_path / 'pcts' / 'notebook1.pct.py',\n    root_path / 'my_module',\n)\n\nexport_to_lib(\n    root_path / 'pcts' / 'notebook2.pct.py',\n    root_path / 'my_module',\n)",
+    "text": "export_to_lib\nexport_to_lib(nb_path, lib_path, nb_format, fake_lib_path)\n\n\nroot_path = Path('../../../test_proj/')\n\nexport_to_lib(\n    root_path / 'nbs' / 'notebook1.ipynb',\n    root_path / 'my_module',\n)\n\nexport_to_lib(\n    root_path / 'nbs' / 'notebook2.ipynb',\n    root_path / 'my_module',\n)\n\n\nexport_to_lib(\n    root_path / 'pcts' / 'notebook1.pct.py',\n    root_path / 'my_module',\n)\n\nexport_to_lib(\n    root_path / 'pcts' / 'notebook2.pct.py',\n    root_path / 'my_module',\n)",
     "crumbs": [
       "api",
       "export",

@@ -357,7 +357,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-11" class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>get_nb_module_export_path(root_path <span class="op">/</span> <span class="st">'nbs/submodule/notebook3.ipynb'</span>, root_path <span class="op">/</span> <span class="st">'my_module'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<pre><code>Path('/Users/lukastk/dev/2025-03-05_00__nblite/test_proj/my_module/submodule/notebook3.py')</code></pre>
+<pre><code>Path('/Users/lukastk/.repoyard/local_store/hetzner-box/20250305_000000_YvKoI__nblite/data/test_proj/my_module/submodule/notebook3.py')</code></pre>
 </div>
 </div>
 </section>
@@ -370,10 +370,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="cell-13" class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>get_nb_twin_paths(root_path <span class="op">/</span> <span class="st">'nbs/folder/notebook4.ipynb'</span>, root_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<pre><code>('/Users/lukastk/dev/2025-03-05_00__nblite/test_proj/lgts/folder/notebook4.lgt.py',
- '/Users/lukastk/dev/2025-03-05_00__nblite/test_proj/my_module/notebook4.py',
- '/Users/lukastk/dev/2025-03-05_00__nblite/test_proj/nbs/folder/notebook4.ipynb',
- '/Users/lukastk/dev/2025-03-05_00__nblite/test_proj/pcts/folder/notebook4.pct.py')</code></pre>
+<pre><code>('/Users/lukastk/.repoyard/local_store/hetzner-box/20250305_000000_YvKoI__nblite/data/test_proj/lgts/folder/notebook4.lgt.py',
+ '/Users/lukastk/.repoyard/local_store/hetzner-box/20250305_000000_YvKoI__nblite/data/test_proj/my_module/notebook4.py',
+ '/Users/lukastk/.repoyard/local_store/hetzner-box/20250305_000000_YvKoI__nblite/data/test_proj/nbs/folder/notebook4.ipynb',
+ '/Users/lukastk/.repoyard/local_store/hetzner-box/20250305_000000_YvKoI__nblite/data/test_proj/pcts/folder/notebook4.pct.py')</code></pre>
 </div>
 </div>
 </section>
@@ -557,7 +557,7 @@ def foo():
 </section>
 <section id="export_to_lib" class="level2">
 <h2 class="anchored" data-anchor-id="export_to_lib">export_to_lib</h2>
-<div class="sourceCode" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>export_to_lib(nb_path, lib_path, nb_format)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>export_to_lib(nb_path, lib_path, nb_format, fake_lib_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <hr>
 <div id="cell-34" class="cell">
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>root_path <span class="op">=</span> Path(<span class="st">'../../../test_proj/'</span>)</span>

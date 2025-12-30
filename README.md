@@ -2,6 +2,8 @@
 
 **Notebook-driven Python development made simple.**
 
+**Note:** This is the repository of the old version of `nblite`. See the new version [here](https://github.com/lukastk/nblite).
+
 nblite is a tool for developing Python packages using Jupyter notebooks, and/or plaintext notebooks (e.g. [percent](https://jupytext.readthedocs.io/en/latest/formats-scripts.html#the-percent-format) format `.pct.py` files) as the source of truth. Write your code in notebooks, add export directives, and nblite generates clean Python modules automatically.
 
 **Note:** `nblite` was inspired by the excellent [nbdev](https://github.com/AnswerDotAI/nbdev), with some adjustments to make it more lightweight and quality-of-life additions. Full credit of the concept and implementation of notebook-driven development using Jupyter notebooks should go to the creators of [nbdev](https://github.com/AnswerDotAI/nbdev).

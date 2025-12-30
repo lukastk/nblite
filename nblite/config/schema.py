@@ -19,6 +19,7 @@ __all__ = [
     "ExportConfig",
     "GitConfig",
     "CleanConfig",
+    "FillConfig",
     "DocsConfig",
     "NbliteConfig",
     "CodeLocationFormat",
@@ -198,6 +199,56 @@ class CleanConfig(BaseModel):
     )
 
 
+class FillConfig(BaseModel):
+    """
+    Configuration for notebook fill (execution).
+
+    Attributes:
+        timeout: Cell execution timeout in seconds (None = no timeout)
+        n_workers: Number of parallel workers for execution
+        skip_unchanged: Skip notebooks that haven't changed
+        remove_outputs_first: Clear existing outputs before execution
+        code_locations: List of code locations to fill (None = all ipynb locations)
+        exclude_patterns: Glob patterns to exclude from fill
+        exclude_dunders: Exclude __* notebooks
+        exclude_hidden: Exclude .* notebooks
+    """
+
+    timeout: int | None = Field(
+        default=None,
+        description="Cell execution timeout in seconds (None = no timeout)",
+    )
+    n_workers: int = Field(
+        default=4,
+        description="Number of parallel workers for execution",
+        ge=1,
+    )
+    skip_unchanged: bool = Field(
+        default=True,
+        description="Skip notebooks that haven't changed",
+    )
+    remove_outputs_first: bool = Field(
+        default=False,
+        description="Clear existing outputs before execution",
+    )
+    code_locations: list[str] | None = Field(
+        default=None,
+        description="List of code locations to fill (None = all ipynb locations)",
+    )
+    exclude_patterns: list[str] = Field(
+        default_factory=list,
+        description="Glob patterns to exclude from fill",
+    )
+    exclude_dunders: bool = Field(
+        default=True,
+        description="Exclude __* notebooks",
+    )
+    exclude_hidden: bool = Field(
+        default=True,
+        description="Exclude .* notebooks",
+    )
+
+
 class DocsConfig(BaseModel):
     """
     Configuration for documentation generation.
@@ -296,6 +347,10 @@ class NbliteConfig(BaseModel):
     clean: CleanConfig = Field(
         default_factory=CleanConfig,
         description="Clean options",
+    )
+    fill: FillConfig = Field(
+        default_factory=FillConfig,
+        description="Fill (execution) options",
     )
     docs: DocsConfig = Field(
         default_factory=DocsConfig,

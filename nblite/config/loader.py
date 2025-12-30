@@ -224,6 +224,8 @@ def load_config(path: Path | str) -> NbliteConfig:
         config_data["git"] = raw_config["git"]
     if "clean" in raw_config:
         config_data["clean"] = raw_config["clean"]
+    if "fill" in raw_config:
+        config_data["fill"] = raw_config["fill"]
     if "docs" in raw_config:
         config_data["docs"] = raw_config["docs"]
 

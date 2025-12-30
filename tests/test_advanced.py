@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from nblite.convert import module_to_notebook
+from nblite.convert import module_to_notebook, modules_to_notebooks
 from nblite.core.notebook import Notebook
 from nblite.templates.renderer import (
     get_builtin_templates,
@@ -229,3 +229,130 @@ def foo():
         module_to_notebook(module_path, nb_path)
 
         assert nb_path.exists()
+
+    def test_modules_to_notebooks_basic(self, tmp_path: Path) -> None:
+        """Test converting a directory of modules."""
+        input_dir = tmp_path / "src"
+        input_dir.mkdir()
+
+        (input_dir / "utils.py").write_text("def foo(): pass")
+        (input_dir / "core.py").write_text("def bar(): pass")
+
+        output_dir = tmp_path / "nbs"
+
+        created = modules_to_notebooks(input_dir, output_dir)
+
+        assert len(created) == 2
+        assert (output_dir / "utils.ipynb").exists()
+        assert (output_dir / "core.ipynb").exists()
+
+    def test_modules_to_notebooks_recursive(self, tmp_path: Path) -> None:
+        """Test recursive conversion."""
+        input_dir = tmp_path / "src"
+        input_dir.mkdir()
+        subdir = input_dir / "sub"
+        subdir.mkdir()
+
+        (input_dir / "utils.py").write_text("def foo(): pass")
+        (subdir / "helper.py").write_text("def bar(): pass")
+
+        output_dir = tmp_path / "nbs"
+
+        created = modules_to_notebooks(input_dir, output_dir, recursive=True)
+
+        assert len(created) == 2
+        assert (output_dir / "utils.ipynb").exists()
+        assert (output_dir / "sub" / "helper.ipynb").exists()
+
+    def test_modules_to_notebooks_non_recursive(self, tmp_path: Path) -> None:
+        """Test non-recursive conversion."""
+        input_dir = tmp_path / "src"
+        input_dir.mkdir()
+        subdir = input_dir / "sub"
+        subdir.mkdir()
+
+        (input_dir / "utils.py").write_text("def foo(): pass")
+        (subdir / "helper.py").write_text("def bar(): pass")
+
+        output_dir = tmp_path / "nbs"
+
+        created = modules_to_notebooks(input_dir, output_dir, recursive=False)
+
+        assert len(created) == 1
+        assert (output_dir / "utils.ipynb").exists()
+        assert not (output_dir / "sub" / "helper.ipynb").exists()
+
+    def test_modules_to_notebooks_exclude_init(self, tmp_path: Path) -> None:
+        """Test that __init__.py is excluded by default."""
+        input_dir = tmp_path / "src"
+        input_dir.mkdir()
+
+        (input_dir / "utils.py").write_text("def foo(): pass")
+        (input_dir / "__init__.py").write_text("# init")
+
+        output_dir = tmp_path / "nbs"
+
+        created = modules_to_notebooks(input_dir, output_dir, exclude_init=True)
+
+        assert len(created) == 1
+        assert (output_dir / "utils.ipynb").exists()
+        assert not (output_dir / "__init__.ipynb").exists()
+
+    def test_modules_to_notebooks_include_init(self, tmp_path: Path) -> None:
+        """Test including __init__.py files."""
+        input_dir = tmp_path / "src"
+        input_dir.mkdir()
+
+        (input_dir / "utils.py").write_text("def foo(): pass")
+        (input_dir / "__init__.py").write_text("# init")
+
+        output_dir = tmp_path / "nbs"
+
+        created = modules_to_notebooks(input_dir, output_dir, exclude_init=False)
+
+        assert len(created) == 2
+        assert (output_dir / "utils.ipynb").exists()
+        assert (output_dir / "__init__.ipynb").exists()
+
+    def test_modules_to_notebooks_percent_format(self, tmp_path: Path) -> None:
+        """Test converting to percent format."""
+        input_dir = tmp_path / "src"
+        input_dir.mkdir()
+
+        (input_dir / "utils.py").write_text("def foo(): pass")
+
+        output_dir = tmp_path / "nbs"
+
+        created = modules_to_notebooks(input_dir, output_dir, format="percent")
+
+        assert len(created) == 1
+        assert (output_dir / "utils.pct.py").exists()
+
+    def test_modules_to_notebooks_module_name_from_path(self, tmp_path: Path) -> None:
+        """Test module name is derived from relative path."""
+        input_dir = tmp_path / "src"
+        input_dir.mkdir()
+        subdir = input_dir / "sub"
+        subdir.mkdir()
+
+        (subdir / "helper.py").write_text("def bar(): pass")
+
+        output_dir = tmp_path / "nbs"
+
+        modules_to_notebooks(input_dir, output_dir)
+
+        nb = Notebook.from_file(output_dir / "sub" / "helper.ipynb")
+        assert nb.default_exp == "sub.helper"
+
+    def test_modules_to_notebooks_not_a_directory(self, tmp_path: Path) -> None:
+        """Test error when input is not a directory."""
+        file_path = tmp_path / "file.py"
+        file_path.write_text("x = 1")
+
+        with pytest.raises(NotADirectoryError):
+            modules_to_notebooks(file_path, tmp_path / "out")
+
+    def test_modules_to_notebooks_directory_not_found(self, tmp_path: Path) -> None:
+        """Test error when directory doesn't exist."""
+        with pytest.raises(FileNotFoundError):
+            modules_to_notebooks(tmp_path / "nonexistent", tmp_path / "out")

@@ -8,10 +8,24 @@ This module contains the core classes:
 - NbliteProject: Central project management class
 """
 
-# Exports will be added as classes are implemented
-# from nblite.core.notebook import Notebook
-# from nblite.core.cell import Cell
-# from nblite.core.directive import Directive, DirectiveDefinition
-# from nblite.core.project import NbliteProject
+from nblite.core.directive import (
+    Directive,
+    DirectiveDefinition,
+    DirectiveError,
+    get_directive_definition,
+    get_source_without_directives,
+    list_directive_definitions,
+    parse_directives_from_source,
+    register_directive,
+)
 
-__all__: list[str] = []
+__all__ = [
+    "Directive",
+    "DirectiveDefinition",
+    "DirectiveError",
+    "register_directive",
+    "get_directive_definition",
+    "list_directive_definitions",
+    "parse_directives_from_source",
+    "get_source_without_directives",
+]

@@ -8,9 +8,12 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import TYPE_CHECKING, Annotated, Optional
 
 import typer
+
+if TYPE_CHECKING:
+    from nblite.core.project import NbliteProject
 from rich.console import Console
 from rich.table import Table
 from rich.text import Text
@@ -25,6 +28,9 @@ app = typer.Typer(
 
 console = Console()
 
+# Global config path stored in context
+CONFIG_PATH_KEY = "config_path"
+
 
 def version_callback(value: bool) -> None:
     """Print version and exit."""
@@ -33,8 +39,42 @@ def version_callback(value: bool) -> None:
         raise typer.Exit()
 
 
+def get_project(ctx: typer.Context) -> "NbliteProject":
+    """
+    Get the NbliteProject using the config path from context.
+
+    Args:
+        ctx: Typer context containing optional config_path
+
+    Returns:
+        NbliteProject instance
+
+    Raises:
+        typer.Exit: If project cannot be loaded
+    """
+    from nblite.core.project import NbliteProject
+
+    config_path = ctx.obj.get(CONFIG_PATH_KEY) if ctx.obj else None
+
+    try:
+        return NbliteProject.from_path(config_path)
+    except FileNotFoundError as e:
+        console.print(f"[red]Error: {e}[/red]")
+        raise typer.Exit(1)
+
+
 @app.callback()
 def main(
+    ctx: typer.Context,
+    config: Annotated[
+        Optional[Path],
+        typer.Option(
+            "--config",
+            "-c",
+            help="Path to nblite.toml config file",
+            envvar="NBLITE_CONFIG",
+        ),
+    ] = None,
     version: Annotated[
         bool,
         typer.Option(
@@ -47,7 +87,9 @@ def main(
     ] = False,
 ) -> None:
     """nblite - Notebook-driven Python package development tool."""
-    pass
+    ctx.ensure_object(dict)
+    if config is not None:
+        ctx.obj[CONFIG_PATH_KEY] = config
 
 
 @app.command()
@@ -105,6 +147,7 @@ format = "module"
 
 @app.command()
 def new(
+    ctx: typer.Context,
     notebook_path: Annotated[
         Path,
         typer.Argument(help="Path for the new notebook"),
@@ -129,9 +172,11 @@ def new(
     """Create a new notebook."""
     from nblite.core.project import NbliteProject
 
+    config_path = ctx.obj.get(CONFIG_PATH_KEY) if ctx.obj else None
+
     # Try to find project root
     try:
-        project = NbliteProject.from_path()
+        project = NbliteProject.from_path(config_path)
         notebook_path = project.root_path / notebook_path
     except FileNotFoundError:
         notebook_path = Path.cwd() / notebook_path
@@ -184,6 +229,7 @@ def new(
 
 @app.command()
 def export(
+    ctx: typer.Context,
     notebooks: Annotated[
         Optional[list[Path]],
         typer.Argument(help="Specific notebooks to export"),
@@ -194,13 +240,7 @@ def export(
     ] = False,
 ) -> None:
     """Run the export pipeline."""
-    from nblite.core.project import NbliteProject
-
-    try:
-        project = NbliteProject.from_path()
-    except FileNotFoundError as e:
-        console.print(f"[red]Error: {e}[/red]")
-        raise typer.Exit(1)
+    project = get_project(ctx)
 
     if dry_run:
         console.print("[blue]Dry run - would export:[/blue]")
@@ -227,6 +267,7 @@ def export(
 
 @app.command()
 def clean(
+    ctx: typer.Context,
     notebooks: Annotated[
         Optional[list[Path]],
         typer.Argument(help="Specific notebooks to clean"),
@@ -278,13 +319,7 @@ def clean(
         nbl clean -O -e                 # Remove outputs and execution counts
         nbl clean --remove-cell-metadata
     """
-    from nblite.core.project import NbliteProject
-
-    try:
-        project = NbliteProject.from_path()
-    except FileNotFoundError as e:
-        console.print(f"[red]Error: {e}[/red]")
-        raise typer.Exit(1)
+    project = get_project(ctx)
 
     # Parse keep_only into list if provided
     keep_only_list = None
@@ -342,15 +377,9 @@ def convert(
 
 
 @app.command()
-def info() -> None:
+def info(ctx: typer.Context) -> None:
     """Show project information."""
-    from nblite.core.project import NbliteProject
-
-    try:
-        project = NbliteProject.from_path()
-    except FileNotFoundError as e:
-        console.print(f"[red]Error: {e}[/red]")
-        raise typer.Exit(1)
+    project = get_project(ctx)
 
     console.print(f"[bold]Project:[/bold] {project.root_path}")
     console.print()
@@ -383,19 +412,14 @@ def info() -> None:
 
 @app.command("list")
 def list_files(
+    ctx: typer.Context,
     code_location: Annotated[
         Optional[str],
         typer.Argument(help="Code location to list (all if omitted)"),
     ] = None,
 ) -> None:
     """List notebooks and files in the project."""
-    from nblite.core.project import NbliteProject
-
-    try:
-        project = NbliteProject.from_path()
-    except FileNotFoundError as e:
-        console.print(f"[red]Error: {e}[/red]")
-        raise typer.Exit(1)
+    project = get_project(ctx)
 
     locations = project.code_locations.values()
     if code_location:
@@ -417,16 +441,11 @@ def list_files(
 
 
 @app.command("install-hooks")
-def install_hooks_cmd() -> None:
+def install_hooks_cmd(ctx: typer.Context) -> None:
     """Install git hooks for the project."""
-    from nblite.core.project import NbliteProject
     from nblite.git.hooks import install_hooks
 
-    try:
-        project = NbliteProject.from_path()
-    except FileNotFoundError as e:
-        console.print(f"[red]Error: {e}[/red]")
-        raise typer.Exit(1)
+    project = get_project(ctx)
 
     try:
         install_hooks(project)
@@ -437,32 +456,21 @@ def install_hooks_cmd() -> None:
 
 
 @app.command("uninstall-hooks")
-def uninstall_hooks_cmd() -> None:
+def uninstall_hooks_cmd(ctx: typer.Context) -> None:
     """Remove git hooks for the project."""
-    from nblite.core.project import NbliteProject
     from nblite.git.hooks import uninstall_hooks
 
-    try:
-        project = NbliteProject.from_path()
-    except FileNotFoundError as e:
-        console.print(f"[red]Error: {e}[/red]")
-        raise typer.Exit(1)
-
+    project = get_project(ctx)
     uninstall_hooks(project)
     console.print("[green]Git hooks removed[/green]")
 
 
 @app.command("validate")
-def validate_cmd() -> None:
+def validate_cmd(ctx: typer.Context) -> None:
     """Validate git staging state."""
-    from nblite.core.project import NbliteProject
     from nblite.git.staging import validate_staging
 
-    try:
-        project = NbliteProject.from_path()
-    except FileNotFoundError as e:
-        console.print(f"[red]Error: {e}[/red]")
-        raise typer.Exit(1)
+    project = get_project(ctx)
 
     result = validate_staging(project)
 
@@ -481,6 +489,7 @@ def validate_cmd() -> None:
 
 @app.command("hook")
 def hook_cmd(
+    ctx: typer.Context,
     hook_name: Annotated[
         str,
         typer.Argument(help="Hook name (pre-commit, post-commit)"),
@@ -489,8 +498,10 @@ def hook_cmd(
     """Run a git hook (internal use)."""
     from nblite.core.project import NbliteProject
 
+    config_path = ctx.obj.get(CONFIG_PATH_KEY) if ctx.obj else None
+
     try:
-        project = NbliteProject.from_path()
+        project = NbliteProject.from_path(config_path)
     except FileNotFoundError:
         # Not in a project, silently exit
         return
@@ -523,6 +534,7 @@ def _run_fill(
     exclude_hidden: bool,
     dry_run: bool,
     silent: bool,
+    config_path: Path | None = None,
 ) -> int:
     """
     Internal fill implementation shared by fill and test commands.
@@ -541,7 +553,7 @@ def _run_fill(
     from nblite.fill import FillResult, FillStatus, fill_notebook, has_notebook_changed
 
     try:
-        project = NbliteProject.from_path()
+        project = NbliteProject.from_path(config_path)
     except FileNotFoundError as e:
         console.print(f"[red]Error: {e}[/red]")
         return 1
@@ -710,6 +722,7 @@ def _run_fill(
 
 @app.command()
 def fill(
+    ctx: typer.Context,
     notebooks: Annotated[
         Optional[list[Path]],
         typer.Argument(help="Specific notebooks to fill (all ipynb if omitted)"),
@@ -762,6 +775,7 @@ def fill(
     - #|skip_evals - Skip all following cells
     - #|skip_evals_stop - Resume execution
     """
+    config_path = ctx.obj.get(CONFIG_PATH_KEY) if ctx.obj else None
     exit_code = _run_fill(
         notebooks=notebooks,
         code_locations=code_locations,
@@ -773,6 +787,7 @@ def fill(
         exclude_hidden=not include_hidden,
         dry_run=dry_run,
         silent=silent,
+        config_path=config_path,
     )
     if exit_code != 0:
         raise typer.Exit(exit_code)
@@ -780,6 +795,7 @@ def fill(
 
 @app.command()
 def test(
+    ctx: typer.Context,
     notebooks: Annotated[
         Optional[list[Path]],
         typer.Argument(help="Specific notebooks to test (all ipynb if omitted)"),
@@ -819,6 +835,7 @@ def test(
     but does not save the results, making it useful for CI/CD pipelines
     to verify notebooks run correctly.
     """
+    config_path = ctx.obj.get(CONFIG_PATH_KEY) if ctx.obj else None
     exit_code = _run_fill(
         notebooks=notebooks,
         code_locations=code_locations,
@@ -830,6 +847,7 @@ def test(
         exclude_hidden=not include_hidden,
         dry_run=True,  # Always dry run for test
         silent=silent,
+        config_path=config_path,
     )
     if exit_code != 0:
         raise typer.Exit(exit_code)
@@ -837,6 +855,7 @@ def test(
 
 @app.command()
 def readme(
+    ctx: typer.Context,
     notebook_path: Annotated[
         Optional[Path],
         typer.Argument(help="Path to notebook (uses config readme_nb_path if omitted)"),
@@ -855,14 +874,9 @@ def readme(
     Example nblite.toml:
         readme_nb_path = "nbs/index.ipynb"
     """
-    from nblite.core.project import NbliteProject
     from nblite.readme import generate_readme
 
-    try:
-        project = NbliteProject.from_path()
-    except FileNotFoundError as e:
-        console.print(f"[red]Error: {e}[/red]")
-        raise typer.Exit(1)
+    project = get_project(ctx)
 
     # Determine notebook path
     if notebook_path is None:
@@ -891,6 +905,7 @@ def readme(
 
 @app.command()
 def prepare(
+    ctx: typer.Context,
     skip_export: Annotated[
         bool,
         typer.Option("--skip-export", help="Skip export step"),
@@ -931,14 +946,10 @@ def prepare(
 
     Use --skip-* options to skip individual steps.
     """
-    from nblite.core.project import NbliteProject
     from nblite.readme import generate_readme
 
-    try:
-        project = NbliteProject.from_path()
-    except FileNotFoundError as e:
-        console.print(f"[red]Error: {e}[/red]")
-        raise typer.Exit(1)
+    project = get_project(ctx)
+    config_path = ctx.obj.get(CONFIG_PATH_KEY) if ctx.obj else None
 
     # Step 1: Export
     if not skip_export:
@@ -976,6 +987,7 @@ def prepare(
             exclude_hidden=True,
             dry_run=False,
             silent=False,
+            config_path=config_path,
         )
         if exit_code != 0:
             raise typer.Exit(exit_code)
@@ -1003,6 +1015,7 @@ def prepare(
 
 @app.command("render-docs")
 def render_docs_cmd(
+    ctx: typer.Context,
     output_folder: Annotated[
         Optional[Path],
         typer.Option("--output", "-o", help="Output folder (default: _docs)"),
@@ -1033,14 +1046,9 @@ def render_docs_cmd(
     """
     from tempfile import TemporaryDirectory
 
-    from nblite.core.project import NbliteProject
     from nblite.docs import get_generator
 
-    try:
-        project = NbliteProject.from_path()
-    except FileNotFoundError as e:
-        console.print(f"[red]Error: {e}[/red]")
-        raise typer.Exit(1)
+    project = get_project(ctx)
 
     # Determine generator
     gen_name = generator or project.config.docs_generator
@@ -1083,6 +1091,7 @@ def render_docs_cmd(
 
 @app.command("preview-docs")
 def preview_docs_cmd(
+    ctx: typer.Context,
     generator: Annotated[
         Optional[str],
         typer.Option("--generator", "-g", help="Documentation generator (mkdocs, jupyterbook, quarto)"),
@@ -1105,14 +1114,9 @@ def preview_docs_cmd(
     """
     from tempfile import TemporaryDirectory
 
-    from nblite.core.project import NbliteProject
     from nblite.docs import get_generator
 
-    try:
-        project = NbliteProject.from_path()
-    except FileNotFoundError as e:
-        console.print(f"[red]Error: {e}[/red]")
-        raise typer.Exit(1)
+    project = get_project(ctx)
 
     # Determine generator
     gen_name = generator or project.config.docs_generator

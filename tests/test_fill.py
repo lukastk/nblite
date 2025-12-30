@@ -529,6 +529,92 @@ format = "ipynb"
         # File should not be modified (dry_run)
         assert path.read_text() == original_content
 
+    def test_fill_cli_disables_export_by_default(self, tmp_path: Path) -> None:
+        """Test that fill CLI disables nbl_export() by default."""
+        import os
+        from nblite import DISABLE_NBLITE_EXPORT_ENV_VAR
+
+        # Create nblite.toml
+        nbs_dir = tmp_path / "nbs"
+        nbs_dir.mkdir()
+        config = """
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+"""
+        (tmp_path / "nblite.toml").write_text(config)
+
+        # Create a notebook that checks the env var
+        import json
+        nb_content = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "source": f"import os\nresult = os.environ.get('{DISABLE_NBLITE_EXPORT_ENV_VAR}', '')",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                }
+            ],
+            "metadata": {
+                "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
+            },
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        path = nbs_dir / "check_env.ipynb"
+        path.write_text(json.dumps(nb_content))
+
+        # Run fill (which should set the env var)
+        from typer.testing import CliRunner
+        from nblite.cli.app import app
+
+        runner = CliRunner()
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            result = runner.invoke(app, ["fill", str(path)])
+        finally:
+            os.chdir(original_cwd)
+
+        assert result.exit_code == 0, f"CLI failed: {result.output}"
+
+        # After fill, the env var should be restored
+        assert os.environ.get(DISABLE_NBLITE_EXPORT_ENV_VAR) is None
+
+    def test_fill_cli_allow_export_option(self, tmp_path: Path) -> None:
+        """Test that --allow-export flag enables nbl_export() during fill."""
+        import os
+        from nblite import DISABLE_NBLITE_EXPORT_ENV_VAR
+
+        # Create nblite.toml
+        nbs_dir = tmp_path / "nbs"
+        nbs_dir.mkdir()
+        config = """
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+"""
+        (tmp_path / "nblite.toml").write_text(config)
+
+        path = create_simple_notebook(nbs_dir)
+
+        from typer.testing import CliRunner
+        from nblite.cli.app import app
+
+        runner = CliRunner()
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            # With --allow-export, the env var should NOT be set
+            result = runner.invoke(app, ["fill", "--allow-export", str(path)])
+        finally:
+            os.chdir(original_cwd)
+
+        assert result.exit_code == 0, f"CLI failed: {result.output}"
+        # Env var should not be set after fill completes
+        assert os.environ.get(DISABLE_NBLITE_EXPORT_ENV_VAR) is None
+
 
 class TestFillIntegration:
     """Integration tests for fill with project structure."""

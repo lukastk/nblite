@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Annotated, Optional
 
@@ -9,6 +10,7 @@ import typer
 from rich.table import Table
 from rich.text import Text
 
+from nblite import DISABLE_NBLITE_EXPORT_ENV_VAR
 from nblite.cli._helpers import console
 
 
@@ -23,6 +25,7 @@ def _run_fill(
     exclude_hidden: bool,
     dry_run: bool,
     silent: bool,
+    allow_export: bool = False,
     config_path: Path | None = None,
 ) -> int:
     """
@@ -39,10 +42,20 @@ def _run_fill(
     from nblite.core.project import NbliteProject
     from nblite.fill import FillResult, FillStatus, fill_notebook, has_notebook_changed
 
+    # Disable export during fill by default (can interfere with notebook execution)
+    prev_disable_export = os.environ.get(DISABLE_NBLITE_EXPORT_ENV_VAR)
+    if not allow_export:
+        os.environ[DISABLE_NBLITE_EXPORT_ENV_VAR] = "true"
+
     try:
         project = NbliteProject.from_path(config_path)
     except FileNotFoundError as e:
         console.print(f"[red]Error: {e}[/red]")
+        # Restore environment variable before returning
+        if prev_disable_export is None:
+            os.environ.pop(DISABLE_NBLITE_EXPORT_ENV_VAR, None)
+        else:
+            os.environ[DISABLE_NBLITE_EXPORT_ENV_VAR] = prev_disable_export
         return 1
 
     # Collect notebooks to fill
@@ -202,9 +215,17 @@ def _run_fill(
                 # Use Text.from_ansi() to properly render ANSI codes from Jupyter tracebacks
                 error_text = Text.from_ansi(f"  {rel_path}: {r.message}")
                 console.print(error_text)
-        return 1
+        exit_code = 1
+    else:
+        exit_code = 0
 
-    return 0
+    # Restore environment variable
+    if prev_disable_export is None:
+        os.environ.pop(DISABLE_NBLITE_EXPORT_ENV_VAR, None)
+    else:
+        os.environ[DISABLE_NBLITE_EXPORT_ENV_VAR] = prev_disable_export
+
+    return exit_code
 
 
 def fill(
@@ -249,12 +270,20 @@ def fill(
         bool,
         typer.Option("--silent", "-s", help="Suppress progress output"),
     ] = False,
+    allow_export: Annotated[
+        bool,
+        typer.Option("--allow-export", help="Allow nbl_export() during fill (disabled by default)"),
+    ] = False,
 ) -> None:
     """Execute notebooks and fill cell outputs.
 
     Runs all cells in ipynb notebooks and saves the outputs. Uses a hash
     to track changes and skip unchanged notebooks (use --fill-unchanged
     to override).
+
+    By default, nbl_export() calls in notebooks are disabled during fill
+    to prevent interference with notebook execution. Use --allow-export
+    to enable them.
 
     Respects skip directives:
     - #|eval: false - Skip a single cell
@@ -275,6 +304,7 @@ def fill(
         exclude_hidden=not include_hidden,
         dry_run=dry_run,
         silent=silent,
+        allow_export=allow_export,
         config_path=config_path,
     )
     if exit_code != 0:
@@ -315,12 +345,20 @@ def test(
         bool,
         typer.Option("--silent", "-s", help="Suppress progress output"),
     ] = False,
+    allow_export: Annotated[
+        bool,
+        typer.Option("--allow-export", help="Allow nbl_export() during test (disabled by default)"),
+    ] = False,
 ) -> None:
     """Test that notebooks execute without errors (dry run).
 
     This is an alias for `nbl fill --dry-run`. It executes all cells
     but does not save the results, making it useful for CI/CD pipelines
     to verify notebooks run correctly.
+
+    By default, nbl_export() calls in notebooks are disabled during test
+    to prevent interference with notebook execution. Use --allow-export
+    to enable them.
     """
     from nblite.cli._helpers import get_config_path
 
@@ -336,6 +374,7 @@ def test(
         exclude_hidden=not include_hidden,
         dry_run=True,  # Always dry run for test
         silent=silent,
+        allow_export=allow_export,
         config_path=config_path,
     )
     if exit_code != 0:

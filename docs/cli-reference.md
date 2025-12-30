@@ -390,6 +390,7 @@ nbl fill [NOTEBOOKS...] [OPTIONS]
 | `--include-hidden` | | Include `.*` notebooks |
 | `--dry-run` | `-n` | Execute without saving results |
 | `--silent` | `-s` | Suppress progress output |
+| `--allow-export` | | Allow `nbl_export()` during fill (disabled by default) |
 
 **Examples:**
 
@@ -417,7 +418,14 @@ nbl fill --dry-run
 
 # Silent mode (for CI)
 nbl fill --silent
+
+# Allow nbl_export() during fill
+nbl fill --allow-export
 ```
+
+**Export behavior:**
+
+By default, `nbl_export()` calls in notebooks are disabled during fill to prevent interference with notebook execution. Use `--allow-export` to enable them if needed.
 
 **Change detection:**
 
@@ -436,6 +444,8 @@ nbl test [NOTEBOOKS...] [OPTIONS]
 This is equivalent to `nbl fill --dry-run`. Same options as `fill` except:
 - Always runs in dry-run mode (doesn't save outputs)
 - No `--remove-outputs` option
+
+By default, `nbl_export()` calls in notebooks are disabled during test to prevent interference. Use `--allow-export` to enable them if needed.
 
 **Examples:**
 

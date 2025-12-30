@@ -337,6 +337,7 @@ class NbliteConfig(BaseModel):
         docs_cl: Code location for documentation
         docs_title: Documentation title
         docs_generator: Documentation generator (jupyterbook, mkdocs)
+        readme_nb_path: Path to notebook for README generation
         templates: Template configuration
         extensions: List of extensions
         export: Export options
@@ -364,6 +365,10 @@ class NbliteConfig(BaseModel):
     docs_generator: Literal["jupyterbook", "mkdocs"] = Field(
         default="jupyterbook",
         description="Documentation generator",
+    )
+    readme_nb_path: str | None = Field(
+        default=None,
+        description="Path to notebook for README generation (e.g., 'nbs/index.ipynb')",
     )
     templates: TemplatesConfig = Field(
         default_factory=TemplatesConfig,

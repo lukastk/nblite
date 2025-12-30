@@ -835,5 +835,171 @@ def test(
         raise typer.Exit(exit_code)
 
 
+@app.command()
+def readme(
+    notebook_path: Annotated[
+        Optional[Path],
+        typer.Argument(help="Path to notebook (uses config readme_nb_path if omitted)"),
+    ] = None,
+    output: Annotated[
+        Optional[Path],
+        typer.Option("--output", "-o", help="Output path (default: README.md in project root)"),
+    ] = None,
+) -> None:
+    """Generate README.md from a notebook.
+
+    Converts the specified notebook to markdown, filtering out cells
+    with #|hide directive. The notebook path can be specified on the
+    command line or in nblite.toml as readme_nb_path.
+
+    Example nblite.toml:
+        readme_nb_path = "nbs/index.ipynb"
+    """
+    from nblite.core.project import NbliteProject
+    from nblite.readme import generate_readme
+
+    try:
+        project = NbliteProject.from_path()
+    except FileNotFoundError as e:
+        console.print(f"[red]Error: {e}[/red]")
+        raise typer.Exit(1)
+
+    # Determine notebook path
+    if notebook_path is None:
+        if project.config.readme_nb_path is None:
+            console.print("[red]Error: No notebook specified.[/red]")
+            console.print("Either pass a notebook path or set readme_nb_path in nblite.toml")
+            raise typer.Exit(1)
+        notebook_path = project.root_path / project.config.readme_nb_path
+    else:
+        if not notebook_path.is_absolute():
+            notebook_path = project.root_path / notebook_path
+
+    if not notebook_path.exists():
+        console.print(f"[red]Error: Notebook not found: {notebook_path}[/red]")
+        raise typer.Exit(1)
+
+    # Determine output path
+    if output is None:
+        output = project.root_path / "README.md"
+    elif not output.is_absolute():
+        output = project.root_path / output
+
+    generate_readme(notebook_path, output)
+    console.print(f"[green]Generated {output}[/green]")
+
+
+@app.command()
+def prepare(
+    skip_export: Annotated[
+        bool,
+        typer.Option("--skip-export", help="Skip export step"),
+    ] = False,
+    skip_clean: Annotated[
+        bool,
+        typer.Option("--skip-clean", help="Skip clean step"),
+    ] = False,
+    skip_fill: Annotated[
+        bool,
+        typer.Option("--skip-fill", help="Skip fill step"),
+    ] = False,
+    skip_readme: Annotated[
+        bool,
+        typer.Option("--skip-readme", help="Skip readme step"),
+    ] = False,
+    clean_outputs: Annotated[
+        bool,
+        typer.Option("--clean-outputs", help="Remove outputs during clean"),
+    ] = False,
+    fill_workers: Annotated[
+        int,
+        typer.Option("--fill-workers", "-w", help="Number of fill workers"),
+    ] = 4,
+    fill_unchanged: Annotated[
+        bool,
+        typer.Option("--fill-unchanged", help="Fill notebooks even if unchanged"),
+    ] = False,
+) -> None:
+    """Run export, clean, fill, and readme in sequence.
+
+    This is a convenience command that runs the full preparation
+    pipeline for a project:
+    1. Export notebooks (nbl export)
+    2. Clean notebooks (nbl clean)
+    3. Fill notebooks (nbl fill)
+    4. Generate README (nbl readme) - only if readme_nb_path is configured
+
+    Use --skip-* options to skip individual steps.
+    """
+    from nblite.core.project import NbliteProject
+    from nblite.readme import generate_readme
+
+    try:
+        project = NbliteProject.from_path()
+    except FileNotFoundError as e:
+        console.print(f"[red]Error: {e}[/red]")
+        raise typer.Exit(1)
+
+    # Step 1: Export
+    if not skip_export:
+        console.print("[bold]Step 1: Export[/bold]")
+        result = project.export()
+        if result.success:
+            console.print(f"  [green]Exported {len(result.files_created)} files[/green]")
+        else:
+            console.print("[red]  Export failed[/red]")
+            for error in result.errors:
+                console.print(f"  [red]{error}[/red]")
+            raise typer.Exit(1)
+    else:
+        console.print("[dim]Step 1: Export (skipped)[/dim]")
+
+    # Step 2: Clean
+    if not skip_clean:
+        console.print("[bold]Step 2: Clean[/bold]")
+        project.clean(remove_outputs=clean_outputs if clean_outputs else None)
+        console.print("  [green]Cleaned notebooks[/green]")
+    else:
+        console.print("[dim]Step 2: Clean (skipped)[/dim]")
+
+    # Step 3: Fill
+    if not skip_fill:
+        console.print("[bold]Step 3: Fill[/bold]")
+        exit_code = _run_fill(
+            notebooks=None,
+            code_locations=None,
+            timeout=None,
+            n_workers=fill_workers,
+            fill_unchanged=fill_unchanged,
+            remove_outputs_first=False,
+            exclude_dunders=True,
+            exclude_hidden=True,
+            dry_run=False,
+            silent=False,
+        )
+        if exit_code != 0:
+            raise typer.Exit(exit_code)
+    else:
+        console.print("[dim]Step 3: Fill (skipped)[/dim]")
+
+    # Step 4: README
+    if not skip_readme and project.config.readme_nb_path:
+        console.print("[bold]Step 4: README[/bold]")
+        notebook_path = project.root_path / project.config.readme_nb_path
+        if notebook_path.exists():
+            output_path = project.root_path / "README.md"
+            generate_readme(notebook_path, output_path)
+            console.print(f"  [green]Generated {output_path}[/green]")
+        else:
+            console.print(f"  [yellow]Warning: readme notebook not found: {notebook_path}[/yellow]")
+    elif skip_readme:
+        console.print("[dim]Step 4: README (skipped)[/dim]")
+    else:
+        console.print("[dim]Step 4: README (no readme_nb_path configured)[/dim]")
+
+    console.print()
+    console.print("[green]Prepare completed![/green]")
+
+
 if __name__ == "__main__":
     app()

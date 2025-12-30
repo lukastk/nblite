@@ -160,6 +160,63 @@ class TestExportCommand:
         result = runner.invoke(app, ["export"])
         assert result.exit_code == 1
 
+    def test_export_with_custom_pipeline(self, sample_project: Path) -> None:
+        """Test nbl export --export-pipeline with custom pipeline."""
+        os.chdir(sample_project)
+
+        # Create pts directory for the test
+        (sample_project / "pts").mkdir(exist_ok=True)
+
+        # Add pts code location to config
+        config_content = (sample_project / "nblite.toml").read_text()
+        config_content += """
+[cl.pts]
+path = "pts"
+format = "percent"
+"""
+        (sample_project / "nblite.toml").write_text(config_content)
+
+        result = runner.invoke(app, ["export", "--export-pipeline", "nbs -> pts"])
+
+        assert result.exit_code == 0
+        assert "Using custom pipeline" in result.output
+        assert (sample_project / "pts" / "utils.pct.py").exists()
+
+    def test_export_with_reverse_pipeline(self, sample_project: Path) -> None:
+        """Test nbl export --export-pipeline with reverse direction."""
+        os.chdir(sample_project)
+
+        # First create a pct.py file
+        (sample_project / "pts").mkdir(exist_ok=True)
+        pct_content = '''# %% [markdown]
+# # Utils
+
+# %%
+#|default_exp utils
+#|export
+def foo(): pass
+'''
+        (sample_project / "pts" / "utils.pct.py").write_text(pct_content)
+
+        # Create output directory and add to config
+        (sample_project / "nbs_out").mkdir()
+        config_content = (sample_project / "nblite.toml").read_text()
+        config_content += """
+[cl.pts]
+path = "pts"
+format = "percent"
+
+[cl.nbs_out]
+path = "nbs_out"
+format = "ipynb"
+"""
+        (sample_project / "nblite.toml").write_text(config_content)
+
+        result = runner.invoke(app, ["export", "--export-pipeline", "pts -> nbs_out"])
+
+        assert result.exit_code == 0
+        assert (sample_project / "nbs_out" / "utils.ipynb").exists()
+
 
 class TestCleanCommand:
     def test_clean_runs(self, sample_project: Path) -> None:

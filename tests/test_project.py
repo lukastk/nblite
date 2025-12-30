@@ -218,6 +218,53 @@ class TestProjectExport:
         result = project.export(notebooks=[nb_path])
         assert result.success
 
+    def test_export_with_custom_pipeline(self, sample_project: Path) -> None:
+        """Test exporting with a custom pipeline string."""
+        project = NbliteProject.from_path(sample_project)
+
+        # Use a custom pipeline that only exports nbs -> lib (skipping pts)
+        result = project.export(pipeline="nbs -> lib")
+
+        assert result.success
+        assert (sample_project / "mypackage" / "utils.py").exists()
+
+    def test_export_with_custom_pipeline_comma_separated(self, sample_project: Path) -> None:
+        """Test exporting with comma-separated pipeline rules."""
+        project = NbliteProject.from_path(sample_project)
+
+        # Both rules separated by comma
+        result = project.export(pipeline="nbs -> pts, pts -> lib")
+
+        assert result.success
+        assert (sample_project / "pts" / "utils.pct.py").exists()
+
+    def test_export_reverse_pipeline(self, sample_project: Path) -> None:
+        """Test exporting with reversed pipeline (percent to ipynb)."""
+        project = NbliteProject.from_path(sample_project)
+
+        # First export to create pct.py files
+        project.export(pipeline="nbs -> pts")
+        assert (sample_project / "pts" / "utils.pct.py").exists()
+
+        # Create a new ipynb output directory
+        (sample_project / "nbs_out").mkdir()
+
+        # Add nbs_out code location to config
+        config_content = (sample_project / "nblite.toml").read_text()
+        config_content += """
+[cl.nbs_out]
+path = "nbs_out"
+format = "ipynb"
+"""
+        (sample_project / "nblite.toml").write_text(config_content)
+
+        # Reload project and reverse export
+        project = NbliteProject.from_path(sample_project)
+        result = project.export(pipeline="pts -> nbs_out")
+
+        assert result.success
+        assert (sample_project / "nbs_out" / "utils.ipynb").exists()
+
 
 class TestProjectClean:
     def test_clean_notebooks(self, sample_project: Path) -> None:

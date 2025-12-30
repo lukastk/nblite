@@ -181,6 +181,7 @@ nbl export [NOTEBOOKS...] [OPTIONS]
 | Option | Description |
 |--------|-------------|
 | `--dry-run` | Show what would be exported without doing it |
+| `--export-pipeline` | Custom export pipeline (overrides config) |
 
 **Examples:**
 
@@ -193,7 +194,21 @@ nbl export nbs/core.ipynb nbs/utils.ipynb
 
 # Preview export without changes
 nbl export --dry-run
+
+# Use custom pipeline
+nbl export --export-pipeline "nbs -> lib"
+
+# Multiple rules (comma-separated)
+nbl export --export-pipeline "nbs -> pts, pts -> lib"
+
+# Reverse direction (percent to ipynb)
+nbl export --export-pipeline "pts -> nbs"
 ```
+
+The `--export-pipeline` option allows you to override the pipeline defined in `nblite.toml`. This is useful for:
+- Running a subset of the pipeline
+- Reversing the export direction (e.g., converting percent files back to ipynb)
+- Testing different pipeline configurations
 
 ---
 

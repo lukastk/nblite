@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from nblite.config import NbliteConfig, find_config_file, load_config
+from nblite.config import NbliteConfig, find_config_file, load_config, parse_export_pipeline
 from nblite.config.schema import CodeLocationFormat, ExportMode
 from nblite.core.code_location import CodeLocation
 from nblite.core.notebook import Format, Notebook
@@ -331,7 +331,9 @@ class NbliteProject:
 
         Args:
             notebooks: Specific notebooks to export (all if None)
-            pipeline: Custom pipeline string (use config if None)
+            pipeline: Custom pipeline string (use config if None).
+                Format: "from_key -> to_key" or "from1 -> to1, from2 -> to2"
+                Can also use newlines to separate rules.
 
         Returns:
             ExportResult with success status and file lists
@@ -343,8 +345,17 @@ class NbliteProject:
         if notebooks:
             specific_nbs = [Notebook.from_file(p) for p in notebooks]
 
+        # Determine which pipeline rules to use
+        if pipeline is not None:
+            # Parse the custom pipeline string
+            # Support both comma-separated and newline-separated formats
+            pipeline_str = pipeline.replace(",", "\n")
+            export_rules = parse_export_pipeline(pipeline_str)
+        else:
+            export_rules = self.config.export_pipeline
+
         # Execute pipeline rules
-        for rule in self.config.export_pipeline:
+        for rule in export_rules:
             from_cl = self.code_locations.get(rule.from_key)
             to_cl = self.code_locations.get(rule.to_key)
 

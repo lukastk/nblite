@@ -381,6 +381,37 @@ nbl export --dry-run
 
 Shows what would be exported without making changes.
 
+### Custom Pipeline
+
+Override the configured pipeline with `--export-pipeline`:
+
+```bash
+# Use a different pipeline
+nbl export --export-pipeline "nbs -> lib"
+
+# Multiple rules (comma-separated)
+nbl export --export-pipeline "nbs -> pts, pts -> lib"
+
+# Reverse direction (percent to ipynb)
+nbl export --export-pipeline "pts -> nbs"
+```
+
+This is useful for:
+- **Running a subset**: Export only certain stages
+- **Reversing direction**: Convert percent files back to ipynb
+- **Testing**: Try different pipeline configurations without modifying config
+
+**Example: Converting percent back to ipynb**
+
+If you've edited `.pct.py` files directly, you can convert them back to `.ipynb`:
+
+```bash
+# Ensure you have a target code location for ipynb output
+nbl export --export-pipeline "pts -> nbs"
+```
+
+**Note:** The code locations referenced in the custom pipeline must exist in your `nblite.toml` configuration.
+
 ## Best Practices
 
 ### 1. One Module Per Notebook

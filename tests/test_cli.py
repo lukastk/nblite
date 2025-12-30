@@ -1,0 +1,239 @@
+"""
+Tests for the CLI (Milestone 8).
+"""
+
+import json
+import os
+from pathlib import Path
+
+import pytest
+from typer.testing import CliRunner
+
+from nblite.cli.app import app
+
+runner = CliRunner()
+
+
+@pytest.fixture
+def sample_project(tmp_path: Path) -> Path:
+    """Create a complete sample project."""
+    # Create directories
+    (tmp_path / "nbs").mkdir()
+    (tmp_path / "mypackage").mkdir()
+
+    # Create notebooks
+    nb_content = json.dumps({
+        "cells": [
+            {"cell_type": "code", "source": "#|default_exp utils\n#|export\ndef foo(): pass", "metadata": {}, "outputs": []}
+        ],
+        "metadata": {
+            "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}
+        },
+        "nbformat": 4,
+        "nbformat_minor": 5,
+    })
+    (tmp_path / "nbs" / "utils.ipynb").write_text(nb_content)
+
+    # Create config
+    config_content = """
+export_pipeline = "nbs -> lib"
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.lib]
+path = "mypackage"
+format = "module"
+"""
+    (tmp_path / "nblite.toml").write_text(config_content)
+
+    return tmp_path
+
+
+class TestCLIBasics:
+    def test_version(self) -> None:
+        """Test --version flag."""
+        result = runner.invoke(app, ["--version"])
+        assert result.exit_code == 0
+        assert "nblite" in result.output.lower() or "0." in result.output
+
+    def test_help(self) -> None:
+        """Test --help flag."""
+        result = runner.invoke(app, ["--help"])
+        assert result.exit_code == 0
+        assert "export" in result.output
+        assert "clean" in result.output
+
+    def test_no_args_shows_help(self) -> None:
+        """Test that no args shows help."""
+        result = runner.invoke(app)
+        # Typer returns exit code 0 or 2 for help display
+        assert result.exit_code in (0, 2)
+        assert "nblite" in result.output.lower()
+
+
+class TestInitCommand:
+    def test_init_creates_config(self, tmp_path: Path) -> None:
+        """Test nbl init creates nblite.toml."""
+        os.chdir(tmp_path)
+        result = runner.invoke(app, ["init", "--use-defaults"])
+        assert result.exit_code == 0
+        assert (tmp_path / "nblite.toml").exists()
+
+    def test_init_with_name(self, tmp_path: Path) -> None:
+        """Test nbl init with --name option."""
+        os.chdir(tmp_path)
+        result = runner.invoke(app, ["init", "--name", "mypackage", "--use-defaults"])
+        assert result.exit_code == 0
+        assert (tmp_path / "nblite.toml").exists()
+        assert (tmp_path / "mypackage").exists()
+
+    def test_init_creates_directories(self, tmp_path: Path) -> None:
+        """Test nbl init creates nbs and package directories."""
+        os.chdir(tmp_path)
+        result = runner.invoke(app, ["init", "--name", "testpkg", "--use-defaults"])
+        assert result.exit_code == 0
+        assert (tmp_path / "nbs").exists()
+        assert (tmp_path / "testpkg").exists()
+        assert (tmp_path / "testpkg" / "__init__.py").exists()
+
+
+class TestNewCommand:
+    def test_new_creates_notebook(self, sample_project: Path) -> None:
+        """Test nbl new creates a notebook."""
+        os.chdir(sample_project)
+        result = runner.invoke(app, ["new", "nbs/api.ipynb", "-n", "api"])
+
+        assert result.exit_code == 0
+        assert (sample_project / "nbs" / "api.ipynb").exists()
+
+    def test_new_with_title(self, sample_project: Path) -> None:
+        """Test nbl new with --title option."""
+        os.chdir(sample_project)
+        result = runner.invoke(app, ["new", "nbs/test.ipynb", "-n", "test", "-t", "Test Notebook"])
+
+        assert result.exit_code == 0
+        nb_path = sample_project / "nbs" / "test.ipynb"
+        assert nb_path.exists()
+
+        content = json.loads(nb_path.read_text())
+        # Should have a markdown cell with title
+        assert any(c.get("cell_type") == "markdown" for c in content["cells"])
+
+    def test_new_with_no_export(self, sample_project: Path) -> None:
+        """Test nbl new with --no-export option."""
+        os.chdir(sample_project)
+        result = runner.invoke(app, ["new", "nbs/scratch.ipynb", "--no-export"])
+
+        assert result.exit_code == 0
+        nb_path = sample_project / "nbs" / "scratch.ipynb"
+        content = json.loads(nb_path.read_text())
+
+        # Should not have default_exp directive
+        for cell in content["cells"]:
+            if cell.get("cell_type") == "code":
+                assert "#|default_exp" not in cell.get("source", "")
+
+
+class TestExportCommand:
+    def test_export_runs(self, sample_project: Path) -> None:
+        """Test nbl export runs successfully."""
+        os.chdir(sample_project)
+        result = runner.invoke(app, ["export"])
+
+        assert result.exit_code == 0
+        assert (sample_project / "mypackage" / "utils.py").exists()
+
+    def test_export_dry_run(self, sample_project: Path) -> None:
+        """Test nbl export --dry-run."""
+        os.chdir(sample_project)
+        result = runner.invoke(app, ["export", "--dry-run"])
+
+        assert result.exit_code == 0
+        # Dry run should not create files
+        assert not (sample_project / "mypackage" / "utils.py").exists()
+
+    def test_export_no_project(self, tmp_path: Path) -> None:
+        """Test export without project gives error."""
+        os.chdir(tmp_path)
+        result = runner.invoke(app, ["export"])
+        assert result.exit_code == 1
+
+
+class TestCleanCommand:
+    def test_clean_runs(self, sample_project: Path) -> None:
+        """Test nbl clean runs."""
+        os.chdir(sample_project)
+        result = runner.invoke(app, ["clean"])
+
+        assert result.exit_code == 0
+
+
+class TestConvertCommand:
+    def test_convert_ipynb_to_pct(self, tmp_path: Path) -> None:
+        """Test nbl convert from ipynb to pct."""
+        nb_content = json.dumps({
+            "cells": [{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []}],
+            "metadata": {
+                "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}
+            },
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        })
+        ipynb_path = tmp_path / "test.ipynb"
+        ipynb_path.write_text(nb_content)
+        pct_path = tmp_path / "test.pct.py"
+
+        result = runner.invoke(app, ["convert", str(ipynb_path), str(pct_path)])
+
+        assert result.exit_code == 0
+        assert pct_path.exists()
+        assert "# %%" in pct_path.read_text()
+
+    def test_convert_file_not_found(self, tmp_path: Path) -> None:
+        """Test convert with non-existent file."""
+        result = runner.invoke(app, ["convert", str(tmp_path / "missing.ipynb"), str(tmp_path / "out.pct.py")])
+        assert result.exit_code == 1
+
+
+class TestInfoCommand:
+    def test_info_shows_project(self, sample_project: Path) -> None:
+        """Test nbl info shows project information."""
+        os.chdir(sample_project)
+        result = runner.invoke(app, ["info"])
+
+        assert result.exit_code == 0
+        assert "nbs" in result.output
+        assert "lib" in result.output
+
+    def test_info_no_project(self, tmp_path: Path) -> None:
+        """Test info without project gives error."""
+        os.chdir(tmp_path)
+        result = runner.invoke(app, ["info"])
+        assert result.exit_code == 1
+
+
+class TestListCommand:
+    def test_list_notebooks(self, sample_project: Path) -> None:
+        """Test nbl list shows notebooks."""
+        os.chdir(sample_project)
+        result = runner.invoke(app, ["list"])
+
+        assert result.exit_code == 0
+        assert "utils.ipynb" in result.output
+
+    def test_list_by_location(self, sample_project: Path) -> None:
+        """Test nbl list with specific code location."""
+        os.chdir(sample_project)
+        result = runner.invoke(app, ["list", "nbs"])
+
+        assert result.exit_code == 0
+        assert "utils.ipynb" in result.output
+
+    def test_list_unknown_location(self, sample_project: Path) -> None:
+        """Test nbl list with unknown code location."""
+        os.chdir(sample_project)
+        result = runner.invoke(app, ["list", "unknown"])
+
+        assert result.exit_code == 1

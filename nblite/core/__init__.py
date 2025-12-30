@@ -23,6 +23,7 @@ from nblite.core.directive import (
     register_directive,
 )
 from nblite.core.notebook import Format, Notebook
+from nblite.core.project import NbliteProject, NotebookLineage
 from nblite.core.pyfile import PyFile, PyFileCell
 
 __all__ = [
@@ -37,6 +38,9 @@ __all__ = [
     # PyFile
     "PyFile",
     "PyFileCell",
+    # Project
+    "NbliteProject",
+    "NotebookLineage",
     # Directive
     "Directive",
     "DirectiveDefinition",

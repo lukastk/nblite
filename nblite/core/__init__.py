@@ -8,6 +8,7 @@ This module contains the core classes:
 - NbliteProject: Central project management class
 """
 
+from nblite.core.cell import Cell, CellType
 from nblite.core.directive import (
     Directive,
     DirectiveDefinition,
@@ -18,8 +19,16 @@ from nblite.core.directive import (
     parse_directives_from_source,
     register_directive,
 )
+from nblite.core.notebook import Format, Notebook
 
 __all__ = [
+    # Cell
+    "Cell",
+    "CellType",
+    # Notebook
+    "Notebook",
+    "Format",
+    # Directive
     "Directive",
     "DirectiveDefinition",
     "DirectiveError",

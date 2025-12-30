@@ -7,8 +7,9 @@ Provides a simple hook/callback mechanism for extending nblite behavior.
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, Callable
+from typing import Any
 
 __all__ = ["HookType", "HookRegistry", "hook"]
 

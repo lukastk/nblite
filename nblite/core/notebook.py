@@ -13,7 +13,7 @@ from typing import Any
 
 import notebookx
 
-from nblite.core.cell import Cell, CellType
+from nblite.core.cell import Cell
 from nblite.core.directive import Directive
 
 __all__ = ["Notebook", "Format"]
@@ -81,9 +81,7 @@ class Notebook:
     source_path: Path | None = None
     code_location: str | None = None
 
-    _directives: dict[str, list[Directive]] | None = field(
-        default=None, repr=False, init=False
-    )
+    _directives: dict[str, list[Directive]] | None = field(default=None, repr=False, init=False)
 
     @classmethod
     def from_file(
@@ -282,7 +280,9 @@ class Notebook:
         if remove_notebook_metadata:
             cleaned_nb_metadata = {}
         elif keep_only_metadata is not None:
-            cleaned_nb_metadata = {k: v for k, v in cleaned_nb_metadata.items() if k in keep_only_metadata}
+            cleaned_nb_metadata = {
+                k: v for k, v in cleaned_nb_metadata.items() if k in keep_only_metadata
+            }
 
         if remove_kernel_info:
             cleaned_nb_metadata.pop("kernelspec", None)

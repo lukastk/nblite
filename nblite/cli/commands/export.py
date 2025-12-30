@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
@@ -13,7 +13,7 @@ from nblite.cli._helpers import console, get_project
 def export(
     ctx: typer.Context,
     notebooks: Annotated[
-        Optional[list[Path]],
+        list[Path] | None,
         typer.Argument(help="Specific notebooks to export"),
     ] = None,
     dry_run: Annotated[
@@ -21,7 +21,7 @@ def export(
         typer.Option("--dry-run", help="Show what would be exported without doing it"),
     ] = False,
     export_pipeline: Annotated[
-        Optional[str],
+        str | None,
         typer.Option(
             "--export-pipeline",
             help="Custom export pipeline. E.g. 'nbs->lib' or 'pcts->nbs' (to reverse)",

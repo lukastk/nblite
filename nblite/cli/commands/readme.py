@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
@@ -13,11 +13,11 @@ from nblite.cli._helpers import console, get_project
 def readme(
     ctx: typer.Context,
     notebook_path: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Argument(help="Path to notebook (uses config readme_nb_path if omitted)"),
     ] = None,
     output: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Option("--output", "-o", help="Output path (default: README.md in project root)"),
     ] = None,
 ) -> None:

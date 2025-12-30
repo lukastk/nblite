@@ -29,7 +29,7 @@ class JupyterBookGenerator(DocsGenerator):
     and can build HTML documentation.
     """
 
-    def prepare(self, project: "NbliteProject", output_dir: Path) -> None:
+    def prepare(self, project: NbliteProject, output_dir: Path) -> None:
         """
         Prepare Jupyter Book source files.
 
@@ -127,17 +127,14 @@ class JupyterBookGenerator(DocsGenerator):
         """
         html_dir = output_dir / "_build" / "html"
         if not html_dir.exists():
-            raise RuntimeError(
-                f"Built documentation not found at {html_dir}. "
-                "Run build first."
-            )
+            raise RuntimeError(f"Built documentation not found at {html_dir}. Run build first.")
 
         subprocess.run(
             ["python", "-m", "http.server", "--directory", str(html_dir)],
             check=True,
         )
 
-    def _generate_config(self, project: "NbliteProject") -> dict[str, Any]:
+    def _generate_config(self, project: NbliteProject) -> dict[str, Any]:
         """Generate Jupyter Book _config.yml content."""
         title = project.config.docs.title or project.root_path.name
         author = project.config.docs.author or ""
@@ -157,9 +154,7 @@ class JupyterBookGenerator(DocsGenerator):
 
         return config
 
-    def _generate_toc(
-        self, project: "NbliteProject", notebooks: list[Any]
-    ) -> dict[str, Any]:
+    def _generate_toc(self, project: NbliteProject, notebooks: list[Any]) -> dict[str, Any]:
         """Generate Jupyter Book _toc.yml content."""
         # Find index notebook
         index_nb = None
@@ -177,7 +172,11 @@ class JupyterBookGenerator(DocsGenerator):
         # Build TOC structure
         toc: dict[str, Any] = {
             "format": "jb-book",
-            "root": "index" if index_nb else other_nbs[0].source_path.stem if other_nbs else "index",
+            "root": "index"
+            if index_nb
+            else other_nbs[0].source_path.stem
+            if other_nbs
+            else "index",
             "chapters": [],
         }
 

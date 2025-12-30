@@ -26,7 +26,7 @@ class DocsGenerator(ABC):
     """
 
     @abstractmethod
-    def prepare(self, project: "NbliteProject", output_dir: Path) -> None:
+    def prepare(self, project: NbliteProject, output_dir: Path) -> None:
         """
         Prepare documentation source files.
 
@@ -92,8 +92,7 @@ def get_generator(generator_name: str) -> DocsGenerator:
     if generator_name not in generators:
         available = ", ".join(sorted(set(generators.keys())))
         raise ValueError(
-            f"Unknown documentation generator: {generator_name}. "
-            f"Available: {available}"
+            f"Unknown documentation generator: {generator_name}. Available: {available}"
         )
 
     return generators[generator_name]()

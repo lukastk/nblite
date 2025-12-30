@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
@@ -12,7 +12,7 @@ from nblite.cli._helpers import console, get_project
 def list_files(
     ctx: typer.Context,
     code_location: Annotated[
-        Optional[str],
+        str | None,
         typer.Argument(help="Code location to list (all if omitted)"),
     ] = None,
 ) -> None:
@@ -25,7 +25,7 @@ def list_files(
             locations = [project.get_code_location(code_location)]
         except KeyError:
             console.print(f"[red]Unknown code location: {code_location}[/red]")
-            raise typer.Exit(1)
+            raise typer.Exit(1) from None
 
     for cl in locations:
         console.print(f"[bold cyan]{cl.key}[/bold cyan] ({cl.relative_path}):")

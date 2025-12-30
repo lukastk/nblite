@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
@@ -20,8 +20,12 @@ def from_module_cmd(
         typer.Argument(help="Output notebook path or directory"),
     ],
     module_name: Annotated[
-        Optional[str],
-        typer.Option("--name", "-n", help="Module name for default_exp (default: file stem). Only for single file."),
+        str | None,
+        typer.Option(
+            "--name",
+            "-n",
+            help="Module name for default_exp (default: file stem). Only for single file.",
+        ),
     ] = None,
     output_format: Annotated[
         str,
@@ -29,7 +33,9 @@ def from_module_cmd(
     ] = "ipynb",
     recursive: Annotated[
         bool,
-        typer.Option("--recursive", "-r", help="Process subdirectories recursively (for directory input)"),
+        typer.Option(
+            "--recursive", "-r", help="Process subdirectories recursively (for directory input)"
+        ),
     ] = True,
     include_init: Annotated[
         bool,
@@ -71,14 +77,18 @@ def from_module_cmd(
         raise typer.Exit(1)
 
     if output_format not in ("ipynb", "percent"):
-        console.print(f"[red]Error: Invalid format '{output_format}'. Use 'ipynb' or 'percent'.[/red]")
+        console.print(
+            f"[red]Error: Invalid format '{output_format}'. Use 'ipynb' or 'percent'.[/red]"
+        )
         raise typer.Exit(1)
 
     try:
         if input_path.is_dir():
             # Directory mode
             if module_name is not None:
-                console.print("[yellow]Warning: --name is ignored when converting a directory[/yellow]")
+                console.print(
+                    "[yellow]Warning: --name is ignored when converting a directory[/yellow]"
+                )
 
             created = modules_to_notebooks(
                 input_path,
@@ -103,4 +113,4 @@ def from_module_cmd(
             console.print(f"[green]Created notebook: {output_path}[/green]")
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None

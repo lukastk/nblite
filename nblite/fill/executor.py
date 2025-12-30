@@ -6,10 +6,9 @@ Executes notebook cells and fills outputs, respecting skip directives.
 
 from __future__ import annotations
 
-import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
@@ -110,7 +109,9 @@ def _mark_skipped_cells(nb: nbformat.NotebookNode) -> tuple[nbformat.NotebookNod
     return nb, skipped_indices
 
 
-def _restore_skipped_cells(nb: nbformat.NotebookNode, skipped_indices: list[int]) -> nbformat.NotebookNode:
+def _restore_skipped_cells(
+    nb: nbformat.NotebookNode, skipped_indices: list[int]
+) -> nbformat.NotebookNode:
     """Restore skipped cells to their original type."""
     for idx in skipped_indices:
         cell = nb.cells[idx]
@@ -121,7 +122,7 @@ def _restore_skipped_cells(nb: nbformat.NotebookNode, skipped_indices: list[int]
 
 
 def fill_notebook(
-    notebook: "Notebook | Path | str",
+    notebook: Notebook | Path | str,
     *,
     timeout: int | None = None,
     working_dir: Path | str | None = None,
@@ -164,7 +165,7 @@ def fill_notebook(
 
     try:
         # Read notebook with nbformat for execution
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             nb = nbformat.read(f, as_version=4)
 
         # Optionally clear existing outputs

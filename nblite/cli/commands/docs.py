@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
@@ -14,15 +14,17 @@ from nblite.cli._helpers import console, get_project
 def render_docs_cmd(
     ctx: typer.Context,
     output_folder: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Option("--output", "-o", help="Output folder (default: _docs)"),
     ] = None,
     generator: Annotated[
-        Optional[str],
-        typer.Option("--generator", "-g", help="Documentation generator (mkdocs, jupyterbook, quarto)"),
+        str | None,
+        typer.Option(
+            "--generator", "-g", help="Documentation generator (mkdocs, jupyterbook, quarto)"
+        ),
     ] = None,
     docs_cl: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--docs-cl", "-d", help="Code location to generate docs from"),
     ] = None,
 ) -> None:
@@ -78,20 +80,22 @@ def render_docs_cmd(
     except FileNotFoundError as e:
         console.print(f"[red]Error: {e}[/red]")
         console.print(f"Make sure {gen_name} is installed.")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
 
 def preview_docs_cmd(
     ctx: typer.Context,
     generator: Annotated[
-        Optional[str],
-        typer.Option("--generator", "-g", help="Documentation generator (mkdocs, jupyterbook, quarto)"),
+        str | None,
+        typer.Option(
+            "--generator", "-g", help="Documentation generator (mkdocs, jupyterbook, quarto)"
+        ),
     ] = None,
     docs_cl: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--docs-cl", "-d", help="Code location to generate docs from"),
     ] = None,
 ) -> None:
@@ -140,9 +144,9 @@ def preview_docs_cmd(
     except FileNotFoundError as e:
         console.print(f"[red]Error: {e}[/red]")
         console.print(f"Make sure {gen_name} is installed.")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
     except KeyboardInterrupt:
         console.print("\n[yellow]Preview stopped[/yellow]")
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None

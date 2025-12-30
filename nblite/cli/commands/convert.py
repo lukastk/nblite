@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
@@ -20,11 +20,11 @@ def convert(
         typer.Argument(help="Output notebook path"),
     ],
     from_format: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--from", help="Input format (auto-detected if omitted)"),
     ] = None,
     to_format: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--to", help="Output format (auto-detected if omitted)"),
     ] = None,
 ) -> None:

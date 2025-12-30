@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
@@ -18,15 +18,15 @@ def new(
         typer.Argument(help="Path for the new notebook"),
     ],
     name: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--name", "-n", help="Module name for default_exp"),
     ] = None,
     title: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--title", "-t", help="Notebook title"),
     ] = None,
     template: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--template", help="Template to use"),
     ] = None,
     no_export: Annotated[
@@ -57,30 +57,30 @@ def new(
 
     # Add default_exp directive
     if not no_export:
-        cells.append({
-            "cell_type": "code",
-            "source": f"#|default_exp {name}",
-            "metadata": {},
-            "outputs": [],
-            "execution_count": None,
-        })
+        cells.append(
+            {
+                "cell_type": "code",
+                "source": f"#|default_exp {name}",
+                "metadata": {},
+                "outputs": [],
+                "execution_count": None,
+            }
+        )
 
     # Add title if specified
     if title:
-        cells.append({
-            "cell_type": "markdown",
-            "source": f"# {title}",
-            "metadata": {},
-        })
+        cells.append(
+            {
+                "cell_type": "markdown",
+                "source": f"# {title}",
+                "metadata": {},
+            }
+        )
 
     nb_content = {
         "cells": cells,
         "metadata": {
-            "kernelspec": {
-                "display_name": "Python 3",
-                "language": "python",
-                "name": "python3"
-            }
+            "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}
         },
         "nbformat": 4,
         "nbformat_minor": 5,

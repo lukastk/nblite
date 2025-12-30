@@ -8,10 +8,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
 from nblite.config import NbliteConfig, find_config_file, load_config, parse_export_pipeline
-from nblite.config.schema import CodeLocationFormat, ExportMode
+from nblite.config.schema import CodeLocationFormat
 from nblite.core.code_location import CodeLocation
 from nblite.core.notebook import Format, Notebook
 from nblite.core.pyfile import PyFile
@@ -61,12 +60,10 @@ class NbliteProject:
     root_path: Path
     config: NbliteConfig
 
-    _code_locations: dict[str, CodeLocation] | None = field(
-        default=None, repr=False, init=False
-    )
+    _code_locations: dict[str, CodeLocation] | None = field(default=None, repr=False, init=False)
 
     @classmethod
-    def from_path(cls, path: Path | str | None = None) -> "NbliteProject":
+    def from_path(cls, path: Path | str | None = None) -> NbliteProject:
         """
         Load project from path.
 
@@ -84,9 +81,7 @@ class NbliteProject:
         if path is None:
             config_path = find_config_file()
             if config_path is None:
-                raise FileNotFoundError(
-                    "No nblite.toml found. Run 'nbl init' to create a project."
-                )
+                raise FileNotFoundError("No nblite.toml found. Run 'nbl init' to create a project.")
             root_path = config_path.parent
         else:
             path = Path(path)
@@ -459,15 +454,33 @@ class NbliteProject:
         # Use config values as defaults, allow overrides
         clean_config = self.config.clean
         clean_opts = {
-            "remove_outputs": remove_outputs if remove_outputs is not None else clean_config.remove_outputs,
-            "remove_execution_counts": remove_execution_counts if remove_execution_counts is not None else clean_config.remove_execution_counts,
-            "remove_cell_metadata": remove_cell_metadata if remove_cell_metadata is not None else clean_config.remove_cell_metadata,
-            "remove_notebook_metadata": remove_notebook_metadata if remove_notebook_metadata is not None else clean_config.remove_notebook_metadata,
-            "remove_kernel_info": remove_kernel_info if remove_kernel_info is not None else clean_config.remove_kernel_info,
-            "preserve_cell_ids": preserve_cell_ids if preserve_cell_ids is not None else clean_config.preserve_cell_ids,
-            "remove_output_metadata": remove_output_metadata if remove_output_metadata is not None else clean_config.remove_output_metadata,
-            "remove_output_execution_counts": remove_output_execution_counts if remove_output_execution_counts is not None else clean_config.remove_output_execution_counts,
-            "keep_only_metadata": keep_only_metadata if keep_only_metadata is not None else clean_config.keep_only_metadata,
+            "remove_outputs": remove_outputs
+            if remove_outputs is not None
+            else clean_config.remove_outputs,
+            "remove_execution_counts": remove_execution_counts
+            if remove_execution_counts is not None
+            else clean_config.remove_execution_counts,
+            "remove_cell_metadata": remove_cell_metadata
+            if remove_cell_metadata is not None
+            else clean_config.remove_cell_metadata,
+            "remove_notebook_metadata": remove_notebook_metadata
+            if remove_notebook_metadata is not None
+            else clean_config.remove_notebook_metadata,
+            "remove_kernel_info": remove_kernel_info
+            if remove_kernel_info is not None
+            else clean_config.remove_kernel_info,
+            "preserve_cell_ids": preserve_cell_ids
+            if preserve_cell_ids is not None
+            else clean_config.preserve_cell_ids,
+            "remove_output_metadata": remove_output_metadata
+            if remove_output_metadata is not None
+            else clean_config.remove_output_metadata,
+            "remove_output_execution_counts": remove_output_execution_counts
+            if remove_output_execution_counts is not None
+            else clean_config.remove_output_execution_counts,
+            "keep_only_metadata": keep_only_metadata
+            if keep_only_metadata is not None
+            else clean_config.keep_only_metadata,
         }
 
         if notebooks:
@@ -488,4 +501,6 @@ class NbliteProject:
             nb.source_path.write_text(content)
 
     def __repr__(self) -> str:
-        return f"NbliteProject(root={self.root_path!r}, locations={list(self.code_locations.keys())})"
+        return (
+            f"NbliteProject(root={self.root_path!r}, locations={list(self.code_locations.keys())})"
+        )

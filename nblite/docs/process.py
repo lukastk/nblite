@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from nblite.core.notebook import Format, Notebook
+from nblite.core.notebook import Notebook
 from nblite.docs.cell_docs import render_cell_doc
 
 __all__ = ["process_notebook_for_docs"]

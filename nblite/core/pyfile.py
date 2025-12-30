@@ -9,7 +9,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
 __all__ = ["PyFile", "PyFileCell"]
 
@@ -67,7 +66,7 @@ class PyFile:
     _cells: list[PyFileCell] | None = field(default=None, repr=False, init=False)
 
     @classmethod
-    def from_file(cls, path: Path | str, package_root: Path | None = None) -> "PyFile":
+    def from_file(cls, path: Path | str, package_root: Path | None = None) -> PyFile:
         """
         Load a Python file.
 

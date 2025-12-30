@@ -7,11 +7,11 @@ This module defines the `nbl` command and registers all subcommands.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
-from nblite.cli._helpers import CONFIG_PATH_KEY, console, version_callback
+from nblite.cli._helpers import CONFIG_PATH_KEY, version_callback
 
 # Import command functions
 from nblite.cli.commands.clean import clean
@@ -44,7 +44,7 @@ app = typer.Typer(
 def main(
     ctx: typer.Context,
     config: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Option(
             "--config",
             "-c",

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
@@ -13,7 +13,7 @@ from nblite.cli._helpers import console, get_project
 def clean(
     ctx: typer.Context,
     notebooks: Annotated[
-        Optional[list[Path]],
+        list[Path] | None,
         typer.Argument(help="Specific notebooks to clean"),
     ] = None,
     remove_outputs: Annotated[
@@ -22,7 +22,9 @@ def clean(
     ] = False,
     remove_execution_counts: Annotated[
         bool,
-        typer.Option("-e", "--remove-execution-counts", help="Remove execution counts from code cells"),
+        typer.Option(
+            "-e", "--remove-execution-counts", help="Remove execution counts from code cells"
+        ),
     ] = False,
     remove_cell_metadata: Annotated[
         bool,
@@ -46,10 +48,12 @@ def clean(
     ] = False,
     remove_output_execution_counts: Annotated[
         bool,
-        typer.Option("--remove-output-execution-counts", help="Remove execution counts from output results"),
+        typer.Option(
+            "--remove-output-execution-counts", help="Remove execution counts from output results"
+        ),
     ] = False,
     keep_only: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--keep-only", help="Keep only these metadata keys (comma-separated)"),
     ] = None,
 ) -> None:
@@ -79,9 +83,13 @@ def clean(
         remove_cell_metadata=remove_cell_metadata if remove_cell_metadata else None,
         remove_notebook_metadata=remove_notebook_metadata if remove_notebook_metadata else None,
         remove_kernel_info=remove_kernel_info if remove_kernel_info else None,
-        preserve_cell_ids=preserve_cell_ids if not preserve_cell_ids else None,  # Only pass if False
+        preserve_cell_ids=preserve_cell_ids
+        if not preserve_cell_ids
+        else None,  # Only pass if False
         remove_output_metadata=remove_output_metadata if remove_output_metadata else None,
-        remove_output_execution_counts=remove_output_execution_counts if remove_output_execution_counts else None,
+        remove_output_execution_counts=remove_output_execution_counts
+        if remove_output_execution_counts
+        else None,
         keep_only_metadata=keep_only_list,
     )
     console.print("[green]Notebooks cleaned[/green]")

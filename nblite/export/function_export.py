@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 __all__ = ["export_function_notebook", "is_function_notebook"]
 
 
-def is_function_notebook(notebook: "Notebook") -> bool:
+def is_function_notebook(notebook: Notebook) -> bool:
     """
     Check if a notebook is a function notebook.
 
@@ -38,7 +38,7 @@ def is_function_notebook(notebook: "Notebook") -> bool:
 
 
 def export_function_notebook(
-    notebook: "Notebook",
+    notebook: Notebook,
     output_path: Path,
     *,
     include_warning: bool = True,
@@ -104,7 +104,7 @@ def export_function_notebook(
     output_path.write_text(content.strip() + "\n")
 
 
-def _collect_top_exports(notebook: "Notebook") -> list[str]:
+def _collect_top_exports(notebook: Notebook) -> list[str]:
     """Collect code from cells with #|top_export directive."""
     exports = []
 
@@ -119,7 +119,7 @@ def _collect_top_exports(notebook: "Notebook") -> list[str]:
     return exports
 
 
-def _get_function_signature(notebook: "Notebook") -> str | None:
+def _get_function_signature(notebook: Notebook) -> str | None:
     """Extract function signature from #|set_func_signature directive."""
     for cell in notebook.cells:
         if not cell.is_code:
@@ -140,7 +140,7 @@ def _get_function_signature(notebook: "Notebook") -> str | None:
     return None
 
 
-def _collect_function_body(notebook: "Notebook") -> list[str]:
+def _collect_function_body(notebook: Notebook) -> list[str]:
     """Collect code for function body from exported cells."""
     body_lines: list[str] = []
 

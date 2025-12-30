@@ -31,7 +31,7 @@ class QuartoGenerator(DocsGenerator):
     Requires Quarto CLI to be installed (https://quarto.org/docs/get-started/).
     """
 
-    def prepare(self, project: "NbliteProject", output_dir: Path) -> None:
+    def prepare(self, project: NbliteProject, output_dir: Path) -> None:
         """
         Prepare Quarto source files.
 
@@ -139,7 +139,10 @@ class QuartoGenerator(DocsGenerator):
             for subfolder_path in sorted(folder_path.glob("*")):
                 if not subfolder_path.is_dir():
                     continue
-                if any(p.startswith("__") or p.startswith(".") for p in subfolder_path.relative_to(rel_base).parts):
+                if any(
+                    p.startswith("__") or p.startswith(".")
+                    for p in subfolder_path.relative_to(rel_base).parts
+                ):
                     continue
                 sub_contents.append(process_subfolder(subfolder_path, rel_base))
 
@@ -160,7 +163,7 @@ class QuartoGenerator(DocsGenerator):
 
         return contents
 
-    def _generate_config(self, project: "NbliteProject", output_dir: Path) -> dict[str, Any]:
+    def _generate_config(self, project: NbliteProject, output_dir: Path) -> dict[str, Any]:
         """Generate Quarto _quarto.yml content."""
         title = project.config.docs_title or project.config.docs.title or project.root_path.name
         sidebar_contents = self._build_sidebar_structure(output_dir)

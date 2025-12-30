@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 
@@ -12,11 +12,11 @@ from nblite.cli._helpers import console
 
 def init(
     name: Annotated[
-        Optional[str],
+        str | None,
         typer.Option("--name", "-n", help="Module name (default: directory name)"),
     ] = None,
     path: Annotated[
-        Optional[Path],
+        Path | None,
         typer.Option("--path", "-p", help="Project path (default: current directory)"),
     ] = None,
     use_defaults: Annotated[

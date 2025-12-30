@@ -26,7 +26,7 @@ def version_callback(value: bool) -> None:
         raise typer.Exit()
 
 
-def get_project(ctx: typer.Context) -> "NbliteProject":
+def get_project(ctx: typer.Context) -> NbliteProject:
     """
     Get the NbliteProject using the config path from context.
 
@@ -47,7 +47,7 @@ def get_project(ctx: typer.Context) -> "NbliteProject":
         return NbliteProject.from_path(config_path)
     except FileNotFoundError as e:
         console.print(f"[red]Error: {e}[/red]")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
 
 def get_config_path(ctx: typer.Context) -> Path | None:

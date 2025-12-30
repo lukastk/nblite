@@ -6,7 +6,7 @@ Represents a code location (directory) in an nblite project.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -121,7 +121,7 @@ class CodeLocation:
         self,
         ignore_dunders: bool = True,
         ignore_hidden: bool = True,
-    ) -> list["Notebook"]:
+    ) -> list[Notebook]:
         """
         Get all notebooks in this code location.
 
@@ -153,7 +153,7 @@ class CodeLocation:
         self,
         ignore_dunders: bool = True,
         ignore_hidden: bool = True,
-    ) -> list["PyFile"]:
+    ) -> list[PyFile]:
         """
         Get all Python files in this code location.
 

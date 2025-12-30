@@ -71,7 +71,7 @@ def get_modified_files(cwd: Path) -> list[Path]:
     return files
 
 
-def validate_staging(project: "NbliteProject") -> ValidationResult:
+def validate_staging(project: NbliteProject) -> ValidationResult:
     """
     Validate git staging state for an nblite project.
 
@@ -110,9 +110,7 @@ def validate_staging(project: "NbliteProject") -> ValidationResult:
             if twin.exists():
                 twin_rel = twin.relative_to(project.root_path)
                 if twin_rel not in staged_files and twin not in staged_abs:
-                    result.add_warning(
-                        f"Notebook {nb_rel} is staged but twin {twin_rel} is not"
-                    )
+                    result.add_warning(f"Notebook {nb_rel} is staged but twin {twin_rel} is not")
 
     # Check notebooks are clean
     for staged_file in staged_files:
@@ -124,6 +122,7 @@ def validate_staging(project: "NbliteProject") -> ValidationResult:
             # Check if notebook has outputs
             try:
                 from nblite.core.notebook import Notebook
+
                 nb = Notebook.from_file(abs_path)
                 for cell in nb.cells:
                     if cell.is_code and cell.outputs:

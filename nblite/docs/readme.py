@@ -10,13 +10,14 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from nblite.core.notebook import Notebook
     from nblite.core.project import NbliteProject
 
 __all__ = ["generate_readme"]
 
 
 def generate_readme(
-    project: "NbliteProject",
+    project: NbliteProject,
     output_path: Path,
     *,
     index_notebook: str | None = None,
@@ -58,11 +59,8 @@ def generate_readme(
     output_path.write_text(content)
 
 
-def _find_index_notebook(
-    project: "NbliteProject", notebook_name: str | None
-) -> "Notebook | None":  # type: ignore[name-defined]
+def _find_index_notebook(project: NbliteProject, notebook_name: str | None) -> Notebook | None:
     """Find the index notebook in the project."""
-    from nblite.core.notebook import Notebook
 
     notebooks = project.get_notebooks()
 
@@ -83,7 +81,7 @@ def _find_index_notebook(
     return None
 
 
-def _notebook_to_markdown(notebook: "Notebook") -> str:  # type: ignore[name-defined]
+def _notebook_to_markdown(notebook: Notebook) -> str:
     """Convert notebook cells to markdown string."""
     lines: list[str] = []
 

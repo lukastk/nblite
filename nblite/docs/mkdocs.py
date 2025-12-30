@@ -29,7 +29,7 @@ class MkDocsGenerator(DocsGenerator):
     to the docs directory for building.
     """
 
-    def prepare(self, project: "NbliteProject", output_dir: Path) -> None:
+    def prepare(self, project: NbliteProject, output_dir: Path) -> None:
         """
         Prepare MkDocs source files.
 
@@ -134,9 +134,7 @@ class MkDocsGenerator(DocsGenerator):
             check=True,
         )
 
-    def _generate_config(
-        self, project: "NbliteProject", notebooks: list[Any]
-    ) -> dict[str, Any]:
+    def _generate_config(self, project: NbliteProject, notebooks: list[Any]) -> dict[str, Any]:
         """Generate MkDocs mkdocs.yml content."""
         title = project.config.docs.title or project.root_path.name
 

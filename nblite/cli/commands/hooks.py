@@ -20,7 +20,7 @@ def install_hooks_cmd(ctx: typer.Context) -> None:
         console.print("[green]Git hooks installed[/green]")
     except RuntimeError as e:
         console.print(f"[red]Error: {e}[/red]")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
 
 def uninstall_hooks_cmd(ctx: typer.Context) -> None:
@@ -81,6 +81,7 @@ def hook_cmd(
 
         if project.config.git.validate_staging:
             from nblite.git.staging import validate_staging
+
             result = validate_staging(project)
             if not result.valid:
                 for error in result.errors:

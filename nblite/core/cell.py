@@ -52,9 +52,7 @@ class Cell:
     index: int = 0
     notebook: Notebook | None = field(default=None, repr=False)
 
-    _directives: dict[str, list[Directive]] | None = field(
-        default=None, repr=False, init=False
-    )
+    _directives: dict[str, list[Directive]] | None = field(default=None, repr=False, init=False)
 
     @classmethod
     def from_dict(

@@ -153,35 +153,41 @@ def _parse_module_to_cells(source: str, module_name: str) -> list[dict[str, Any]
     cells: list[dict[str, Any]] = []
 
     # Add default_exp cell
-    cells.append({
-        "cell_type": "code",
-        "source": f"#|default_exp {module_name}",
-        "metadata": {},
-        "outputs": [],
-        "execution_count": None,
-    })
+    cells.append(
+        {
+            "cell_type": "code",
+            "source": f"#|default_exp {module_name}",
+            "metadata": {},
+            "outputs": [],
+            "execution_count": None,
+        }
+    )
 
     try:
         tree = ast.parse(source)
     except SyntaxError:
         # If parsing fails, put everything in one cell
-        cells.append({
-            "cell_type": "code",
-            "source": f"#|export\n{source}",
-            "metadata": {},
-            "outputs": [],
-            "execution_count": None,
-        })
+        cells.append(
+            {
+                "cell_type": "code",
+                "source": f"#|export\n{source}",
+                "metadata": {},
+                "outputs": [],
+                "execution_count": None,
+            }
+        )
         return cells
 
     # Extract module docstring
     docstring = ast.get_docstring(tree)
     if docstring:
-        cells.append({
-            "cell_type": "markdown",
-            "source": f"# {module_name}\n\n{docstring}",
-            "metadata": {},
-        })
+        cells.append(
+            {
+                "cell_type": "markdown",
+                "source": f"# {module_name}\n\n{docstring}",
+                "metadata": {},
+            }
+        )
 
     # Process imports first
     imports = []
@@ -191,13 +197,15 @@ def _parse_module_to_cells(source: str, module_name: str) -> list[dict[str, Any]
 
     if imports:
         import_source = "#|export\n" + "\n".join(imports)
-        cells.append({
-            "cell_type": "code",
-            "source": import_source,
-            "metadata": {},
-            "outputs": [],
-            "execution_count": None,
-        })
+        cells.append(
+            {
+                "cell_type": "code",
+                "source": import_source,
+                "metadata": {},
+                "outputs": [],
+                "execution_count": None,
+            }
+        )
 
     # Process functions and classes
     for node in tree.body:
@@ -205,13 +213,15 @@ def _parse_module_to_cells(source: str, module_name: str) -> list[dict[str, Any]
             code = ast.unparse(node)
             cell_source = f"#|export\n{code}"
 
-            cells.append({
-                "cell_type": "code",
-                "source": cell_source,
-                "metadata": {},
-                "outputs": [],
-                "execution_count": None,
-            })
+            cells.append(
+                {
+                    "cell_type": "code",
+                    "source": cell_source,
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                }
+            )
 
     # If no functions/classes, put remaining code in one cell
     if len(cells) <= 2 and not imports:  # Only default_exp and maybe docstring
@@ -224,13 +234,15 @@ def _parse_module_to_cells(source: str, module_name: str) -> list[dict[str, Any]
                 remaining.append(ast.unparse(node))
 
         if remaining:
-            cells.append({
-                "cell_type": "code",
-                "source": "#|export\n" + "\n".join(remaining),
-                "metadata": {},
-                "outputs": [],
-                "execution_count": None,
-            })
+            cells.append(
+                {
+                    "cell_type": "code",
+                    "source": "#|export\n" + "\n".join(remaining),
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                }
+            )
 
     return cells
 

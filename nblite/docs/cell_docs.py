@@ -48,10 +48,14 @@ def extract_top_level_definitions(code_str: str) -> list[dict[str, Any]]:
             end_line = node.end_lineno
             lines = code_str.splitlines()
             definition = "\n".join(lines[start_line:end_line])
-            top_level_definitions.append({
-                "type": "function" if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) else "class",
-                "code": definition,
-            })
+            top_level_definitions.append(
+                {
+                    "type": "function"
+                    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                    else "class",
+                    "code": definition,
+                }
+            )
 
     return top_level_definitions
 
@@ -80,17 +84,25 @@ def extract_function_meta(code_str: str) -> dict[str, Any]:
 
             # Regular arguments
             for arg in node.args.args:
-                args[arg.arg] = ast.get_source_segment(code_str, arg.annotation) if arg.annotation else None
+                args[arg.arg] = (
+                    ast.get_source_segment(code_str, arg.annotation) if arg.annotation else None
+                )
 
             # *args
             if node.args.vararg:
                 vararg = node.args.vararg
-                args[f"*{vararg.arg}"] = ast.get_source_segment(code_str, vararg.annotation) if vararg.annotation else None
+                args[f"*{vararg.arg}"] = (
+                    ast.get_source_segment(code_str, vararg.annotation)
+                    if vararg.annotation
+                    else None
+                )
 
             # **kwargs
             if node.args.kwarg:
                 kwarg = node.args.kwarg
-                args[f"**{kwarg.arg}"] = ast.get_source_segment(code_str, kwarg.annotation) if kwarg.annotation else None
+                args[f"**{kwarg.arg}"] = (
+                    ast.get_source_segment(code_str, kwarg.annotation) if kwarg.annotation else None
+                )
 
             docstring = ast.get_docstring(node)
             return_type = ast.get_source_segment(code_str, node.returns) if node.returns else None
@@ -107,17 +119,21 @@ def extract_function_meta(code_str: str) -> dict[str, Any]:
             if return_type is not None:
                 full_signature += f" -> {return_type}"
 
-            function_details.append({
-                "name": func_name,
-                "full_signature": full_signature,
-                "is_async": is_async,
-                "args": args,
-                "docstring": docstring,
-                "return_annotation": return_type,
-            })
+            function_details.append(
+                {
+                    "name": func_name,
+                    "full_signature": full_signature,
+                    "is_async": is_async,
+                    "args": args,
+                    "docstring": docstring,
+                    "return_annotation": return_type,
+                }
+            )
 
     if len(function_details) != 1:
-        raise ValueError(f"Expected exactly one function definition in the code string. Got {len(function_details)}.")
+        raise ValueError(
+            f"Expected exactly one function definition in the code string. Got {len(function_details)}."
+        )
 
     return function_details[0]
 
@@ -146,8 +162,10 @@ def extract_function_meta_from_obj(func: Any) -> dict[str, Any]:
     for name, param in sig.parameters.items():
         annotation = param.annotation if param.annotation is not inspect.Parameter.empty else None
         annotation_str = (
-            annotation.__name__ if isinstance(annotation, type)
-            else str(annotation) if annotation is not None
+            annotation.__name__
+            if isinstance(annotation, type)
+            else str(annotation)
+            if annotation is not None
             else None
         )
 
@@ -167,10 +185,14 @@ def extract_function_meta_from_obj(func: Any) -> dict[str, Any]:
     docstring = inspect.getdoc(func)
     is_async = inspect.iscoroutinefunction(func)
 
-    return_annotation = sig.return_annotation if sig.return_annotation is not inspect.Signature.empty else None
+    return_annotation = (
+        sig.return_annotation if sig.return_annotation is not inspect.Signature.empty else None
+    )
     return_annotation_str = (
-        return_annotation.__name__ if isinstance(return_annotation, type)
-        else str(return_annotation) if return_annotation is not None
+        return_annotation.__name__
+        if isinstance(return_annotation, type)
+        else str(return_annotation)
+        if return_annotation is not None
         else None
     )
 
@@ -238,7 +260,7 @@ def extract_class_meta_from_obj(cls: type) -> dict[str, Any]:
     base_classes = [base.__name__ for base in cls.__bases__ if base is not object]
     methods = []
 
-    for name, member in inspect.getmembers(cls, predicate=inspect.isfunction):
+    for _name, member in inspect.getmembers(cls, predicate=inspect.isfunction):
         if member.__qualname__.startswith(cls.__name__ + "."):
             methods.append(extract_function_meta_from_obj(member))
 
@@ -401,7 +423,9 @@ def render_cell_doc(cell_code: str, title_level: int = 2) -> str:
     for def_info in top_level_defs:
         try:
             if def_info["type"] == "function":
-                docs.append(render_function_doc(extract_function_meta(def_info["code"]), title_level))
+                docs.append(
+                    render_function_doc(extract_function_meta(def_info["code"]), title_level)
+                )
             else:
                 docs.append(render_class_doc(extract_class_meta(def_info["code"]), title_level))
         except Exception:
@@ -437,7 +461,9 @@ def show_doc(obj: Any, title_level: int = 2):
     try:
         from IPython.display import Markdown
     except ImportError:
-        raise ImportError("IPython is required for show_doc. Install with: pip install ipython")
+        raise ImportError(
+            "IPython is required for show_doc. Install with: pip install ipython"
+        ) from None
 
     if inspect.isfunction(obj) or inspect.ismethod(obj):
         meta = extract_function_meta_from_obj(obj)

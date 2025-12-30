@@ -55,7 +55,7 @@ fi
 """
 
 
-def install_hooks(project: "NbliteProject", force: bool = False) -> None:
+def install_hooks(project: NbliteProject, force: bool = False) -> None:
     """
     Install git hooks for an nblite project.
 
@@ -107,7 +107,7 @@ def install_hooks(project: "NbliteProject", force: bool = False) -> None:
     hook_path.chmod(0o755)
 
 
-def uninstall_hooks(project: "NbliteProject") -> None:
+def uninstall_hooks(project: NbliteProject) -> None:
     """
     Remove nblite hooks for a project.
 

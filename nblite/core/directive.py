@@ -10,8 +10,9 @@ Directives are special comments in notebook cells that control behavior:
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from nblite.core.cell import Cell

@@ -24,7 +24,7 @@ DISABLE_NBLITE_EXPORT_ENV_VAR = "NBLITE_DISABLE_EXPORT"
 def nbl_export(
     root_path: str | Path | None = None,
     pipeline: str | None = None,
-) -> "ExportResult | None":
+) -> ExportResult | None:
     """
     Export notebooks in an nblite project.
 
@@ -77,7 +77,7 @@ def nbl_export(
 
 
 # Also export show_doc for convenience
-from nblite.docs import show_doc
+from nblite.docs import show_doc  # noqa: E402
 
 __all__ = [
     "__version__",

@@ -60,7 +60,7 @@ def _get_clean_cell(cell: dict[str, Any]) -> dict[str, Any]:
     return clean_cell
 
 
-def get_notebook_hash(notebook: "Notebook") -> str:
+def get_notebook_hash(notebook: Notebook) -> str:
     """
     Calculate a hash of the notebook's source code and outputs.
 
@@ -85,7 +85,7 @@ def get_notebook_hash(notebook: "Notebook") -> str:
     return hashlib.sha256(content.encode("utf-8")).hexdigest()
 
 
-def has_notebook_changed(notebook: "Notebook") -> bool:
+def has_notebook_changed(notebook: Notebook) -> bool:
     """
     Check if a notebook has changed since its last fill.
 

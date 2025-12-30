@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 from rich.table import Table
@@ -113,11 +113,13 @@ def _run_fill(
                 nb = Notebook.from_file(nb_path)
                 if not has_notebook_changed(nb):
                     task_statuses[nb_path] = ("skip", "Skipped (unchanged)")
-                    results.append(FillResult(
-                        status=FillStatus.SKIPPED,
-                        path=nb_path,
-                        message="Skipped (unchanged)",
-                    ))
+                    results.append(
+                        FillResult(
+                            status=FillStatus.SKIPPED,
+                            path=nb_path,
+                            message="Skipped (unchanged)",
+                        )
+                    )
                     continue
             except Exception:
                 pass
@@ -134,7 +136,11 @@ def _run_fill(
 
         for nb_path in nbs_to_fill:
             status, msg = task_statuses.get(nb_path, ("...", "Pending"))
-            rel_path = nb_path.relative_to(project.root_path) if nb_path.is_relative_to(project.root_path) else nb_path
+            rel_path = (
+                nb_path.relative_to(project.root_path)
+                if nb_path.is_relative_to(project.root_path)
+                else nb_path
+            )
 
             if status == "ok":
                 status_str = "[green]ok[/green]"
@@ -201,9 +207,11 @@ def _run_fill(
     if dry_run:
         console.print("[blue]Dry run completed (no files modified)[/blue]")
 
-    console.print(f"[green]{success_count} succeeded[/green], "
-                  f"[yellow]{skipped_count} skipped[/yellow], "
-                  f"[red]{error_count} failed[/red]")
+    console.print(
+        f"[green]{success_count} succeeded[/green], "
+        f"[yellow]{skipped_count} skipped[/yellow], "
+        f"[red]{error_count} failed[/red]"
+    )
 
     # Show errors
     if error_count > 0:
@@ -211,7 +219,11 @@ def _run_fill(
         console.print("[red]Errors:[/red]")
         for r in results:
             if r.status == FillStatus.ERROR:
-                rel_path = r.path.relative_to(project.root_path) if r.path and r.path.is_relative_to(project.root_path) else r.path
+                rel_path = (
+                    r.path.relative_to(project.root_path)
+                    if r.path and r.path.is_relative_to(project.root_path)
+                    else r.path
+                )
                 # Use Text.from_ansi() to properly render ANSI codes from Jupyter tracebacks
                 error_text = Text.from_ansi(f"  {rel_path}: {r.message}")
                 console.print(error_text)
@@ -231,15 +243,15 @@ def _run_fill(
 def fill(
     ctx: typer.Context,
     notebooks: Annotated[
-        Optional[list[Path]],
+        list[Path] | None,
         typer.Argument(help="Specific notebooks to fill (all ipynb if omitted)"),
     ] = None,
     code_locations: Annotated[
-        Optional[list[str]],
+        list[str] | None,
         typer.Option("--code-location", "-c", help="Code locations to fill"),
     ] = None,
     timeout: Annotated[
-        Optional[int],
+        int | None,
         typer.Option("--timeout", "-t", help="Cell execution timeout in seconds"),
     ] = None,
     n_workers: Annotated[
@@ -314,15 +326,15 @@ def fill(
 def test(
     ctx: typer.Context,
     notebooks: Annotated[
-        Optional[list[Path]],
+        list[Path] | None,
         typer.Argument(help="Specific notebooks to test (all ipynb if omitted)"),
     ] = None,
     code_locations: Annotated[
-        Optional[list[str]],
+        list[str] | None,
         typer.Option("--code-location", "-c", help="Code locations to test"),
     ] = None,
     timeout: Annotated[
-        Optional[int],
+        int | None,
         typer.Option("--timeout", "-t", help="Cell execution timeout in seconds"),
     ] = None,
     n_workers: Annotated[

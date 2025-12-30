@@ -128,7 +128,7 @@ def _parse_code_location(key: str, data: dict[str, Any]) -> CodeLocationConfig:
         raise ConfigError(
             f"Invalid format '{format_str}' for code location '{key}'. "
             f"Valid formats: {valid_formats}"
-        )
+        ) from None
 
     # Handle export_mode string to enum
     export_mode_str = data.get("export_mode", "percent")
@@ -139,7 +139,7 @@ def _parse_code_location(key: str, data: dict[str, Any]) -> CodeLocationConfig:
         raise ConfigError(
             f"Invalid export_mode '{export_mode_str}' for code location '{key}'. "
             f"Valid modes: {valid_modes}"
-        )
+        ) from None
 
     return CodeLocationConfig(
         path=data.get("path", key),
@@ -188,7 +188,9 @@ def load_config(path: Path | str) -> NbliteConfig:
     elif isinstance(pipeline_data, list):
         # Already a list of rules
         export_rules = [
-            ExportRule(from_key=r.get("from", r.get("from_key")), to_key=r.get("to", r.get("to_key")))
+            ExportRule(
+                from_key=r.get("from", r.get("from_key")), to_key=r.get("to", r.get("to_key"))
+            )
             for r in pipeline_data
         ]
     else:

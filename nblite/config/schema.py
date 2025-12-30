@@ -118,7 +118,7 @@ class ExtensionEntry(BaseModel):
     )
 
     @model_validator(mode="after")
-    def validate_path_or_module(self) -> "ExtensionEntry":
+    def validate_path_or_module(self) -> ExtensionEntry:
         """Validate that exactly one of path or module is specified."""
         if self.path is None and self.module is None:
             raise ValueError("Either 'path' or 'module' must be specified")

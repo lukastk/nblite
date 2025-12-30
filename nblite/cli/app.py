@@ -376,6 +376,61 @@ def convert(
     console.print(f"[green]Converted {input_path} -> {output_path}[/green]")
 
 
+@app.command("from-module")
+def from_module_cmd(
+    module_path: Annotated[
+        Path,
+        typer.Argument(help="Path to the Python module"),
+    ],
+    output_path: Annotated[
+        Path,
+        typer.Argument(help="Output notebook path"),
+    ],
+    module_name: Annotated[
+        Optional[str],
+        typer.Option("--name", "-n", help="Module name for default_exp (default: file stem)"),
+    ] = None,
+    output_format: Annotated[
+        str,
+        typer.Option("--format", "-f", help="Output format: ipynb or percent"),
+    ] = "ipynb",
+) -> None:
+    """Convert a Python module to a notebook.
+
+    Parses the Python file and creates a notebook with:
+    - A default_exp directive
+    - Code cells for imports
+    - Code cells for each function/class with #|export directive
+    - Markdown cells for module docstrings
+
+    Example:
+        nbl from-module utils.py nbs/utils.ipynb
+        nbl from-module lib/core.py nbs/core.ipynb --name core
+        nbl from-module utils.py pcts/utils.pct.py -f percent
+    """
+    from nblite.convert import module_to_notebook
+
+    if not module_path.exists():
+        console.print(f"[red]Error: Module not found: {module_path}[/red]")
+        raise typer.Exit(1)
+
+    if output_format not in ("ipynb", "percent"):
+        console.print(f"[red]Error: Invalid format '{output_format}'. Use 'ipynb' or 'percent'.[/red]")
+        raise typer.Exit(1)
+
+    try:
+        module_to_notebook(
+            module_path,
+            output_path,
+            module_name=module_name,
+            format=output_format,
+        )
+        console.print(f"[green]Created notebook: {output_path}[/green]")
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        raise typer.Exit(1)
+
+
 @app.command()
 def info(ctx: typer.Context) -> None:
     """Show project information."""

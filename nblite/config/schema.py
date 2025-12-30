@@ -362,9 +362,9 @@ class NbliteConfig(BaseModel):
         default=None,
         description="Documentation title",
     )
-    docs_generator: Literal["jupyterbook", "mkdocs"] = Field(
-        default="jupyterbook",
-        description="Documentation generator",
+    docs_generator: Literal["mkdocs", "jupyterbook", "quarto"] = Field(
+        default="mkdocs",
+        description="Documentation generator (mkdocs, jupyterbook, or quarto)",
     )
     readme_nb_path: str | None = Field(
         default=None,

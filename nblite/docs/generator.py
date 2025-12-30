@@ -66,7 +66,7 @@ def get_generator(generator_name: str) -> DocsGenerator:
     Get a documentation generator by name.
 
     Args:
-        generator_name: Name of the generator ("jupyterbook" or "mkdocs").
+        generator_name: Name of the generator ("mkdocs", "jupyterbook", or "quarto").
 
     Returns:
         A DocsGenerator instance.
@@ -75,16 +75,18 @@ def get_generator(generator_name: str) -> DocsGenerator:
         ValueError: If the generator name is not recognized.
 
     Example:
-        >>> gen = get_generator("jupyterbook")
+        >>> gen = get_generator("mkdocs")
         >>> gen.prepare(project, Path("_docs"))
     """
     from nblite.docs.jupyterbook import JupyterBookGenerator
     from nblite.docs.mkdocs import MkDocsGenerator
+    from nblite.docs.quarto import QuartoGenerator
 
     generators: dict[str, type[DocsGenerator]] = {
         "jupyterbook": JupyterBookGenerator,
         "jupyter-book": JupyterBookGenerator,
         "mkdocs": MkDocsGenerator,
+        "quarto": QuartoGenerator,
     }
 
     if generator_name not in generators:

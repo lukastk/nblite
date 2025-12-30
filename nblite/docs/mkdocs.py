@@ -41,6 +41,8 @@ class MkDocsGenerator(DocsGenerator):
             project: The nblite project to document.
             output_dir: Directory to write documentation source.
         """
+        from nblite.docs.process import process_notebook_for_docs
+
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -49,21 +51,47 @@ class MkDocsGenerator(DocsGenerator):
         docs_dir.mkdir(exist_ok=True)
 
         # Get docs code location
-        docs_cl = project.config.docs.code_location
+        docs_cl = project.config.docs_cl or project.config.docs.code_location
         if docs_cl and docs_cl in project.code_locations:
             docs_location = project.get_code_location(docs_cl)
             notebooks = docs_location.get_notebooks()
+            cl_path = docs_location.path
+            cl_format = docs_location.format.value
         else:
             # Fall back to all notebooks
             notebooks = project.get_notebooks()
+            cl_path = project.root_path
+            cl_format = "ipynb"
 
-        # Copy notebooks to docs directory
+        # Process and copy notebooks to docs directory
         for nb in notebooks:
             if nb.source_path is None:
                 continue
-            rel_path = nb.source_path.name
-            dest = docs_dir / rel_path
-            shutil.copy2(nb.source_path, dest)
+
+            try:
+                rel_path = nb.source_path.relative_to(cl_path)
+            except ValueError:
+                rel_path = Path(nb.source_path.name)
+
+            dest = docs_dir / rel_path.with_suffix(".ipynb")
+            dest.parent.mkdir(parents=True, exist_ok=True)
+
+            # Process notebook for docs (inject API docs, remove hidden cells)
+            process_notebook_for_docs(nb.source_path, dest, cl_format)
+
+        # Copy markdown files
+        if docs_cl and docs_cl in project.code_locations:
+            for md_file in cl_path.glob("**/*.md"):
+                rel_path = md_file.relative_to(cl_path)
+                excluded = False
+                for pattern in project.config.docs.exclude_patterns:
+                    if any(part.startswith(pattern.rstrip("*")) for part in rel_path.parts):
+                        excluded = True
+                        break
+                if not excluded:
+                    dest = docs_dir / rel_path
+                    dest.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy(md_file, dest)
 
         # Generate mkdocs.yml
         config = self._generate_config(project, notebooks)

@@ -211,7 +211,7 @@ def load_config(path: Path | str) -> NbliteConfig:
         "code_locations": code_locations,
         "docs_cl": raw_config.get("docs_cl"),
         "docs_title": raw_config.get("docs_title"),
-        "docs_generator": raw_config.get("docs_generator", "jupyterbook"),
+        "docs_generator": raw_config.get("docs_generator", "mkdocs"),
         "readme_nb_path": raw_config.get("readme_nb_path"),
         "extensions": extensions,
     }

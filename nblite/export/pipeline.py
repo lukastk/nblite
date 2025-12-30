@@ -13,6 +13,7 @@ from typing import Any
 
 from nblite.config.schema import ExportMode
 from nblite.core.notebook import Format, Notebook
+from nblite.export.function_export import export_function_notebook, is_function_notebook
 
 __all__ = [
     "export_notebook_to_notebook",
@@ -78,6 +79,16 @@ def export_notebook_to_module(
         cell_reference_style: Style for cell references (relative or absolute)
     """
     output_path = Path(output_path)
+
+    # Check if this is a function notebook
+    if is_function_notebook(notebook):
+        export_function_notebook(
+            notebook,
+            output_path,
+            include_warning=include_warning,
+        )
+        return
+
     source_path = notebook.source_path
 
     # Calculate relative path for cell references

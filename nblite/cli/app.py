@@ -352,5 +352,101 @@ def list_files(
         console.print()
 
 
+@app.command("install-hooks")
+def install_hooks_cmd() -> None:
+    """Install git hooks for the project."""
+    from nblite.core.project import NbliteProject
+    from nblite.git.hooks import install_hooks
+
+    try:
+        project = NbliteProject.from_path()
+    except FileNotFoundError as e:
+        console.print(f"[red]Error: {e}[/red]")
+        raise typer.Exit(1)
+
+    try:
+        install_hooks(project)
+        console.print("[green]Git hooks installed[/green]")
+    except RuntimeError as e:
+        console.print(f"[red]Error: {e}[/red]")
+        raise typer.Exit(1)
+
+
+@app.command("uninstall-hooks")
+def uninstall_hooks_cmd() -> None:
+    """Remove git hooks for the project."""
+    from nblite.core.project import NbliteProject
+    from nblite.git.hooks import uninstall_hooks
+
+    try:
+        project = NbliteProject.from_path()
+    except FileNotFoundError as e:
+        console.print(f"[red]Error: {e}[/red]")
+        raise typer.Exit(1)
+
+    uninstall_hooks(project)
+    console.print("[green]Git hooks removed[/green]")
+
+
+@app.command("validate")
+def validate_cmd() -> None:
+    """Validate git staging state."""
+    from nblite.core.project import NbliteProject
+    from nblite.git.staging import validate_staging
+
+    try:
+        project = NbliteProject.from_path()
+    except FileNotFoundError as e:
+        console.print(f"[red]Error: {e}[/red]")
+        raise typer.Exit(1)
+
+    result = validate_staging(project)
+
+    if result.warnings:
+        for warning in result.warnings:
+            console.print(f"[yellow]Warning:[/yellow] {warning}")
+
+    if result.errors:
+        for error in result.errors:
+            console.print(f"[red]Error:[/red] {error}")
+        raise typer.Exit(1)
+
+    if result.valid and not result.warnings:
+        console.print("[green]Staging is valid[/green]")
+
+
+@app.command("hook")
+def hook_cmd(
+    hook_name: Annotated[
+        str,
+        typer.Argument(help="Hook name (pre-commit, post-commit)"),
+    ],
+) -> None:
+    """Run a git hook (internal use)."""
+    from nblite.core.project import NbliteProject
+
+    try:
+        project = NbliteProject.from_path()
+    except FileNotFoundError:
+        # Not in a project, silently exit
+        return
+
+    if hook_name == "pre-commit":
+        # Auto-clean and validate
+        if project.config.git.auto_clean:
+            project.clean()
+
+        if project.config.git.auto_export:
+            project.export()
+
+        if project.config.git.validate_staging:
+            from nblite.git.staging import validate_staging
+            result = validate_staging(project)
+            if not result.valid:
+                for error in result.errors:
+                    console.print(f"[red]Error:[/red] {error}", err=True)
+                raise typer.Exit(1)
+
+
 if __name__ == "__main__":
     app()

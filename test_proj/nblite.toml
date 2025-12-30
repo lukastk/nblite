@@ -1,0 +1,22 @@
+# nblite test project configuration
+# Export pipeline: notebooks -> percent scripts -> python modules
+
+export_pipeline = """
+nbs -> pcts
+pcts -> lib
+"""
+
+docs_cl = "nbs"
+docs_title = "Test Project"
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.pcts]
+path = "pcts"
+format = "percent"
+
+[cl.lib]
+path = "my_lib"
+format = "module"

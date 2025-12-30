@@ -6,8 +6,13 @@ This module handles:
 - Staging validation
 """
 
-# Exports will be added as classes are implemented
-# from nblite.git.hooks import install_hooks, uninstall_hooks
-# from nblite.git.staging import validate_staging
+from nblite.git.hooks import find_git_root, install_hooks, uninstall_hooks
+from nblite.git.staging import ValidationResult, validate_staging
 
-__all__: list[str] = []
+__all__ = [
+    "install_hooks",
+    "uninstall_hooks",
+    "find_git_root",
+    "validate_staging",
+    "ValidationResult",
+]

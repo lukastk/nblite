@@ -211,7 +211,7 @@ class NbliteProject:
                 pyfiles.extend(cl.get_pyfiles())
         return pyfiles
 
-    def get_notebook_twins(self, notebook: Notebook) -> list[Path]:
+    def get_notebook_twins(self, notebook: Notebook | Path) -> list[Path]:
         """
         Get all twin paths for a notebook.
 
@@ -219,43 +219,55 @@ class NbliteProject:
         in different code locations along the export pipeline.
 
         Args:
-            notebook: Source notebook
+            notebook: Source notebook or path
 
         Returns:
             List of twin file paths
         """
-        if notebook.source_path is None:
-            return []
+        if isinstance(notebook, Path):
+            source_path = notebook
+        else:
+            if notebook.source_path is None:
+                return []
+            source_path = notebook.source_path
 
         twins: list[Path] = []
 
         # Find source code location
         source_cl = None
         for cl in self.code_locations.values():
-            if cl.is_notebook:
-                try:
-                    notebook.source_path.relative_to(cl.path)
-                    source_cl = cl
-                    break
-                except ValueError:
-                    continue
+            try:
+                source_path.relative_to(cl.path)
+                source_cl = cl
+                break
+            except ValueError:
+                continue
 
         if source_cl is None:
             return []
 
         # Get relative path within code location
-        rel_path = notebook.source_path.relative_to(source_cl.path)
+        rel_path = source_path.relative_to(source_cl.path)
         stem = rel_path.stem
         if stem.endswith(".pct"):
             stem = stem[:-4]
 
-        # Find exports from this location
-        for rule in self.config.export_pipeline:
-            if rule.from_key == source_cl.key:
-                target_cl = self.code_locations.get(rule.to_key)
-                if target_cl:
-                    twin_path = target_cl.path / rel_path.parent / (stem + target_cl.file_ext)
-                    twins.append(twin_path)
+        # Follow the export pipeline chain to find all twins
+        # Use BFS to find all reachable locations
+        visited = {source_cl.key}
+        to_visit = [source_cl.key]
+
+        while to_visit:
+            current_key = to_visit.pop(0)
+
+            for rule in self.config.export_pipeline:
+                if rule.from_key == current_key and rule.to_key not in visited:
+                    target_cl = self.code_locations.get(rule.to_key)
+                    if target_cl:
+                        twin_path = target_cl.path / rel_path.parent / (stem + target_cl.file_ext)
+                        twins.append(twin_path)
+                        visited.add(rule.to_key)
+                        to_visit.append(rule.to_key)
 
         return twins
 
@@ -326,11 +338,10 @@ class NbliteProject:
         """
         result = ExportResult()
 
-        # Get notebooks to export
+        # If specific notebooks provided, convert to Notebook objects
+        specific_nbs: list[Notebook] | None = None
         if notebooks:
-            nbs_to_export = [Notebook.from_file(p) for p in notebooks]
-        else:
-            nbs_to_export = self.get_notebooks()
+            specific_nbs = [Notebook.from_file(p) for p in notebooks]
 
         # Execute pipeline rules
         for rule in self.config.export_pipeline:
@@ -340,7 +351,26 @@ class NbliteProject:
             if not from_cl or not to_cl:
                 continue
 
-            # Filter notebooks in source code location
+            # Get notebooks from source code location for this rule
+            if specific_nbs is not None:
+                # Filter specific notebooks that are in this source location
+                nbs_to_export = []
+                for nb in specific_nbs:
+                    if nb.source_path is None:
+                        continue
+                    try:
+                        nb.source_path.relative_to(from_cl.path)
+                        nbs_to_export.append(nb)
+                    except ValueError:
+                        continue
+            else:
+                # Get all notebooks from source code location
+                if from_cl.is_notebook:
+                    nbs_to_export = from_cl.get_notebooks()
+                else:
+                    continue
+
+            # Export each notebook
             for nb in nbs_to_export:
                 if nb.source_path is None:
                     continue

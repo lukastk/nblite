@@ -203,11 +203,26 @@ class DocsConfig(BaseModel):
     Configuration for documentation generation.
 
     Attributes:
+        code_location: Code location to use for documentation
+        title: Documentation title
+        author: Documentation author
         output_folder: Output folder for documentation
         execute_notebooks: Execute notebooks during build
         exclude_patterns: Patterns to exclude from docs
     """
 
+    code_location: str | None = Field(
+        default=None,
+        description="Code location to use for documentation",
+    )
+    title: str | None = Field(
+        default=None,
+        description="Documentation title",
+    )
+    author: str | None = Field(
+        default=None,
+        description="Documentation author",
+    )
     output_folder: str = Field(
         default="_docs",
         description="Output folder for documentation",

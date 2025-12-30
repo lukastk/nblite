@@ -1,0 +1,17 @@
+# Generated files (can be regenerated with nbl export)
+pcts/
+my_lib/*.py
+!my_lib/__init__.py
+
+# Documentation output
+_docs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+
+# Environment
+.env
+.venv/

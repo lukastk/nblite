@@ -8,8 +8,14 @@ This module handles:
 - Export modes (percent, py)
 """
 
-# Exports will be added as classes are implemented
-# from nblite.export.pipeline import run_pipeline
-# from nblite.export.modes import ExportMode
+from nblite.export.pipeline import (
+    ExportResult,
+    export_notebook_to_module,
+    export_notebook_to_notebook,
+)
 
-__all__: list[str] = []
+__all__ = [
+    "export_notebook_to_notebook",
+    "export_notebook_to_module",
+    "ExportResult",
+]

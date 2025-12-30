@@ -417,14 +417,47 @@ class NbliteProject:
     def clean(
         self,
         notebooks: list[Path] | None = None,
+        *,
+        remove_outputs: bool | None = None,
+        remove_execution_counts: bool | None = None,
+        remove_cell_metadata: bool | None = None,
+        remove_notebook_metadata: bool | None = None,
+        remove_kernel_info: bool | None = None,
+        preserve_cell_ids: bool | None = None,
+        remove_output_metadata: bool | None = None,
+        remove_output_execution_counts: bool | None = None,
+        keep_only_metadata: list[str] | None = None,
     ) -> None:
         """
         Clean notebooks by removing outputs and metadata.
 
         Args:
             notebooks: Specific notebooks to clean (all ipynb if None)
+            remove_outputs: Remove all outputs from code cells (None = use config)
+            remove_execution_counts: Remove execution counts from code cells (None = use config)
+            remove_cell_metadata: Remove cell-level metadata (None = use config)
+            remove_notebook_metadata: Remove notebook-level metadata (None = use config)
+            remove_kernel_info: Remove kernel specification (None = use config)
+            preserve_cell_ids: Preserve cell IDs (None = use config)
+            remove_output_metadata: Remove metadata from outputs (None = use config)
+            remove_output_execution_counts: Remove execution counts from output results (None = use config)
+            keep_only_metadata: Keep only these metadata keys (None = use config)
         """
         import json
+
+        # Use config values as defaults, allow overrides
+        clean_config = self.config.clean
+        clean_opts = {
+            "remove_outputs": remove_outputs if remove_outputs is not None else clean_config.remove_outputs,
+            "remove_execution_counts": remove_execution_counts if remove_execution_counts is not None else clean_config.remove_execution_counts,
+            "remove_cell_metadata": remove_cell_metadata if remove_cell_metadata is not None else clean_config.remove_cell_metadata,
+            "remove_notebook_metadata": remove_notebook_metadata if remove_notebook_metadata is not None else clean_config.remove_notebook_metadata,
+            "remove_kernel_info": remove_kernel_info if remove_kernel_info is not None else clean_config.remove_kernel_info,
+            "preserve_cell_ids": preserve_cell_ids if preserve_cell_ids is not None else clean_config.preserve_cell_ids,
+            "remove_output_metadata": remove_output_metadata if remove_output_metadata is not None else clean_config.remove_output_metadata,
+            "remove_output_execution_counts": remove_output_execution_counts if remove_output_execution_counts is not None else clean_config.remove_output_execution_counts,
+            "keep_only_metadata": keep_only_metadata if keep_only_metadata is not None else clean_config.keep_only_metadata,
+        }
 
         if notebooks:
             nbs_to_clean = [Notebook.from_file(p) for p in notebooks]
@@ -439,7 +472,7 @@ class NbliteProject:
             if nb.source_path is None:
                 continue
 
-            cleaned = nb.clean(remove_outputs=self.config.clean.remove_outputs)
+            cleaned = nb.clean(**clean_opts)
             content = json.dumps(cleaned.to_dict(), indent=2)
             nb.source_path.write_text(content)
 

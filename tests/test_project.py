@@ -247,7 +247,7 @@ class TestProjectClean:
         nb_path.write_text(nb_content)
 
         project = NbliteProject.from_path(sample_project)
-        project.clean()
+        project.clean(remove_outputs=True)
 
         cleaned = json.loads(nb_path.read_text())
         assert cleaned["cells"][0]["outputs"] == []
@@ -278,7 +278,7 @@ class TestProjectClean:
         nb_path.write_text(nb_content)
 
         project = NbliteProject.from_path(sample_project)
-        project.clean(notebooks=[nb_path])
+        project.clean(notebooks=[nb_path], remove_outputs=True)
 
         cleaned = json.loads(nb_path.read_text())
         assert cleaned["cells"][0]["outputs"] == []

@@ -245,45 +245,111 @@ class Notebook:
         content = self.to_string(format)
         path.write_text(content)
 
-    def clean(self, remove_outputs: bool = True) -> Notebook:
+    def clean(
+        self,
+        *,
+        remove_outputs: bool = False,
+        remove_execution_counts: bool = False,
+        remove_cell_metadata: bool = False,
+        remove_notebook_metadata: bool = False,
+        remove_kernel_info: bool = False,
+        preserve_cell_ids: bool = True,
+        remove_output_metadata: bool = False,
+        remove_output_execution_counts: bool = False,
+        keep_only_metadata: list[str] | None = None,
+    ) -> Notebook:
         """
         Return a cleaned copy of this notebook.
 
+        All options default to False (no changes) matching nbx clean behavior.
+
         Args:
-            remove_outputs: Whether to remove cell outputs
+            remove_outputs: Remove all outputs from code cells
+            remove_execution_counts: Remove execution counts from code cells
+            remove_cell_metadata: Remove cell-level metadata
+            remove_notebook_metadata: Remove notebook-level metadata
+            remove_kernel_info: Remove kernel specification
+            preserve_cell_ids: Preserve cell IDs (if False, cell IDs are removed)
+            remove_output_metadata: Remove metadata from outputs
+            remove_output_execution_counts: Remove execution counts from output results
+            keep_only_metadata: Keep only these metadata keys (None = keep all)
 
         Returns:
             New Notebook instance with cleaned content
         """
-        # Create cleaned cells
-        cleaned_cells: list[Cell] = []
+        # Clean notebook metadata
+        cleaned_nb_metadata = self.metadata.copy()
+        if remove_notebook_metadata:
+            cleaned_nb_metadata = {}
+        elif keep_only_metadata is not None:
+            cleaned_nb_metadata = {k: v for k, v in cleaned_nb_metadata.items() if k in keep_only_metadata}
+
+        if remove_kernel_info:
+            cleaned_nb_metadata.pop("kernelspec", None)
+            cleaned_nb_metadata.pop("language_info", None)
+
+        # Create cleaned notebook
         cleaned_notebook = Notebook(
-            metadata=self.metadata.copy(),
+            metadata=cleaned_nb_metadata,
             nbformat=self.nbformat,
             nbformat_minor=self.nbformat_minor,
             source_path=self.source_path,
         )
 
+        # Clean cells
+        cleaned_cells: list[Cell] = []
         for i, cell in enumerate(self.cells):
-            if cell.is_code and remove_outputs:
-                # Create new cell without outputs
+            # Clean cell metadata
+            cell_metadata = cell.metadata.copy()
+            if remove_cell_metadata:
+                cell_metadata = {}
+            elif keep_only_metadata is not None:
+                cell_metadata = {k: v for k, v in cell_metadata.items() if k in keep_only_metadata}
+
+            # Handle cell ID
+            if not preserve_cell_ids:
+                cell_metadata.pop("id", None)
+
+            # Handle outputs for code cells
+            if cell.is_code:
+                outputs = cell.outputs.copy() if cell.outputs else []
+
+                if remove_outputs:
+                    outputs = []
+                else:
+                    # Clean individual outputs
+                    cleaned_outputs = []
+                    for output in outputs:
+                        cleaned_output = output.copy()
+                        if remove_output_metadata and "metadata" in cleaned_output:
+                            del cleaned_output["metadata"]
+                        if remove_output_execution_counts and "execution_count" in cleaned_output:
+                            del cleaned_output["execution_count"]
+                        cleaned_outputs.append(cleaned_output)
+                    outputs = cleaned_outputs
+
+                # Handle execution count
+                execution_count = cell.execution_count
+                if remove_execution_counts or remove_outputs:
+                    execution_count = None
+
                 new_cell = Cell(
                     cell_type=cell.cell_type,
                     source=cell.source,
-                    metadata=cell.metadata.copy(),
-                    outputs=[],
-                    execution_count=None,
+                    metadata=cell_metadata,
+                    outputs=outputs,
+                    execution_count=execution_count,
                     index=i,
                     notebook=cleaned_notebook,
                 )
             else:
-                # Copy cell as-is (or for non-code cells)
+                # Non-code cells
                 new_cell = Cell(
                     cell_type=cell.cell_type,
                     source=cell.source,
-                    metadata=cell.metadata.copy(),
-                    outputs=cell.outputs.copy() if cell.outputs else [],
-                    execution_count=cell.execution_count,
+                    metadata=cell_metadata,
+                    outputs=[],
+                    execution_count=None,
                     index=i,
                     notebook=cleaned_notebook,
                 )

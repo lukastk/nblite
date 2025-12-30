@@ -174,20 +174,57 @@ class CleanConfig(BaseModel):
     """
     Configuration for notebook cleaning.
 
+    All removal options default to False (matching nbx clean behavior).
+
     Attributes:
-        remove_outputs: Remove cell outputs
-        remove_metadata: Remove cell metadata
+        remove_outputs: Remove all outputs from code cells
+        remove_execution_counts: Remove execution counts from code cells
+        remove_cell_metadata: Remove cell-level metadata
+        remove_notebook_metadata: Remove notebook-level metadata
+        remove_kernel_info: Remove kernel specification
+        preserve_cell_ids: Preserve cell IDs (if False, cell IDs are removed)
+        remove_output_metadata: Remove metadata from outputs
+        remove_output_execution_counts: Remove execution counts from output results
+        keep_only_metadata: Keep only these metadata keys (None = keep all)
         exclude_dunders: Exclude __* notebooks
         exclude_hidden: Exclude .* notebooks
     """
 
     remove_outputs: bool = Field(
-        default=True,
-        description="Remove cell outputs",
+        default=False,
+        description="Remove all outputs from code cells",
     )
-    remove_metadata: bool = Field(
+    remove_execution_counts: bool = Field(
+        default=False,
+        description="Remove execution counts from code cells",
+    )
+    remove_cell_metadata: bool = Field(
+        default=False,
+        description="Remove cell-level metadata",
+    )
+    remove_notebook_metadata: bool = Field(
+        default=False,
+        description="Remove notebook-level metadata",
+    )
+    remove_kernel_info: bool = Field(
+        default=False,
+        description="Remove kernel specification",
+    )
+    preserve_cell_ids: bool = Field(
         default=True,
-        description="Remove cell metadata",
+        description="Preserve cell IDs",
+    )
+    remove_output_metadata: bool = Field(
+        default=False,
+        description="Remove metadata from outputs (ExecuteResult, DisplayData)",
+    )
+    remove_output_execution_counts: bool = Field(
+        default=False,
+        description="Remove execution counts from output results",
+    )
+    keep_only_metadata: list[str] | None = Field(
+        default=None,
+        description="Keep only these metadata keys (None = keep all)",
     )
     exclude_dunders: bool = Field(
         default=True,

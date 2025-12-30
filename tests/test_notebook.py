@@ -264,7 +264,7 @@ class TestNotebookConversion:
 
 class TestNotebookClean:
     def test_clean_removes_outputs(self) -> None:
-        """Test clean removes cell outputs."""
+        """Test clean removes cell outputs when requested."""
         data = {
             "cells": [
                 {
@@ -280,13 +280,36 @@ class TestNotebookClean:
             "nbformat_minor": 5,
         }
         nb = Notebook.from_dict(data)
-        cleaned = nb.clean()
+        cleaned = nb.clean(remove_outputs=True)
 
         # Original unchanged
         assert len(nb.cells[0].outputs) == 1
 
         # Cleaned has no outputs
         assert len(cleaned.cells[0].outputs) == 0
+
+    def test_clean_preserves_outputs_by_default(self) -> None:
+        """Test clean preserves outputs by default (matching nbx behavior)."""
+        data = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "source": "print(1)",
+                    "metadata": {},
+                    "outputs": [{"output_type": "stream", "text": "1"}],
+                    "execution_count": 1,
+                },
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+        cleaned = nb.clean()  # No options = no changes
+
+        # Outputs should be preserved
+        assert len(cleaned.cells[0].outputs) == 1
+        assert cleaned.cells[0].execution_count == 1
 
 
 class TestFormat:

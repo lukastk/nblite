@@ -5,10 +5,13 @@ This module contains the core classes:
 - Notebook: Extended notebook with directive support
 - Cell: Cell wrapper with directive parsing
 - Directive: Represents parsed directives
+- CodeLocation: Represents a code location in the project
+- PyFile: Represents a Python module file
 - NbliteProject: Central project management class
 """
 
 from nblite.core.cell import Cell, CellType
+from nblite.core.code_location import CodeLocation
 from nblite.core.directive import (
     Directive,
     DirectiveDefinition,
@@ -20,6 +23,7 @@ from nblite.core.directive import (
     register_directive,
 )
 from nblite.core.notebook import Format, Notebook
+from nblite.core.pyfile import PyFile, PyFileCell
 
 __all__ = [
     # Cell
@@ -28,6 +32,11 @@ __all__ = [
     # Notebook
     "Notebook",
     "Format",
+    # CodeLocation
+    "CodeLocation",
+    # PyFile
+    "PyFile",
+    "PyFileCell",
     # Directive
     "Directive",
     "DirectiveDefinition",

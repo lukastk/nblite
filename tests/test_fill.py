@@ -5,12 +5,9 @@ Tests for the fill module (notebook execution and output filling).
 import json
 from pathlib import Path
 
-import pytest
-
 from nblite.core.notebook import Notebook
 from nblite.fill import (
     HASH_METADATA_KEY,
-    FillResult,
     FillStatus,
     fill_notebook,
     fill_notebooks,
@@ -332,7 +329,7 @@ class TestFillNotebooks:
         def on_progress(path, result):
             progress_calls.append((path, result.status))
 
-        results = fill_notebooks(paths, skip_unchanged=False, on_progress=on_progress)
+        fill_notebooks(paths, skip_unchanged=False, on_progress=on_progress)
 
         assert len(progress_calls) == 2
 
@@ -354,7 +351,7 @@ class TestFillNotebooks:
 
         assert all(r.status == FillStatus.SUCCESS for r in results)
         # Files should not be modified
-        for path, original in zip(paths, original_contents):
+        for path, original in zip(paths, original_contents, strict=True):
             assert path.read_text() == original
 
 
@@ -416,6 +413,7 @@ class TestFillCLI:
     def test_fill_command_exists(self) -> None:
         """Test that fill command is registered."""
         from typer.testing import CliRunner
+
         from nblite.cli.app import app
 
         runner = CliRunner()
@@ -427,6 +425,7 @@ class TestFillCLI:
     def test_test_command_exists(self) -> None:
         """Test that test command is registered."""
         from typer.testing import CliRunner
+
         from nblite.cli.app import app
 
         runner = CliRunner()
@@ -436,9 +435,11 @@ class TestFillCLI:
 
     def test_fill_cli_with_notebooks(self, tmp_path: Path) -> None:
         """Test fill CLI with specific notebooks."""
-        from typer.testing import CliRunner
-        from nblite.cli.app import app
         import os
+
+        from typer.testing import CliRunner
+
+        from nblite.cli.app import app
 
         # Create nblite.toml
         nbs_dir = tmp_path / "nbs"
@@ -469,9 +470,11 @@ format = "ipynb"
 
     def test_fill_cli_dry_run(self, tmp_path: Path) -> None:
         """Test fill CLI with --dry-run option."""
-        from typer.testing import CliRunner
-        from nblite.cli.app import app
         import os
+
+        from typer.testing import CliRunner
+
+        from nblite.cli.app import app
 
         # Create nblite.toml
         nbs_dir = tmp_path / "nbs"
@@ -500,9 +503,11 @@ format = "ipynb"
 
     def test_test_cli_is_dry_run(self, tmp_path: Path) -> None:
         """Test that 'test' command is equivalent to 'fill --dry-run'."""
-        from typer.testing import CliRunner
-        from nblite.cli.app import app
         import os
+
+        from typer.testing import CliRunner
+
+        from nblite.cli.app import app
 
         # Create nblite.toml
         nbs_dir = tmp_path / "nbs"
@@ -532,6 +537,7 @@ format = "ipynb"
     def test_fill_cli_disables_export_by_default(self, tmp_path: Path) -> None:
         """Test that fill CLI disables nbl_export() by default."""
         import os
+
         from nblite import DISABLE_NBLITE_EXPORT_ENV_VAR
 
         # Create nblite.toml
@@ -567,6 +573,7 @@ format = "ipynb"
 
         # Run fill (which should set the env var)
         from typer.testing import CliRunner
+
         from nblite.cli.app import app
 
         runner = CliRunner()
@@ -585,6 +592,7 @@ format = "ipynb"
     def test_fill_cli_allow_export_option(self, tmp_path: Path) -> None:
         """Test that --allow-export flag enables nbl_export() during fill."""
         import os
+
         from nblite import DISABLE_NBLITE_EXPORT_ENV_VAR
 
         # Create nblite.toml
@@ -600,6 +608,7 @@ format = "ipynb"
         path = create_simple_notebook(nbs_dir)
 
         from typer.testing import CliRunner
+
         from nblite.cli.app import app
 
         runner = CliRunner()

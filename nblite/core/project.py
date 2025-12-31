@@ -123,7 +123,7 @@ class NbliteProject:
                 import warnings
 
                 source = ext_entry.path or ext_entry.module
-                warnings.warn(f"Failed to load extension '{source}': {e}")
+                warnings.warn(f"Failed to load extension '{source}': {e}", stacklevel=2)
 
     @classmethod
     def find_project_root(cls, start_path: Path | str | None = None) -> Path | None:

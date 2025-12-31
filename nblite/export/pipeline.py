@@ -13,6 +13,7 @@ from pathlib import Path
 from nblite.config.schema import ExportMode
 from nblite.core.notebook import Format, Notebook
 from nblite.export.function_export import export_function_notebook, is_function_notebook
+from nblite.extensions import HookRegistry, HookType
 
 __all__ = [
     "export_notebook_to_notebook",
@@ -130,7 +131,13 @@ def _collect_exported_content(
     export_mode: ExportMode,
     source_ref: str,
 ) -> str:
-    """Collect content from exported cells."""
+    """
+    Collect content from exported cells.
+
+    Hooks triggered:
+        PRE_CELL_EXPORT: Before each cell export (cell=cell, notebook=notebook)
+        POST_CELL_EXPORT: After each cell export (cell=cell, notebook=notebook, source=str)
+    """
     parts: list[str] = []
 
     for cell in notebook.cells:
@@ -149,6 +156,13 @@ def _collect_exported_content(
         if not source:
             continue
 
+        # Trigger PRE_CELL_EXPORT hook
+        HookRegistry.trigger(
+            HookType.PRE_CELL_EXPORT,
+            cell=cell,
+            notebook=notebook,
+        )
+
         if export_mode == ExportMode.PERCENT:
             # Add cell marker
             parts.append(f"# %% {source_ref} {cell.index}")
@@ -158,6 +172,14 @@ def _collect_exported_content(
             # Plain Python mode
             parts.append(source)
             parts.append("")
+
+        # Trigger POST_CELL_EXPORT hook
+        HookRegistry.trigger(
+            HookType.POST_CELL_EXPORT,
+            cell=cell,
+            notebook=notebook,
+            source=source,
+        )
 
     return "\n".join(parts)
 

@@ -468,10 +468,12 @@ nbl new my_notebook.ipynb  # {{ pyproject.project.name }} available in template
 
 ## Extensions `[[extensions]]`
 
-Load external extensions that can register hooks.
+Extensions allow you to hook into nblite's workflow and add custom behavior. Extensions are Python files or modules that register callbacks for specific events.
+
+### Configuration
 
 ```toml
-# Load from file path
+# Load from file path (relative to project root)
 [[extensions]]
 path = "nblite_hooks.py"
 
@@ -480,7 +482,82 @@ path = "nblite_hooks.py"
 module = "mypackage.nblite_extension"
 ```
 
-Each extension must specify either `path` or `module`, not both.
+Each extension must specify either `path` or `module`, not both. Extensions are loaded when `NbliteProject.from_path()` is called.
+
+### Writing Extensions
+
+Extensions use the `@hook` decorator to register callbacks:
+
+```python
+# my_extension.py
+from nblite.extensions import hook, HookType
+
+@hook(HookType.PRE_EXPORT)
+def before_export(**kwargs):
+    """Called before export starts."""
+    project = kwargs.get("project")
+    print(f"Starting export for {project.root_path}")
+
+@hook(HookType.POST_EXPORT)
+def after_export(**kwargs):
+    """Called after export completes."""
+    result = kwargs.get("result")
+    print(f"Created {len(result.files_created)} files")
+```
+
+### Available Hooks
+
+| Hook Type | Trigger Point | Context |
+|-----------|---------------|---------|
+| `PRE_EXPORT` | Before export starts | `project`, `notebooks` |
+| `POST_EXPORT` | After export completes | `project`, `result` |
+| `PRE_NOTEBOOK_EXPORT` | Before each notebook exports | `notebook`, `output_path`, `from_location`, `to_location` |
+| `POST_NOTEBOOK_EXPORT` | After each notebook exports | `notebook`, `output_path`, `from_location`, `to_location`, `success` |
+| `PRE_CELL_EXPORT` | Before each cell exports | `cell`, `notebook` |
+| `POST_CELL_EXPORT` | After each cell exports | `cell`, `notebook`, `source` |
+| `PRE_CLEAN` | Before clean starts | `project`, `notebooks` |
+| `POST_CLEAN` | After clean completes | `project`, `cleaned_notebooks` |
+| `DIRECTIVE_PARSED` | When a directive is parsed | `directive`, `cell` |
+
+### Example: Custom Logging Extension
+
+```python
+# extensions/logging_ext.py
+from nblite.extensions import hook, HookType
+import logging
+
+logger = logging.getLogger("nblite.custom")
+
+@hook(HookType.PRE_EXPORT)
+def log_export_start(**kwargs):
+    project = kwargs.get("project")
+    logger.info(f"Export starting: {project.root_path}")
+
+@hook(HookType.POST_NOTEBOOK_EXPORT)
+def log_notebook_exported(**kwargs):
+    nb = kwargs.get("notebook")
+    success = kwargs.get("success")
+    status = "success" if success else "failed"
+    logger.info(f"Notebook {nb.source_path}: {status}")
+
+@hook(HookType.DIRECTIVE_PARSED)
+def log_directives(**kwargs):
+    directive = kwargs.get("directive")
+    logger.debug(f"Found directive: {directive.name}")
+```
+
+### Programmatic Hook Registration
+
+You can also register hooks programmatically without the decorator:
+
+```python
+from nblite.extensions import HookRegistry, HookType
+
+def my_callback(**kwargs):
+    print("Hook triggered!")
+
+HookRegistry.register(HookType.PRE_EXPORT, my_callback)
+```
 
 ---
 

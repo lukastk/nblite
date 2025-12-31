@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 from nblite.config import NbliteConfig, find_config_file, load_config, parse_export_pipeline
 from nblite.config.schema import CodeLocationFormat
@@ -19,6 +20,7 @@ from nblite.export.pipeline import (
     export_notebook_to_module,
     export_notebook_to_notebook,
 )
+from nblite.extensions import HookRegistry, HookType, load_extension
 
 __all__ = ["NbliteProject", "NotebookLineage"]
 
@@ -61,6 +63,7 @@ class NbliteProject:
     config: NbliteConfig
 
     _code_locations: dict[str, CodeLocation] | None = field(default=None, repr=False, init=False)
+    _loaded_extensions: list[Any] = field(default_factory=list, repr=False, init=False)
 
     @classmethod
     def from_path(cls, path: Path | str | None = None) -> NbliteProject:
@@ -94,7 +97,33 @@ class NbliteProject:
                     raise FileNotFoundError(f"No nblite.toml found in {root_path}")
 
         config = load_config(root_path / "nblite.toml")
-        return cls(root_path=root_path.resolve(), config=config)
+        project = cls(root_path=root_path.resolve(), config=config)
+
+        # Load extensions from config
+        project._load_extensions()
+
+        return project
+
+    def _load_extensions(self) -> None:
+        """Load all extensions specified in config."""
+        for ext_entry in self.config.extensions:
+            try:
+                # Convert path to absolute if relative
+                ext_path = ext_entry.path
+                if ext_path is not None:
+                    path = Path(ext_path)
+                    if not path.is_absolute():
+                        path = self.root_path / path
+                    ext_path = str(path)
+
+                loaded = load_extension(path=ext_path, module=ext_entry.module)
+                self._loaded_extensions.append(loaded)
+            except Exception as e:
+                # Log warning but don't fail - extensions are optional
+                import warnings
+
+                source = ext_entry.path or ext_entry.module
+                warnings.warn(f"Failed to load extension '{source}': {e}")
 
     @classmethod
     def find_project_root(cls, start_path: Path | str | None = None) -> Path | None:
@@ -332,8 +361,21 @@ class NbliteProject:
 
         Returns:
             ExportResult with success status and file lists
+
+        Hooks triggered:
+            PRE_EXPORT: Before export starts (project=self, notebooks=notebooks)
+            PRE_NOTEBOOK_EXPORT: Before each notebook (notebook=nb, output_path=path)
+            POST_NOTEBOOK_EXPORT: After each notebook (notebook=nb, output_path=path, success=bool)
+            POST_EXPORT: After export completes (project=self, result=result)
         """
         result = ExportResult()
+
+        # Trigger PRE_EXPORT hook
+        HookRegistry.trigger(
+            HookType.PRE_EXPORT,
+            project=self,
+            notebooks=notebooks,
+        )
 
         # If specific notebooks provided, convert to Notebook objects
         specific_nbs: list[Notebook] | None = None
@@ -392,6 +434,16 @@ class NbliteProject:
                     stem = stem[:-4]
                 output_path = to_cl.path / rel_path.parent / (stem + to_cl.file_ext)
 
+                # Trigger PRE_NOTEBOOK_EXPORT hook
+                HookRegistry.trigger(
+                    HookType.PRE_NOTEBOOK_EXPORT,
+                    notebook=nb,
+                    output_path=output_path,
+                    from_location=from_cl,
+                    to_location=to_cl,
+                )
+
+                export_success = True
                 try:
                     if to_cl.format == CodeLocationFormat.MODULE:
                         # Export to module
@@ -417,6 +469,24 @@ class NbliteProject:
                 except Exception as e:
                     result.errors.append(f"Failed to export {nb.source_path}: {e}")
                     result.success = False
+                    export_success = False
+
+                # Trigger POST_NOTEBOOK_EXPORT hook
+                HookRegistry.trigger(
+                    HookType.POST_NOTEBOOK_EXPORT,
+                    notebook=nb,
+                    output_path=output_path,
+                    from_location=from_cl,
+                    to_location=to_cl,
+                    success=export_success,
+                )
+
+        # Trigger POST_EXPORT hook
+        HookRegistry.trigger(
+            HookType.POST_EXPORT,
+            project=self,
+            result=result,
+        )
 
         return result
 
@@ -448,8 +518,19 @@ class NbliteProject:
             remove_output_metadata: Remove metadata from outputs (None = use config)
             remove_output_execution_counts: Remove execution counts from output results (None = use config)
             keep_only_metadata: Keep only these metadata keys (None = use config)
+
+        Hooks triggered:
+            PRE_CLEAN: Before clean starts (project=self, notebooks=notebooks)
+            POST_CLEAN: After clean completes (project=self, cleaned_notebooks=list)
         """
         import json
+
+        # Trigger PRE_CLEAN hook
+        HookRegistry.trigger(
+            HookType.PRE_CLEAN,
+            project=self,
+            notebooks=notebooks,
+        )
 
         # Use config values as defaults, allow overrides
         clean_config = self.config.clean
@@ -492,6 +573,7 @@ class NbliteProject:
                 if cl.format == CodeLocationFormat.IPYNB:
                     nbs_to_clean.extend(cl.get_notebooks())
 
+        cleaned_notebooks: list[Path] = []
         for nb in nbs_to_clean:
             if nb.source_path is None:
                 continue
@@ -499,6 +581,14 @@ class NbliteProject:
             cleaned = nb.clean(**clean_opts)
             content = json.dumps(cleaned.to_dict(), indent=2)
             nb.source_path.write_text(content)
+            cleaned_notebooks.append(nb.source_path)
+
+        # Trigger POST_CLEAN hook
+        HookRegistry.trigger(
+            HookType.POST_CLEAN,
+            project=self,
+            cleaned_notebooks=cleaned_notebooks,
+        )
 
     def __repr__(self) -> str:
         return (

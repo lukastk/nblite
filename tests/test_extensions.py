@@ -266,6 +266,10 @@ class TestExtensionIntegration:
         """Clear registry before each test."""
         HookRegistry.clear()
 
+    def teardown_method(self) -> None:
+        """Clear registry after each test."""
+        HookRegistry.clear()
+
     def test_extension_variables_accessible(self, tmp_path: Path) -> None:
         """Test that extension module variables are accessible."""
         ext_content = """
@@ -285,3 +289,314 @@ def increment():
         assert module.counter == 0
         module.increment()
         assert module.counter == 1
+
+
+class TestProjectExtensionLoading:
+    """Tests for extension loading via NbliteProject."""
+
+    def setup_method(self) -> None:
+        """Clear hooks before each test."""
+        HookRegistry.clear()
+
+    def teardown_method(self) -> None:
+        """Clear hooks after each test."""
+        HookRegistry.clear()
+
+    def test_project_loads_extensions(self, tmp_path: Path) -> None:
+        """Test that NbliteProject loads extensions from config."""
+        from nblite.core.project import NbliteProject
+
+        # Create extension
+        ext_file = tmp_path / "my_ext.py"
+        ext_file.write_text("""
+from nblite.extensions import hook, HookType
+
+@hook(HookType.PRE_EXPORT)
+def before_export(**kwargs):
+    pass
+""")
+
+        # Create config with extension
+        config_file = tmp_path / "nblite.toml"
+        config_file.write_text("""
+[[extensions]]
+path = "my_ext.py"
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+""")
+
+        # Create nbs directory
+        (tmp_path / "nbs").mkdir()
+
+        # Load project
+        project = NbliteProject.from_path(tmp_path)
+
+        # Hook should be registered
+        hooks = HookRegistry.get_hooks(HookType.PRE_EXPORT)
+        assert len(hooks) == 1
+        assert len(project._loaded_extensions) == 1
+
+
+class TestExportHooks:
+    """Tests for export hooks being triggered."""
+
+    def setup_method(self) -> None:
+        """Clear hooks before each test."""
+        HookRegistry.clear()
+
+    def teardown_method(self) -> None:
+        """Clear hooks after each test."""
+        HookRegistry.clear()
+
+    def test_pre_and_post_export_hooks(self, tmp_path: Path) -> None:
+        """Test PRE_EXPORT and POST_EXPORT hooks are triggered."""
+        import json
+
+        from nblite.core.project import NbliteProject
+
+        hook_calls = []
+
+        @hook(HookType.PRE_EXPORT)
+        def pre_export(**kwargs):
+            hook_calls.append(("pre_export", kwargs.get("project")))
+
+        @hook(HookType.POST_EXPORT)
+        def post_export(**kwargs):
+            hook_calls.append(("post_export", kwargs.get("result")))
+
+        # Create project
+        (tmp_path / "nbs").mkdir()
+        (tmp_path / "lib").mkdir()
+
+        config_file = tmp_path / "nblite.toml"
+        config_file.write_text("""
+export_pipeline = "nbs -> lib"
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.lib]
+path = "lib"
+format = "module"
+""")
+
+        # Create a notebook
+        nb_content = json.dumps({
+            "cells": [{"cell_type": "code", "source": "#|default_exp test\n#|export\ndef foo(): pass", "metadata": {}, "outputs": []}],
+            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        })
+        (tmp_path / "nbs" / "test.ipynb").write_text(nb_content)
+
+        project = NbliteProject.from_path(tmp_path)
+        project.export()
+
+        # Both hooks should have been called
+        assert len(hook_calls) == 2
+        assert hook_calls[0][0] == "pre_export"
+        assert hook_calls[0][1] == project
+        assert hook_calls[1][0] == "post_export"
+
+    def test_notebook_export_hooks(self, tmp_path: Path) -> None:
+        """Test PRE_NOTEBOOK_EXPORT and POST_NOTEBOOK_EXPORT hooks."""
+        import json
+
+        from nblite.core.project import NbliteProject
+
+        hook_calls = []
+
+        @hook(HookType.PRE_NOTEBOOK_EXPORT)
+        def pre_nb(**kwargs):
+            hook_calls.append(("pre", kwargs.get("notebook")))
+
+        @hook(HookType.POST_NOTEBOOK_EXPORT)
+        def post_nb(**kwargs):
+            hook_calls.append(("post", kwargs.get("success")))
+
+        # Create project
+        (tmp_path / "nbs").mkdir()
+        (tmp_path / "lib").mkdir()
+
+        config_file = tmp_path / "nblite.toml"
+        config_file.write_text("""
+export_pipeline = "nbs -> lib"
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.lib]
+path = "lib"
+format = "module"
+""")
+
+        # Create a notebook
+        nb_content = json.dumps({
+            "cells": [{"cell_type": "code", "source": "#|default_exp test\n#|export\ndef foo(): pass", "metadata": {}, "outputs": []}],
+            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        })
+        (tmp_path / "nbs" / "test.ipynb").write_text(nb_content)
+
+        project = NbliteProject.from_path(tmp_path)
+        project.export()
+
+        # Should have pre and post for the notebook
+        assert any(call[0] == "pre" for call in hook_calls)
+        assert any(call[0] == "post" and call[1] is True for call in hook_calls)
+
+
+class TestCleanHooks:
+    """Tests for clean hooks being triggered."""
+
+    def setup_method(self) -> None:
+        """Clear hooks before each test."""
+        HookRegistry.clear()
+
+    def teardown_method(self) -> None:
+        """Clear hooks after each test."""
+        HookRegistry.clear()
+
+    def test_pre_and_post_clean_hooks(self, tmp_path: Path) -> None:
+        """Test PRE_CLEAN and POST_CLEAN hooks are triggered."""
+        import json
+
+        from nblite.core.project import NbliteProject
+
+        hook_calls = []
+
+        @hook(HookType.PRE_CLEAN)
+        def pre_clean(**kwargs):
+            hook_calls.append("pre_clean")
+
+        @hook(HookType.POST_CLEAN)
+        def post_clean(**kwargs):
+            hook_calls.append(("post_clean", kwargs.get("cleaned_notebooks")))
+
+        # Create project
+        (tmp_path / "nbs").mkdir()
+
+        config_file = tmp_path / "nblite.toml"
+        config_file.write_text("""
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+""")
+
+        # Create a notebook
+        nb_content = json.dumps({
+            "cells": [{"cell_type": "code", "source": "print('hello')", "metadata": {}, "outputs": []}],
+            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        })
+        (tmp_path / "nbs" / "test.ipynb").write_text(nb_content)
+
+        project = NbliteProject.from_path(tmp_path)
+        project.clean()
+
+        assert "pre_clean" in hook_calls
+        assert any(isinstance(c, tuple) and c[0] == "post_clean" for c in hook_calls)
+
+
+class TestDirectiveHooks:
+    """Tests for directive parsing hooks being triggered."""
+
+    def setup_method(self) -> None:
+        """Clear hooks before each test."""
+        HookRegistry.clear()
+
+    def teardown_method(self) -> None:
+        """Clear hooks after each test."""
+        HookRegistry.clear()
+
+    def test_directive_parsed_hook(self) -> None:
+        """Test DIRECTIVE_PARSED hook is triggered for each directive."""
+        from nblite.core.directive import parse_directives_from_source
+
+        parsed_directives = []
+
+        @hook(HookType.DIRECTIVE_PARSED)
+        def on_directive(**kwargs):
+            parsed_directives.append(kwargs.get("directive").name)
+
+        source = """#|default_exp mymodule
+#|export
+def foo():
+    pass
+"""
+        parse_directives_from_source(source)
+
+        assert "default_exp" in parsed_directives
+        assert "export" in parsed_directives
+
+
+class TestCellExportHooks:
+    """Tests for cell-level export hooks being triggered."""
+
+    def setup_method(self) -> None:
+        """Clear hooks before each test."""
+        HookRegistry.clear()
+
+    def teardown_method(self) -> None:
+        """Clear hooks after each test."""
+        HookRegistry.clear()
+
+    def test_cell_export_hooks(self, tmp_path: Path) -> None:
+        """Test PRE_CELL_EXPORT and POST_CELL_EXPORT hooks."""
+        import json
+
+        from nblite.core.project import NbliteProject
+
+        cell_exports = []
+
+        @hook(HookType.PRE_CELL_EXPORT)
+        def pre_cell(**kwargs):
+            cell_exports.append(("pre", kwargs.get("cell").index))
+
+        @hook(HookType.POST_CELL_EXPORT)
+        def post_cell(**kwargs):
+            cell_exports.append(("post", kwargs.get("source")))
+
+        # Create project with notebook
+        config_file = tmp_path / "nblite.toml"
+        config_file.write_text("""
+export_pipeline = "nbs -> lib"
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.lib]
+path = "lib"
+format = "module"
+""")
+        (tmp_path / "nbs").mkdir()
+        (tmp_path / "lib").mkdir()
+
+        # Create notebook with exportable cells (using JSON)
+        nb_content = json.dumps({
+            "cells": [
+                {"cell_type": "code", "source": "#|default_exp test", "metadata": {}, "outputs": []},
+                {"cell_type": "code", "source": "#|export\ndef foo(): pass", "metadata": {}, "outputs": []},
+                {"cell_type": "code", "source": "#|export\ndef bar(): pass", "metadata": {}, "outputs": []},
+            ],
+            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        })
+        (tmp_path / "nbs" / "test.ipynb").write_text(nb_content)
+
+        project = NbliteProject.from_path(tmp_path)
+        project.export()
+
+        # Should have pre and post for each exported cell
+        pre_calls = [c for c in cell_exports if c[0] == "pre"]
+        post_calls = [c for c in cell_exports if c[0] == "post"]
+        assert len(pre_calls) >= 2  # At least 2 exported cells
+        assert len(post_calls) >= 2

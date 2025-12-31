@@ -14,6 +14,8 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
+from nblite.extensions import HookRegistry, HookType
+
 if TYPE_CHECKING:
     from nblite.core.cell import Cell
 
@@ -165,6 +167,9 @@ def parse_directives_from_source(
 
     Raises:
         DirectiveError: If validation fails (e.g., topmatter directive after code)
+
+    Hooks triggered:
+        DIRECTIVE_PARSED: For each directive (directive=directive, cell=cell)
     """
     directives: list[Directive] = []
     lines = source.split("\n")
@@ -215,6 +220,13 @@ def parse_directives_from_source(
                 _is_topmatter=is_topmatter,
             )
             directives.append(directive)
+
+            # Trigger DIRECTIVE_PARSED hook
+            HookRegistry.trigger(
+                HookType.DIRECTIVE_PARSED,
+                directive=directive,
+                cell=cell,
+            )
 
             # Validate if requested
             if validate:

@@ -369,6 +369,171 @@ class TestNotebookToModule:
         assert module_path.exists()
 
 
+class TestImportTransformation:
+    """Test absolute to relative import transformation."""
+
+    def test_transform_imports_depth_zero(self, tmp_path: Path) -> None:
+        """Test import transformation at package root (depth 0)."""
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp core",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\nfrom my_pkg.utils import helper",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb_path = tmp_path / "test.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        # Create package directory structure
+        pkg_dir = tmp_path / "my_pkg"
+        pkg_dir.mkdir()
+        module_path = pkg_dir / "core.py"
+
+        export_notebook_to_module(
+            nb, module_path, project_root=tmp_path, package_name="my_pkg"
+        )
+
+        content = module_path.read_text()
+        # At depth 0, should use single dot: from .utils import helper
+        assert "from .utils import helper" in content
+        assert "from my_pkg.utils" not in content
+
+    def test_transform_imports_depth_one(self, tmp_path: Path) -> None:
+        """Test import transformation in subdirectory (depth 1)."""
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp submodule.utils",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\nfrom my_pkg.core import greet",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb_path = tmp_path / "test.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        # Create package directory structure
+        pkg_dir = tmp_path / "my_pkg" / "submodule"
+        pkg_dir.mkdir(parents=True)
+        module_path = pkg_dir / "utils.py"
+
+        export_notebook_to_module(
+            nb, module_path, project_root=tmp_path, package_name="my_pkg"
+        )
+
+        content = module_path.read_text()
+        # At depth 1, should use two dots: from ..core import greet
+        assert "from ..core import greet" in content
+        assert "from my_pkg.core" not in content
+
+    def test_transform_imports_preserves_external(self, tmp_path: Path) -> None:
+        """Test that external imports are not transformed."""
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp core",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\nfrom pathlib import Path\nimport os",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb_path = tmp_path / "test.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        pkg_dir = tmp_path / "my_pkg"
+        pkg_dir.mkdir()
+        module_path = pkg_dir / "core.py"
+
+        export_notebook_to_module(
+            nb, module_path, project_root=tmp_path, package_name="my_pkg"
+        )
+
+        content = module_path.read_text()
+        # External imports should be unchanged
+        assert "from pathlib import Path" in content
+        assert "import os" in content
+
+    def test_transform_imports_from_package_root(self, tmp_path: Path) -> None:
+        """Test 'from package import X' transformation."""
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp utils",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\nfrom my_pkg import something",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb_path = tmp_path / "test.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        pkg_dir = tmp_path / "my_pkg"
+        pkg_dir.mkdir()
+        module_path = pkg_dir / "utils.py"
+
+        export_notebook_to_module(
+            nb, module_path, project_root=tmp_path, package_name="my_pkg"
+        )
+
+        content = module_path.read_text()
+        # from my_pkg import X -> from . import X
+        assert "from . import something" in content
+
+
 class TestExportResult:
     def test_export_result_defaults(self) -> None:
         """Test ExportResult default values."""

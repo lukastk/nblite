@@ -209,7 +209,7 @@ def process(path: str):
         assert import_found
 
     def test_module_with_docstring(self, tmp_path: Path) -> None:
-        """Test module docstring becomes markdown cell."""
+        """Test module docstring is preserved in source."""
         module_content = '''"""
 This is the module docstring.
 It describes what the module does.
@@ -226,10 +226,10 @@ def foo():
 
         nb = Notebook.from_file(nb_path)
 
-        # Check there's a markdown cell with docstring
-        markdown_cells = [c for c in nb.cells if c.cell_type == "markdown"]
-        assert len(markdown_cells) > 0
-        assert "module docstring" in markdown_cells[0].source
+        # Check that docstring is preserved in the source (not as separate markdown)
+        sources = [c.source for c in nb.cells]
+        docstring_found = any("module docstring" in s for s in sources)
+        assert docstring_found
 
     def test_module_with_class(self, tmp_path: Path) -> None:
         """Test module with class is converted correctly."""

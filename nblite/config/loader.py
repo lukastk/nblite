@@ -284,9 +284,7 @@ def _check_pipeline_cycles(export_rules: list[ExportRule]) -> None:
             cycle = dfs(node)
             if cycle is not None:
                 cycle_str = " -> ".join(cycle)
-                raise ConfigError(
-                    f"Circular reference detected in export pipeline: {cycle_str}"
-                )
+                raise ConfigError(f"Circular reference detected in export pipeline: {cycle_str}")
 
 
 def _validate_pipeline_references(config: NbliteConfig, config_path: Path) -> None:

@@ -9,13 +9,14 @@ synchronization between formats, and integrated documentation generation.
 from __future__ import annotations
 
 import os
+from importlib.metadata import version
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from nblite.export.pipeline import ExportResult
 
-__version__ = "0.1.0"
+__version__ = version("nblite")
 
 # Environment variable to disable nbl_export
 DISABLE_NBLITE_EXPORT_ENV_VAR = "NBLITE_DISABLE_EXPORT"

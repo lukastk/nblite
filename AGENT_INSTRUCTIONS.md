@@ -45,6 +45,8 @@ project/
     └── tests/           # Test files
 ```
 
+But the actual folder structure may vary. See the folder structure of the project for yourself, and also inspect the `nblite.toml` to see how the project is structured.
+
 ### Understanding `nblite.toml`
 
 The `nblite.toml` file defines code locations and export pipelines:

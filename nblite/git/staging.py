@@ -131,6 +131,6 @@ def validate_staging(project: NbliteProject) -> ValidationResult:
                         )
                         break
             except Exception:
-                pass
+                pass  # If notebook can't be parsed, skip the outputs check
 
     return result

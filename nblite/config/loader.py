@@ -243,8 +243,54 @@ def load_config(path: Path | str) -> NbliteConfig:
     return config
 
 
+def _check_pipeline_cycles(export_rules: list[ExportRule]) -> None:
+    """Check for circular references in export pipeline using DFS."""
+    if not export_rules:
+        return
+
+    # Build adjacency list
+    graph: dict[str, list[str]] = {}
+    for rule in export_rules:
+        if rule.from_key not in graph:
+            graph[rule.from_key] = []
+        graph[rule.from_key].append(rule.to_key)
+
+    # DFS to detect cycles
+    visited: set[str] = set()
+    rec_stack: set[str] = set()
+    path: list[str] = []
+
+    def dfs(node: str) -> list[str] | None:
+        visited.add(node)
+        rec_stack.add(node)
+        path.append(node)
+
+        for neighbor in graph.get(node, []):
+            if neighbor not in visited:
+                cycle = dfs(neighbor)
+                if cycle is not None:
+                    return cycle
+            elif neighbor in rec_stack:
+                # Found cycle - return the cycle path
+                cycle_start = path.index(neighbor)
+                return path[cycle_start:] + [neighbor]
+
+        path.pop()
+        rec_stack.remove(node)
+        return None
+
+    for node in graph:
+        if node not in visited:
+            cycle = dfs(node)
+            if cycle is not None:
+                cycle_str = " -> ".join(cycle)
+                raise ConfigError(
+                    f"Circular reference detected in export pipeline: {cycle_str}"
+                )
+
+
 def _validate_pipeline_references(config: NbliteConfig, config_path: Path) -> None:
-    """Validate that all code locations referenced in pipeline exist."""
+    """Validate that all code locations referenced in pipeline exist and no cycles."""
     defined_locations = set(config.code_locations.keys())
 
     for rule in config.export_pipeline:
@@ -258,6 +304,9 @@ def _validate_pipeline_references(config: NbliteConfig, config_path: Path) -> No
                 f"Export pipeline references undefined code location '{rule.to_key}'. "
                 f"Defined locations: {sorted(defined_locations)}"
             )
+
+    # Check for circular references using DFS
+    _check_pipeline_cycles(config.export_pipeline)
 
     # Validate docs_cl if specified
     if config.docs_cl is not None and config.docs_cl not in defined_locations:

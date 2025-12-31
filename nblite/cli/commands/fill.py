@@ -122,7 +122,7 @@ def _run_fill(
                     )
                     continue
             except Exception:
-                pass
+                pass  # If we can't check, process anyway
             to_process.append(nb_path)
     else:
         to_process = list(nbs_to_fill)

@@ -424,3 +424,50 @@ format = "invalid_format"
         config_path.write_text(config_content)
         with pytest.raises(ConfigError, match="Invalid format"):
             load_config(config_path)
+
+    def test_load_config_circular_reference(self, tmp_path: Path) -> None:
+        """Test loading config with circular export pipeline raises error."""
+        config_content = '''
+export_pipeline = """
+nbs -> lib
+lib -> nbs
+"""
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.lib]
+path = "lib"
+format = "module"
+'''
+        config_path = tmp_path / "nblite.toml"
+        config_path.write_text(config_content)
+        with pytest.raises(ConfigError, match="Circular reference"):
+            load_config(config_path)
+
+    def test_load_config_longer_circular_reference(self, tmp_path: Path) -> None:
+        """Test loading config with longer circular chain raises error."""
+        config_content = '''
+export_pipeline = """
+nbs -> pcts
+pcts -> lib
+lib -> nbs
+"""
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.pcts]
+path = "pcts"
+format = "percent"
+
+[cl.lib]
+path = "lib"
+format = "module"
+'''
+        config_path = tmp_path / "nblite.toml"
+        config_path.write_text(config_content)
+        with pytest.raises(ConfigError, match="Circular reference"):
+            load_config(config_path)

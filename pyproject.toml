@@ -62,6 +62,10 @@ packages = ["nblite"]
 [tool.ruff]
 target-version = "py310"
 line-length = 100
+exclude = [
+    "notebook-templates",
+    "test_proj",
+]
 
 [tool.ruff.lint]
 select = [

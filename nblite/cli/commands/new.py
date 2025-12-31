@@ -28,6 +28,29 @@ def _load_pyproject(project_root: Path | None) -> dict | None:
         return tomllib.load(f)
 
 
+def _find_template_in_dir(template_name: str, templates_dir: Path) -> Path | None:
+    """
+    Search for a template in a specific directory.
+
+    Args:
+        template_name: Name of the template (without .jinja extension)
+        templates_dir: Directory to search in
+
+    Returns:
+        Path to template if found, None otherwise.
+    """
+    if not templates_dir.exists():
+        return None
+
+    # Try various extensions
+    for ext in [".pct.py.jinja", ".ipynb.jinja", ".py.jinja", ".jinja", ""]:
+        candidate = templates_dir / f"{template_name}{ext}"
+        if candidate.exists():
+            return candidate
+
+    return None
+
+
 def _find_template(
     template_name: str,
     project_root: Path | None,
@@ -36,9 +59,10 @@ def _find_template(
     """
     Find a template by name.
 
-    Searches in:
+    Searches in order (first match wins):
     1. Project templates folder (if project exists)
-    2. Built-in templates
+    2. Global templates folder (~/.config/nblite/templates)
+    3. Built-in templates
 
     Args:
         template_name: Name of the template (without .jinja extension)
@@ -51,19 +75,22 @@ def _find_template(
         If a builtin template is found, returns (None, content).
         If nothing found, returns (None, None).
     """
-    from nblite.templates import get_builtin_templates
+    from nblite.templates import get_builtin_templates, get_global_templates_dir
 
-    # Search in project templates folder
+    # 1. Search in project templates folder (highest priority)
     if project_root is not None:
         templates_dir = project_root / templates_folder
-        if templates_dir.exists():
-            # Try various extensions
-            for ext in [".pct.py.jinja", ".ipynb.jinja", ".py.jinja", ".jinja", ""]:
-                candidate = templates_dir / f"{template_name}{ext}"
-                if candidate.exists():
-                    return candidate, None
+        found = _find_template_in_dir(template_name, templates_dir)
+        if found:
+            return found, None
 
-    # Search in built-in templates
+    # 2. Search in global templates folder
+    global_templates_dir = get_global_templates_dir()
+    found = _find_template_in_dir(template_name, global_templates_dir)
+    if found:
+        return found, None
+
+    # 3. Search in built-in templates (lowest priority)
     builtins = get_builtin_templates()
     if template_name in builtins:
         return None, builtins[template_name]

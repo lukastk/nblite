@@ -424,3 +424,94 @@ def foo():
         """Test error when directory doesn't exist."""
         with pytest.raises(FileNotFoundError):
             modules_to_notebooks(tmp_path / "nonexistent", tmp_path / "out")
+
+
+class TestGlobalTemplates:
+    def test_get_global_templates_dir(self) -> None:
+        """Test that get_global_templates_dir returns expected path."""
+        from nblite.templates import get_global_templates_dir
+
+        result = get_global_templates_dir()
+        assert result == Path.home() / ".config" / "nblite" / "templates"
+
+    def test_find_template_searches_global_dir(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test that _find_template searches global templates directory."""
+        from nblite.cli.commands.new import _find_template
+
+        # Create a mock global templates directory
+        global_templates = tmp_path / "global_templates"
+        global_templates.mkdir()
+        template_file = global_templates / "my_template.pct.py.jinja"
+        template_file.write_text("# %% global template")
+
+        # Patch get_global_templates_dir at the source module
+        monkeypatch.setattr("nblite.templates.get_global_templates_dir", lambda: global_templates)
+
+        # Search without a project root (should find in global)
+        found_path, builtin_content = _find_template("my_template", project_root=None)
+
+        assert found_path == template_file
+        assert builtin_content is None
+
+    def test_project_templates_take_precedence(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test that project templates take precedence over global templates."""
+        from nblite.cli.commands.new import _find_template
+
+        # Create a mock global templates directory
+        global_templates = tmp_path / "global_templates"
+        global_templates.mkdir()
+        global_template = global_templates / "shared.pct.py.jinja"
+        global_template.write_text("# %% global version")
+
+        # Create a project templates directory
+        project_root = tmp_path / "project"
+        project_root.mkdir()
+        project_templates = project_root / "templates"
+        project_templates.mkdir()
+        project_template = project_templates / "shared.pct.py.jinja"
+        project_template.write_text("# %% project version")
+
+        # Patch get_global_templates_dir at the source module
+        monkeypatch.setattr("nblite.templates.get_global_templates_dir", lambda: global_templates)
+
+        # Search with project root - should find project template
+        found_path, builtin_content = _find_template("shared", project_root=project_root)
+
+        assert found_path == project_template
+        assert builtin_content is None
+        assert "project version" in found_path.read_text()
+
+    def test_global_templates_fallback_to_builtin(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test that builtin templates are used when no file templates found."""
+        from nblite.cli.commands.new import _find_template
+
+        # Create empty global templates directory
+        global_templates = tmp_path / "global_templates"
+        global_templates.mkdir()
+
+        # Patch get_global_templates_dir at the source module
+        monkeypatch.setattr("nblite.templates.get_global_templates_dir", lambda: global_templates)
+
+        # Search for builtin template "default"
+        found_path, builtin_content = _find_template("default", project_root=None)
+
+        assert found_path is None
+        assert builtin_content is not None
+        assert "#|default_exp" in builtin_content
+
+    def test_find_template_nonexistent_returns_none(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test that _find_template returns None for nonexistent templates."""
+        from nblite.cli.commands.new import _find_template
+
+        # Create empty global templates directory
+        global_templates = tmp_path / "global_templates"
+        global_templates.mkdir()
+
+        # Patch get_global_templates_dir at the source module
+        monkeypatch.setattr("nblite.templates.get_global_templates_dir", lambda: global_templates)
+
+        # Search for nonexistent template
+        found_path, builtin_content = _find_template("nonexistent_template", project_root=None)
+
+        assert found_path is None
+        assert builtin_content is None

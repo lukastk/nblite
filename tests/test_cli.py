@@ -402,3 +402,129 @@ class TestListCommand:
         result = runner.invoke(app, ["list", "unknown"])
 
         assert result.exit_code == 1
+
+
+class TestInstallDefaultTemplatesCommand:
+    def test_install_default_templates_help(self) -> None:
+        """Test install-default-templates --help."""
+        result = runner.invoke(app, ["install-default-templates", "--help"])
+
+        assert result.exit_code == 0
+        assert "Download and install default templates" in result.output
+        assert "--overwrite" in result.output
+
+    def test_install_default_templates_creates_directory(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Test that install-default-templates creates the templates directory."""
+        templates_dir = tmp_path / "templates"
+
+        # Patch get_global_templates_dir at the source module
+        monkeypatch.setattr(
+            "nblite.templates.get_global_templates_dir",
+            lambda: templates_dir,
+        )
+
+        # Mock the GitHub API response
+        mock_response = [
+            {"name": "test.pct.py.jinja", "type": "file"},
+        ]
+
+        def mock_fetch_github(*args, **kwargs):
+            return mock_response
+
+        def mock_download_file(*args, **kwargs):
+            return b"# %% test template"
+
+        monkeypatch.setattr(
+            "nblite.cli.commands.templates._fetch_github_directory_contents",
+            mock_fetch_github,
+        )
+        monkeypatch.setattr(
+            "nblite.cli.commands.templates._download_file",
+            mock_download_file,
+        )
+
+        result = runner.invoke(app, ["install-default-templates"])
+
+        assert result.exit_code == 0
+        assert templates_dir.exists()
+        assert (templates_dir / "test.pct.py.jinja").exists()
+        assert "Successfully installed 1 template" in result.output
+
+    def test_install_default_templates_skips_existing(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Test that existing templates are skipped without --overwrite."""
+        templates_dir = tmp_path / "templates"
+        templates_dir.mkdir(parents=True)
+        existing_template = templates_dir / "existing.pct.py.jinja"
+        existing_template.write_text("# %% existing content")
+
+        # Patch get_global_templates_dir at the source module
+        monkeypatch.setattr(
+            "nblite.templates.get_global_templates_dir",
+            lambda: templates_dir,
+        )
+
+        # Mock the GitHub API response
+        mock_response = [
+            {"name": "existing.pct.py.jinja", "type": "file"},
+        ]
+
+        def mock_fetch_github(*args, **kwargs):
+            return mock_response
+
+        monkeypatch.setattr(
+            "nblite.cli.commands.templates._fetch_github_directory_contents",
+            mock_fetch_github,
+        )
+
+        result = runner.invoke(app, ["install-default-templates"])
+
+        assert result.exit_code == 0
+        assert "Skipping existing.pct.py.jinja (already exists)" in result.output
+        # Content should not be changed
+        assert existing_template.read_text() == "# %% existing content"
+
+    def test_install_default_templates_overwrites_with_flag(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Test that --overwrite replaces existing templates."""
+        templates_dir = tmp_path / "templates"
+        templates_dir.mkdir(parents=True)
+        existing_template = templates_dir / "existing.pct.py.jinja"
+        existing_template.write_text("# %% old content")
+
+        # Patch get_global_templates_dir at the source module
+        monkeypatch.setattr(
+            "nblite.templates.get_global_templates_dir",
+            lambda: templates_dir,
+        )
+
+        # Mock the GitHub API response
+        mock_response = [
+            {"name": "existing.pct.py.jinja", "type": "file"},
+        ]
+
+        def mock_fetch_github(*args, **kwargs):
+            return mock_response
+
+        def mock_download_file(*args, **kwargs):
+            return b"# %% new content"
+
+        monkeypatch.setattr(
+            "nblite.cli.commands.templates._fetch_github_directory_contents",
+            mock_fetch_github,
+        )
+        monkeypatch.setattr(
+            "nblite.cli.commands.templates._download_file",
+            mock_download_file,
+        )
+
+        result = runner.invoke(app, ["install-default-templates", "--overwrite"])
+
+        assert result.exit_code == 0
+        # Content should be updated
+        assert existing_template.read_text() == "# %% new content"
+        assert "Successfully installed 1 template" in result.output

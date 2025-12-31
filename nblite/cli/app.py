@@ -34,6 +34,7 @@ from nblite.cli.commands.list import list_files
 from nblite.cli.commands.new import new
 from nblite.cli.commands.prepare import prepare
 from nblite.cli.commands.readme import readme
+from nblite.cli.commands.templates import install_default_templates
 
 app = typer.Typer(
     name="nbl",
@@ -90,6 +91,7 @@ app.command()(readme)
 app.command()(prepare)
 app.command("render-docs")(render_docs_cmd)
 app.command("preview-docs")(preview_docs_cmd)
+app.command("install-default-templates")(install_default_templates)
 
 
 if __name__ == "__main__":

@@ -34,10 +34,22 @@ def sample_project(tmp_path: Path) -> Path:
     # Create index notebook
     index_content = {
         "cells": [
-            {"cell_type": "markdown", "source": "# My Package\n\nThis is my package.", "metadata": {}},
-            {"cell_type": "code", "source": "print('hello')", "metadata": {}, "outputs": [], "execution_count": None},
+            {
+                "cell_type": "markdown",
+                "source": "# My Package\n\nThis is my package.",
+                "metadata": {},
+            },
+            {
+                "cell_type": "code",
+                "source": "print('hello')",
+                "metadata": {},
+                "outputs": [],
+                "execution_count": None,
+            },
         ],
-        "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+        "metadata": {
+            "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}
+        },
         "nbformat": 4,
         "nbformat_minor": 5,
     }
@@ -46,9 +58,17 @@ def sample_project(tmp_path: Path) -> Path:
     # Create another notebook
     nb_content = {
         "cells": [
-            {"cell_type": "code", "source": "#|default_exp utils\n#|export\ndef foo(): pass", "metadata": {}, "outputs": [], "execution_count": None}
+            {
+                "cell_type": "code",
+                "source": "#|default_exp utils\n#|export\ndef foo(): pass",
+                "metadata": {},
+                "outputs": [],
+                "execution_count": None,
+            }
         ],
-        "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+        "metadata": {
+            "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}
+        },
         "nbformat": 4,
         "nbformat_minor": 5,
     }
@@ -235,7 +255,9 @@ class TestReadmeGeneration:
         """Test README generation fails without index notebook."""
         # Create project without index
         (tmp_path / "nbs").mkdir()
-        (tmp_path / "nblite.toml").write_text('export_pipeline = ""\n\n[cl.nbs]\npath = "nbs"\nformat = "ipynb"')
+        (tmp_path / "nblite.toml").write_text(
+            'export_pipeline = ""\n\n[cl.nbs]\npath = "nbs"\nformat = "ipynb"'
+        )
 
         project = NbliteProject.from_path(tmp_path)
 
@@ -249,7 +271,9 @@ class TestReadmeGeneration:
             "cells": [
                 {"cell_type": "markdown", "source": "# Custom Index", "metadata": {}},
             ],
-            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+            "metadata": {
+                "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}
+            },
             "nbformat": 4,
             "nbformat_minor": 5,
         }
@@ -347,9 +371,9 @@ class TestCellDocs:
 
     def test_extract_function_meta_no_docstring(self) -> None:
         """Test extracting function metadata without docstring."""
-        source = '''def add(a: int, b: int) -> int:
+        source = """def add(a: int, b: int) -> int:
     return a + b
-'''
+"""
         meta = extract_function_meta(source)
         assert meta is not None
         assert meta["name"] == "add"
@@ -397,13 +421,13 @@ def bar(): pass"""
 
     def test_extract_top_level_definitions(self) -> None:
         """Test extracting all top-level definitions from source."""
-        source = '''def foo(): pass
+        source = """def foo(): pass
 
 class Bar:
     pass
 
 def baz(): pass
-'''
+"""
         defs = extract_top_level_definitions(source)
         assert len(defs) == 3
         types = [d["type"] for d in defs]
@@ -462,7 +486,9 @@ class TestProcessNotebookForDocs:
                     "execution_count": None,
                 },
             ],
-            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+            "metadata": {
+                "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}
+            },
             "nbformat": 4,
             "nbformat_minor": 5,
         }
@@ -495,7 +521,9 @@ class TestProcessNotebookForDocs:
                     "execution_count": None,
                 },
             ],
-            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+            "metadata": {
+                "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}
+            },
             "nbformat": 4,
             "nbformat_minor": 5,
         }
@@ -530,7 +558,9 @@ class TestProcessNotebookForDocs:
                     "execution_count": None,
                 },
             ],
-            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+            "metadata": {
+                "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}
+            },
             "nbformat": 4,
             "nbformat_minor": 5,
         }

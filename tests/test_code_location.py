@@ -186,12 +186,14 @@ class TestCodeLocationGetNotebooks:
         nbs_dir.mkdir()
 
         # Create valid ipynb file
-        nb_content = json.dumps({
-            "cells": [{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []}],
-            "metadata": {},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb_content = json.dumps(
+            {
+                "cells": [{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []}],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         (nbs_dir / "utils.ipynb").write_text(nb_content)
 
         cl = CodeLocation(key="nbs", path=nbs_dir, format="ipynb")

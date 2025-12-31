@@ -19,14 +19,21 @@ from nblite.export.pipeline import (
 class TestNotebookToNotebook:
     def test_ipynb_to_percent(self, tmp_path: Path) -> None:
         """Test converting ipynb to percent format."""
-        nb_content = json.dumps({
-            "cells": [
-                {"cell_type": "code", "source": "#|export\ndef foo(): pass", "metadata": {}, "outputs": []}
-            ],
-            "metadata": {},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef foo(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    }
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         ipynb_path = tmp_path / "test.ipynb"
         ipynb_path.write_text(nb_content)
         pct_path = tmp_path / "test.pct.py"
@@ -55,12 +62,14 @@ class TestNotebookToNotebook:
 
     def test_auto_detect_format_ipynb(self, tmp_path: Path) -> None:
         """Test auto-detecting ipynb format from extension."""
-        nb_content = json.dumps({
-            "cells": [{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []}],
-            "metadata": {},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb_content = json.dumps(
+            {
+                "cells": [{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []}],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         ipynb_path = tmp_path / "test.ipynb"
         ipynb_path.write_text(nb_content)
         output_path = tmp_path / "output.ipynb"
@@ -74,12 +83,14 @@ class TestNotebookToNotebook:
 
     def test_auto_detect_format_percent(self, tmp_path: Path) -> None:
         """Test auto-detecting percent format from extension."""
-        nb_content = json.dumps({
-            "cells": [{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []}],
-            "metadata": {},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb_content = json.dumps(
+            {
+                "cells": [{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []}],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         ipynb_path = tmp_path / "test.ipynb"
         ipynb_path.write_text(nb_content)
         output_path = tmp_path / "output.pct.py"
@@ -93,12 +104,14 @@ class TestNotebookToNotebook:
 
     def test_creates_parent_dirs(self, tmp_path: Path) -> None:
         """Test that parent directories are created."""
-        nb_content = json.dumps({
-            "cells": [{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []}],
-            "metadata": {},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb_content = json.dumps(
+            {
+                "cells": [{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []}],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         ipynb_path = tmp_path / "test.ipynb"
         ipynb_path.write_text(nb_content)
         output_path = tmp_path / "nested" / "dir" / "output.pct.py"
@@ -113,17 +126,39 @@ class TestNotebookToModule:
     @pytest.fixture
     def notebook_with_exports(self, tmp_path: Path) -> Notebook:
         """Create notebook with export directives."""
-        nb_content = json.dumps({
-            "cells": [
-                {"cell_type": "code", "source": "#|default_exp utils", "metadata": {}, "outputs": []},
-                {"cell_type": "code", "source": "#|export\ndef foo():\n    pass", "metadata": {}, "outputs": []},
-                {"cell_type": "code", "source": "# Not exported\ntest_var = 1", "metadata": {}, "outputs": []},
-                {"cell_type": "code", "source": "#|export\ndef bar():\n    return 42", "metadata": {}, "outputs": []},
-            ],
-            "metadata": {},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp utils",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef foo():\n    pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "# Not exported\ntest_var = 1",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef bar():\n    return 42",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         nb_path = tmp_path / "nbs" / "utils.ipynb"
         nb_path.parent.mkdir(parents=True, exist_ok=True)
         nb_path.write_text(nb_content)
@@ -177,7 +212,9 @@ class TestNotebookToModule:
         assert "'foo'" in content or '"foo"' in content
         assert "'bar'" in content or '"bar"' in content
 
-    def test_export_removes_directives(self, notebook_with_exports: Notebook, tmp_path: Path) -> None:
+    def test_export_removes_directives(
+        self, notebook_with_exports: Notebook, tmp_path: Path
+    ) -> None:
         """Test that directive lines are removed."""
         module_path = tmp_path / "utils.py"
 
@@ -207,14 +244,21 @@ class TestNotebookToModule:
 
     def test_export_with_classes(self, tmp_path: Path) -> None:
         """Test export with class definitions."""
-        nb_content = json.dumps({
-            "cells": [
-                {"cell_type": "code", "source": "#|export\nclass MyClass:\n    pass", "metadata": {}, "outputs": []},
-            ],
-            "metadata": {},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\nclass MyClass:\n    pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         nb_path = tmp_path / "test.ipynb"
         nb_path.write_text(nb_content)
         nb = Notebook.from_file(nb_path)
@@ -228,14 +272,21 @@ class TestNotebookToModule:
 
     def test_export_with_constants(self, tmp_path: Path) -> None:
         """Test export with constant definitions."""
-        nb_content = json.dumps({
-            "cells": [
-                {"cell_type": "code", "source": "#|export\nDEFAULT_VALUE = 42", "metadata": {}, "outputs": []},
-            ],
-            "metadata": {},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\nDEFAULT_VALUE = 42",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         nb_path = tmp_path / "test.ipynb"
         nb_path.write_text(nb_content)
         nb = Notebook.from_file(nb_path)
@@ -249,14 +300,21 @@ class TestNotebookToModule:
 
     def test_export_skips_private_names(self, tmp_path: Path) -> None:
         """Test that private names are not in __all__."""
-        nb_content = json.dumps({
-            "cells": [
-                {"cell_type": "code", "source": "#|export\ndef _private(): pass\ndef public(): pass", "metadata": {}, "outputs": []},
-            ],
-            "metadata": {},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef _private(): pass\ndef public(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         nb_path = tmp_path / "test.ipynb"
         nb_path.write_text(nb_content)
         nb = Notebook.from_file(nb_path)
@@ -270,14 +328,21 @@ class TestNotebookToModule:
 
     def test_export_with_exporti(self, tmp_path: Path) -> None:
         """Test export with exporti directive."""
-        nb_content = json.dumps({
-            "cells": [
-                {"cell_type": "code", "source": "#|exporti\ndef internal_func(): pass", "metadata": {}, "outputs": []},
-            ],
-            "metadata": {},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|exporti\ndef internal_func(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         nb_path = tmp_path / "test.ipynb"
         nb_path.write_text(nb_content)
         nb = Notebook.from_file(nb_path)
@@ -288,7 +353,9 @@ class TestNotebookToModule:
         content = module_path.read_text()
         assert "def internal_func():" in content
 
-    def test_export_creates_parent_dirs(self, notebook_with_exports: Notebook, tmp_path: Path) -> None:
+    def test_export_creates_parent_dirs(
+        self, notebook_with_exports: Notebook, tmp_path: Path
+    ) -> None:
         """Test that parent directories are created."""
         module_path = tmp_path / "nested" / "dir" / "utils.py"
 

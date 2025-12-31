@@ -292,6 +292,7 @@ class TestDirectiveValueParsing:
 
     def test_parser_error_raises_directive_error(self) -> None:
         """Test that parser errors raise DirectiveError."""
+
         def bad_parser(value: str) -> int:
             return int(value)  # Will fail for non-numeric
 

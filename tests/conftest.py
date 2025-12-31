@@ -85,14 +85,14 @@ def sample_notebook(tmp_path: Path, sample_notebook_content: str) -> Path:
 @pytest.fixture
 def sample_pct_content() -> str:
     """Return sample percent-format notebook content."""
-    return '''# %%
+    return """# %%
 #|default_exp utils
 
 # %%
 #|export
 def foo():
     pass
-'''
+"""
 
 
 @pytest.fixture

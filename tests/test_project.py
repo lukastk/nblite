@@ -19,14 +19,21 @@ def sample_project(tmp_path: Path) -> Path:
     (tmp_path / "mypackage").mkdir()
 
     # Create notebooks
-    nb_content = json.dumps({
-        "cells": [
-            {"cell_type": "code", "source": "#|default_exp utils\n#|export\ndef foo(): pass", "metadata": {}, "outputs": []}
-        ],
-        "metadata": {},
-        "nbformat": 4,
-        "nbformat_minor": 5,
-    })
+    nb_content = json.dumps(
+        {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "source": "#|default_exp utils\n#|export\ndef foo(): pass",
+                    "metadata": {},
+                    "outputs": [],
+                }
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+    )
     (tmp_path / "nbs" / "utils.ipynb").write_text(nb_content)
 
     # Create config
@@ -158,12 +165,14 @@ class TestTwinTracking:
         from nblite.core.notebook import Notebook
 
         project = NbliteProject.from_path(sample_project)
-        nb = Notebook.from_dict({
-            "cells": [],
-            "metadata": {},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb = Notebook.from_dict(
+            {
+                "cells": [],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
 
         twins = project.get_notebook_twins(nb)
         assert twins == []
@@ -271,26 +280,28 @@ class TestProjectClean:
         """Test cleaning notebooks."""
         # Add output to notebook with proper metadata and output format
         nb_path = sample_project / "nbs" / "utils.ipynb"
-        nb_content = json.dumps({
-            "cells": [
-                {
-                    "cell_type": "code",
-                    "source": "#|export\ndef foo(): pass",
-                    "metadata": {},
-                    "outputs": [{"output_type": "stream", "name": "stdout", "text": "hello"}],
-                    "execution_count": 1,
-                }
-            ],
-            "metadata": {
-                "kernelspec": {
-                    "display_name": "Python 3",
-                    "language": "python",
-                    "name": "python3"
-                }
-            },
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef foo(): pass",
+                        "metadata": {},
+                        "outputs": [{"output_type": "stream", "name": "stdout", "text": "hello"}],
+                        "execution_count": 1,
+                    }
+                ],
+                "metadata": {
+                    "kernelspec": {
+                        "display_name": "Python 3",
+                        "language": "python",
+                        "name": "python3",
+                    }
+                },
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         nb_path.write_text(nb_content)
 
         project = NbliteProject.from_path(sample_project)
@@ -302,26 +313,28 @@ class TestProjectClean:
     def test_clean_specific_notebooks(self, sample_project: Path) -> None:
         """Test cleaning specific notebooks."""
         nb_path = sample_project / "nbs" / "utils.ipynb"
-        nb_content = json.dumps({
-            "cells": [
-                {
-                    "cell_type": "code",
-                    "source": "x = 1",
-                    "metadata": {},
-                    "outputs": [{"output_type": "stream", "name": "stdout", "text": "1"}],
-                    "execution_count": 1,
-                }
-            ],
-            "metadata": {
-                "kernelspec": {
-                    "display_name": "Python 3",
-                    "language": "python",
-                    "name": "python3"
-                }
-            },
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "x = 1",
+                        "metadata": {},
+                        "outputs": [{"output_type": "stream", "name": "stdout", "text": "1"}],
+                        "execution_count": 1,
+                    }
+                ],
+                "metadata": {
+                    "kernelspec": {
+                        "display_name": "Python 3",
+                        "language": "python",
+                        "name": "python3",
+                    }
+                },
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         nb_path.write_text(nb_content)
 
         project = NbliteProject.from_path(sample_project)

@@ -19,18 +19,13 @@ from nblite.templates.renderer import (
 class TestTemplates:
     def test_render_template_string(self) -> None:
         """Test rendering a template string."""
-        result = render_template_string(
-            "#|default_exp {{ module_name }}",
-            module_name="utils"
-        )
+        result = render_template_string("#|default_exp {{ module_name }}", module_name="utils")
         assert result == "#|default_exp utils"
 
     def test_render_template_string_multiple_vars(self) -> None:
         """Test rendering with multiple variables."""
         result = render_template_string(
-            "def {{ func_name }}({{ args }}): pass",
-            func_name="process",
-            args="x, y"
+            "def {{ func_name }}({{ args }}): pass", func_name="process", args="x, y"
         )
         assert result == "def process(x, y): pass"
 
@@ -49,10 +44,7 @@ def {{ function_name }}():
         template_path.write_text(template_content)
 
         result = render_template(
-            template_path,
-            module_name="utils",
-            function_name="process",
-            description="Process data"
+            template_path, module_name="utils", function_name="process", description="Process data"
         )
 
         assert "#|default_exp utils" in result
@@ -75,9 +67,7 @@ def {{ function_name }}():
         """Test the default builtin template."""
         templates = get_builtin_templates()
         result = render_template_string(
-            templates["default"],
-            module_name="mymodule",
-            title="My Module"
+            templates["default"], module_name="mymodule", title="My Module"
         )
         assert "#|default_exp mymodule" in result
         assert "# My Module" in result
@@ -86,10 +76,7 @@ def {{ function_name }}():
         """Test the script builtin template."""
         templates = get_builtin_templates()
         result = render_template_string(
-            templates["script"],
-            module_name="workflow",
-            function_name="run",
-            args="input_path: str"
+            templates["script"], module_name="workflow", function_name="run", args="input_path: str"
         )
         assert "#|default_exp workflow" in result
         assert "#|export_as_func true" in result
@@ -99,10 +86,7 @@ def {{ function_name }}():
         """Test the default template with no_export=True."""
         templates = get_builtin_templates()
         result = render_template_string(
-            templates["default"],
-            module_name="mymodule",
-            title="My Module",
-            no_export=True
+            templates["default"], module_name="mymodule", title="My Module", no_export=True
         )
         # When no_export=True, the default_exp directive should not appear
         assert "#|default_exp" not in result
@@ -111,11 +95,7 @@ def {{ function_name }}():
     def test_builtin_script_template_no_export(self) -> None:
         """Test the script template with no_export=True."""
         templates = get_builtin_templates()
-        result = render_template_string(
-            templates["script"],
-            module_name="workflow",
-            no_export=True
-        )
+        result = render_template_string(templates["script"], module_name="workflow", no_export=True)
         # When no_export=True, the default_exp directive should not appear
         assert "#|default_exp" not in result
         # But export_as_func should still be there
@@ -157,14 +137,12 @@ def hello():
 
         # Render to ipynb format
         result = render_template(
-            template_path,
-            dest_fmt="ipynb",
-            module_name="utils",
-            title="Utils Module"
+            template_path, dest_fmt="ipynb", module_name="utils", title="Utils Module"
         )
 
         # Should be valid JSON (ipynb format)
         import json
+
         nb_data = json.loads(result)
         assert "cells" in nb_data
         assert nb_data["nbformat"] == 4
@@ -178,11 +156,7 @@ def hello():
         template_path.write_text(template_content)
 
         # Render to same format (percent)
-        result = render_template(
-            template_path,
-            dest_fmt="percent",
-            module_name="utils"
-        )
+        result = render_template(template_path, dest_fmt="percent", module_name="utils")
 
         # Should still be percent format
         assert "# %%" in result
@@ -214,13 +188,13 @@ def bar():
 
     def test_module_with_imports(self, tmp_path: Path) -> None:
         """Test module with imports is converted correctly."""
-        module_content = '''
+        module_content = """
 import os
 from pathlib import Path
 
 def process(path: str):
     return Path(path)
-'''
+"""
         module_path = tmp_path / "utils.py"
         module_path.write_text(module_content)
 
@@ -283,10 +257,10 @@ class MyClass:
 
     def test_module_to_percent_format(self, tmp_path: Path) -> None:
         """Test converting module to percent format."""
-        module_content = '''
+        module_content = """
 def foo():
     pass
-'''
+"""
         module_path = tmp_path / "utils.py"
         module_path.write_text(module_content)
 

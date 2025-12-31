@@ -215,10 +215,12 @@ def hook2(**kwargs): pass
         ext2 = tmp_path / "ext2.py"
         ext2.write_text("VALUE2 = 2")
 
-        modules = load_extensions([
-            {"path": str(ext1)},
-            {"path": str(ext2)},
-        ])
+        modules = load_extensions(
+            [
+                {"path": str(ext1)},
+                {"path": str(ext2)},
+            ]
+        )
 
         assert len(modules) == 2
         assert modules[0].VALUE1 == 1
@@ -384,12 +386,27 @@ format = "module"
 """)
 
         # Create a notebook
-        nb_content = json.dumps({
-            "cells": [{"cell_type": "code", "source": "#|default_exp test\n#|export\ndef foo(): pass", "metadata": {}, "outputs": []}],
-            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp test\n#|export\ndef foo(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    }
+                ],
+                "metadata": {
+                    "kernelspec": {
+                        "display_name": "Python 3",
+                        "language": "python",
+                        "name": "python3",
+                    }
+                },
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         (tmp_path / "nbs" / "test.ipynb").write_text(nb_content)
 
         project = NbliteProject.from_path(tmp_path)
@@ -435,12 +452,27 @@ format = "module"
 """)
 
         # Create a notebook
-        nb_content = json.dumps({
-            "cells": [{"cell_type": "code", "source": "#|default_exp test\n#|export\ndef foo(): pass", "metadata": {}, "outputs": []}],
-            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp test\n#|export\ndef foo(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    }
+                ],
+                "metadata": {
+                    "kernelspec": {
+                        "display_name": "Python 3",
+                        "language": "python",
+                        "name": "python3",
+                    }
+                },
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         (tmp_path / "nbs" / "test.ipynb").write_text(nb_content)
 
         project = NbliteProject.from_path(tmp_path)
@@ -489,12 +521,22 @@ format = "ipynb"
 """)
 
         # Create a notebook
-        nb_content = json.dumps({
-            "cells": [{"cell_type": "code", "source": "print('hello')", "metadata": {}, "outputs": []}],
-            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {"cell_type": "code", "source": "print('hello')", "metadata": {}, "outputs": []}
+                ],
+                "metadata": {
+                    "kernelspec": {
+                        "display_name": "Python 3",
+                        "language": "python",
+                        "name": "python3",
+                    }
+                },
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         (tmp_path / "nbs" / "test.ipynb").write_text(nb_content)
 
         project = NbliteProject.from_path(tmp_path)
@@ -580,16 +622,39 @@ format = "module"
         (tmp_path / "lib").mkdir()
 
         # Create notebook with exportable cells (using JSON)
-        nb_content = json.dumps({
-            "cells": [
-                {"cell_type": "code", "source": "#|default_exp test", "metadata": {}, "outputs": []},
-                {"cell_type": "code", "source": "#|export\ndef foo(): pass", "metadata": {}, "outputs": []},
-                {"cell_type": "code", "source": "#|export\ndef bar(): pass", "metadata": {}, "outputs": []},
-            ],
-            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp test",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef foo(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef bar(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {
+                    "kernelspec": {
+                        "display_name": "Python 3",
+                        "language": "python",
+                        "name": "python3",
+                    }
+                },
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         (tmp_path / "nbs" / "test.ipynb").write_text(nb_content)
 
         project = NbliteProject.from_path(tmp_path)

@@ -22,16 +22,23 @@ def sample_project(tmp_path: Path) -> Path:
     (tmp_path / "mypackage").mkdir()
 
     # Create notebooks
-    nb_content = json.dumps({
-        "cells": [
-            {"cell_type": "code", "source": "#|default_exp utils\n#|export\ndef foo(): pass", "metadata": {}, "outputs": []}
-        ],
-        "metadata": {
-            "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}
-        },
-        "nbformat": 4,
-        "nbformat_minor": 5,
-    })
+    nb_content = json.dumps(
+        {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "source": "#|default_exp utils\n#|export\ndef foo(): pass",
+                    "metadata": {},
+                    "outputs": [],
+                }
+            ],
+            "metadata": {
+                "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}
+            },
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+    )
     (tmp_path / "nbs" / "utils.ipynb").write_text(nb_content)
 
     # Create config
@@ -165,13 +172,21 @@ class TestNewCommand:
 """
         (templates_dir / "custom.pct.py.jinja").write_text(template_content)
 
-        result = runner.invoke(app, [
-            "new", "nbs/test.ipynb",
-            "-n", "test",
-            "--template", "custom",
-            "--var", "author=John Doe",
-            "--var", "version=1.0.0"
-        ])
+        result = runner.invoke(
+            app,
+            [
+                "new",
+                "nbs/test.ipynb",
+                "-n",
+                "test",
+                "--template",
+                "custom",
+                "--var",
+                "author=John Doe",
+                "--var",
+                "version=1.0.0",
+            ],
+        )
 
         assert result.exit_code == 0
         nb_path = sample_project / "nbs" / "test.ipynb"
@@ -199,11 +214,17 @@ class TestNewCommand:
 """
         (templates_dir / "my_template.pct.py.jinja").write_text(template_content)
 
-        result = runner.invoke(app, [
-            "new", "nbs/custom.ipynb",
-            "-n", "custom",
-            "--template", "my_templates/my_template.pct.py.jinja"
-        ])
+        result = runner.invoke(
+            app,
+            [
+                "new",
+                "nbs/custom.ipynb",
+                "-n",
+                "custom",
+                "--template",
+                "my_templates/my_template.pct.py.jinja",
+            ],
+        )
 
         assert result.exit_code == 0
         nb_path = sample_project / "nbs" / "custom.ipynb"
@@ -267,14 +288,14 @@ format = "percent"
 
         # First create a pct.py file
         (sample_project / "pts").mkdir(exist_ok=True)
-        pct_content = '''# %% [markdown]
+        pct_content = """# %% [markdown]
 # # Utils
 
 # %%
 #|default_exp utils
 #|export
 def foo(): pass
-'''
+"""
         (sample_project / "pts" / "utils.pct.py").write_text(pct_content)
 
         # Create output directory and add to config
@@ -309,14 +330,20 @@ class TestCleanCommand:
 class TestConvertCommand:
     def test_convert_ipynb_to_pct(self, tmp_path: Path) -> None:
         """Test nbl convert from ipynb to pct."""
-        nb_content = json.dumps({
-            "cells": [{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []}],
-            "metadata": {
-                "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}
-            },
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb_content = json.dumps(
+            {
+                "cells": [{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []}],
+                "metadata": {
+                    "kernelspec": {
+                        "display_name": "Python 3",
+                        "language": "python",
+                        "name": "python3",
+                    }
+                },
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         ipynb_path = tmp_path / "test.ipynb"
         ipynb_path.write_text(nb_content)
         pct_path = tmp_path / "test.pct.py"
@@ -329,7 +356,9 @@ class TestConvertCommand:
 
     def test_convert_file_not_found(self, tmp_path: Path) -> None:
         """Test convert with non-existent file."""
-        result = runner.invoke(app, ["convert", str(tmp_path / "missing.ipynb"), str(tmp_path / "out.pct.py")])
+        result = runner.invoke(
+            app, ["convert", str(tmp_path / "missing.ipynb"), str(tmp_path / "out.pct.py")]
+        )
         assert result.exit_code == 1
 
 

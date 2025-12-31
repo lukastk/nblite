@@ -2,7 +2,6 @@
 Tests for the Cell class (Milestone 3).
 """
 
-
 from nblite.core.cell import Cell, CellType
 
 

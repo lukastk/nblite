@@ -17,11 +17,19 @@ from nblite.fill import (
 )
 
 
-def create_simple_notebook(tmp_path: Path, name: str = "test.ipynb", cells: list | None = None) -> Path:
+def create_simple_notebook(
+    tmp_path: Path, name: str = "test.ipynb", cells: list | None = None
+) -> Path:
     """Create a simple notebook file for testing."""
     if cells is None:
         cells = [
-            {"cell_type": "code", "source": "x = 1 + 1\nprint(x)", "metadata": {}, "outputs": [], "execution_count": None}
+            {
+                "cell_type": "code",
+                "source": "x = 1 + 1\nprint(x)",
+                "metadata": {},
+                "outputs": [],
+                "execution_count": None,
+            }
         ]
 
     nb_content = {
@@ -64,12 +72,28 @@ class TestHashFunctions:
         path1 = create_simple_notebook(
             tmp_path,
             "test1.ipynb",
-            cells=[{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": [], "execution_count": None}]
+            cells=[
+                {
+                    "cell_type": "code",
+                    "source": "x = 1",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                }
+            ],
         )
         path2 = create_simple_notebook(
             tmp_path,
             "test2.ipynb",
-            cells=[{"cell_type": "code", "source": "x = 2", "metadata": {}, "outputs": [], "execution_count": None}]
+            cells=[
+                {
+                    "cell_type": "code",
+                    "source": "x = 2",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                }
+            ],
         )
 
         nb1 = Notebook.from_file(path1)
@@ -181,7 +205,13 @@ class TestFillNotebook:
     def test_fill_notebook_with_timeout(self, tmp_path: Path) -> None:
         """Test timeout option."""
         cells = [
-            {"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": [], "execution_count": None}
+            {
+                "cell_type": "code",
+                "source": "x = 1",
+                "metadata": {},
+                "outputs": [],
+                "execution_count": None,
+            }
         ]
         path = create_simple_notebook(tmp_path, cells=cells)
 
@@ -192,7 +222,13 @@ class TestFillNotebook:
     def test_fill_notebook_with_error(self, tmp_path: Path) -> None:
         """Test handling execution errors."""
         cells = [
-            {"cell_type": "code", "source": "raise ValueError('test error')", "metadata": {}, "outputs": [], "execution_count": None}
+            {
+                "cell_type": "code",
+                "source": "raise ValueError('test error')",
+                "metadata": {},
+                "outputs": [],
+                "execution_count": None,
+            }
         ]
         path = create_simple_notebook(tmp_path, cells=cells)
 
@@ -227,8 +263,20 @@ class TestSkipDirectives:
     def test_skip_eval_false(self, tmp_path: Path) -> None:
         """Test #|eval: false directive."""
         cells = [
-            {"cell_type": "code", "source": "#|eval: false\nraise ValueError('should not execute')", "metadata": {}, "outputs": [], "execution_count": None},
-            {"cell_type": "code", "source": "x = 1\nprint(x)", "metadata": {}, "outputs": [], "execution_count": None},
+            {
+                "cell_type": "code",
+                "source": "#|eval: false\nraise ValueError('should not execute')",
+                "metadata": {},
+                "outputs": [],
+                "execution_count": None,
+            },
+            {
+                "cell_type": "code",
+                "source": "x = 1\nprint(x)",
+                "metadata": {},
+                "outputs": [],
+                "execution_count": None,
+            },
         ]
         path = create_simple_notebook(tmp_path, cells=cells)
 
@@ -245,11 +293,41 @@ class TestSkipDirectives:
     def test_skip_evals_block(self, tmp_path: Path) -> None:
         """Test #|skip_evals and #|skip_evals_stop block."""
         cells = [
-            {"cell_type": "code", "source": "y = 1\nprint(y)", "metadata": {}, "outputs": [], "execution_count": None},
-            {"cell_type": "code", "source": "#|skip_evals\nraise ValueError('should not execute')", "metadata": {}, "outputs": [], "execution_count": None},
-            {"cell_type": "code", "source": "raise ValueError('also should not execute')", "metadata": {}, "outputs": [], "execution_count": None},
-            {"cell_type": "code", "source": "#|skip_evals_stop\nz = 2\nprint(z)", "metadata": {}, "outputs": [], "execution_count": None},
-            {"cell_type": "code", "source": "w = 3\nprint(w)", "metadata": {}, "outputs": [], "execution_count": None},
+            {
+                "cell_type": "code",
+                "source": "y = 1\nprint(y)",
+                "metadata": {},
+                "outputs": [],
+                "execution_count": None,
+            },
+            {
+                "cell_type": "code",
+                "source": "#|skip_evals\nraise ValueError('should not execute')",
+                "metadata": {},
+                "outputs": [],
+                "execution_count": None,
+            },
+            {
+                "cell_type": "code",
+                "source": "raise ValueError('also should not execute')",
+                "metadata": {},
+                "outputs": [],
+                "execution_count": None,
+            },
+            {
+                "cell_type": "code",
+                "source": "#|skip_evals_stop\nz = 2\nprint(z)",
+                "metadata": {},
+                "outputs": [],
+                "execution_count": None,
+            },
+            {
+                "cell_type": "code",
+                "source": "w = 3\nprint(w)",
+                "metadata": {},
+                "outputs": [],
+                "execution_count": None,
+            },
         ]
         path = create_simple_notebook(tmp_path, cells=cells)
 
@@ -271,8 +349,20 @@ class TestSkipDirectives:
     def test_nested_skip_evals_raises(self, tmp_path: Path) -> None:
         """Test that nested #|skip_evals raises error."""
         cells = [
-            {"cell_type": "code", "source": "#|skip_evals\nx = 1", "metadata": {}, "outputs": [], "execution_count": None},
-            {"cell_type": "code", "source": "#|skip_evals\ny = 2", "metadata": {}, "outputs": [], "execution_count": None},
+            {
+                "cell_type": "code",
+                "source": "#|skip_evals\nx = 1",
+                "metadata": {},
+                "outputs": [],
+                "execution_count": None,
+            },
+            {
+                "cell_type": "code",
+                "source": "#|skip_evals\ny = 2",
+                "metadata": {},
+                "outputs": [],
+                "execution_count": None,
+            },
         ]
         path = create_simple_notebook(tmp_path, cells=cells)
 
@@ -284,7 +374,13 @@ class TestSkipDirectives:
     def test_skip_evals_stop_without_start_raises(self, tmp_path: Path) -> None:
         """Test that #|skip_evals_stop without #|skip_evals raises error."""
         cells = [
-            {"cell_type": "code", "source": "#|skip_evals_stop\nx = 1", "metadata": {}, "outputs": [], "execution_count": None},
+            {
+                "cell_type": "code",
+                "source": "#|skip_evals_stop\nx = 1",
+                "metadata": {},
+                "outputs": [],
+                "execution_count": None,
+            },
         ]
         path = create_simple_notebook(tmp_path, cells=cells)
 
@@ -299,9 +395,7 @@ class TestFillNotebooks:
 
     def test_fill_multiple_notebooks(self, tmp_path: Path) -> None:
         """Test filling multiple notebooks."""
-        paths = [
-            create_simple_notebook(tmp_path, f"nb{i}.ipynb") for i in range(3)
-        ]
+        paths = [create_simple_notebook(tmp_path, f"nb{i}.ipynb") for i in range(3)]
 
         results = fill_notebooks(paths, skip_unchanged=False)
 
@@ -552,6 +646,7 @@ format = "ipynb"
 
         # Create a notebook that checks the env var
         import json
+
         nb_content = {
             "cells": [
                 {

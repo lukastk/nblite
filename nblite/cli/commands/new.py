@@ -191,9 +191,7 @@ def new(
 
     # Check if template is a file path
     template_as_path = Path(template_name)
-    if template_as_path.exists() or (
-        project_root and (project_root / template_name).exists()
-    ):
+    if template_as_path.exists() or (project_root and (project_root / template_name).exists()):
         # Direct file path
         if not template_as_path.exists() and project_root:
             template_as_path = project_root / template_name

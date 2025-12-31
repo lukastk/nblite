@@ -40,14 +40,16 @@ class TestNotebookCreation:
 
     def test_from_string_ipynb(self) -> None:
         """Test creating notebook from ipynb string."""
-        content = json.dumps({
-            "cells": [
-                {"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []},
-            ],
-            "metadata": {},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        content = json.dumps(
+            {
+                "cells": [
+                    {"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []},
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         nb = Notebook.from_string(content, Format.IPYNB)
         assert len(nb.cells) == 1
         assert nb.cells[0].source == "x = 1"
@@ -69,14 +71,21 @@ def foo():
 
     def test_from_file_ipynb(self, tmp_path: Path) -> None:
         """Test loading notebook from ipynb file."""
-        nb_content = json.dumps({
-            "cells": [
-                {"cell_type": "code", "source": "#|export\ndef foo(): pass", "metadata": {}, "outputs": []},
-            ],
-            "metadata": {},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef foo(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         nb_path = tmp_path / "test.ipynb"
         nb_path.write_text(nb_content)
 
@@ -105,10 +114,25 @@ class TestNotebookDirectives:
         """Create a sample notebook with directives."""
         data = {
             "cells": [
-                {"cell_type": "code", "source": "#|default_exp utils", "metadata": {}, "outputs": []},
-                {"cell_type": "code", "source": "#|export\ndef foo(): pass", "metadata": {}, "outputs": []},
+                {
+                    "cell_type": "code",
+                    "source": "#|default_exp utils",
+                    "metadata": {},
+                    "outputs": [],
+                },
+                {
+                    "cell_type": "code",
+                    "source": "#|export\ndef foo(): pass",
+                    "metadata": {},
+                    "outputs": [],
+                },
                 {"cell_type": "markdown", "source": "# Documentation", "metadata": {}},
-                {"cell_type": "code", "source": "#|export\ndef bar(): pass", "metadata": {}, "outputs": []},
+                {
+                    "cell_type": "code",
+                    "source": "#|export\ndef bar(): pass",
+                    "metadata": {},
+                    "outputs": [],
+                },
             ],
             "metadata": {},
             "nbformat": 4,
@@ -215,7 +239,12 @@ class TestNotebookConversion:
         """Create a sample notebook."""
         data = {
             "cells": [
-                {"cell_type": "code", "source": "#|export\ndef foo(): pass", "metadata": {}, "outputs": []},
+                {
+                    "cell_type": "code",
+                    "source": "#|export\ndef foo(): pass",
+                    "metadata": {},
+                    "outputs": [],
+                },
                 {"cell_type": "markdown", "source": "# Title", "metadata": {}},
             ],
             "metadata": {},
@@ -336,7 +365,12 @@ class TestNotebookRoundTrip:
         """Test ipynb save and load preserves content."""
         data = {
             "cells": [
-                {"cell_type": "code", "source": "#|export\ndef foo(): pass", "metadata": {}, "outputs": []},
+                {
+                    "cell_type": "code",
+                    "source": "#|export\ndef foo(): pass",
+                    "metadata": {},
+                    "outputs": [],
+                },
             ],
             "metadata": {},
             "nbformat": 4,
@@ -355,7 +389,12 @@ class TestNotebookRoundTrip:
         """Test percent format save and load."""
         data = {
             "cells": [
-                {"cell_type": "code", "source": "#|export\ndef foo(): pass", "metadata": {}, "outputs": []},
+                {
+                    "cell_type": "code",
+                    "source": "#|export\ndef foo(): pass",
+                    "metadata": {},
+                    "outputs": [],
+                },
             ],
             "metadata": {},
             "nbformat": 4,
@@ -376,23 +415,29 @@ class TestNotebookRepr:
     def test_repr_with_path(self, tmp_path: Path) -> None:
         """Test repr with source path."""
         nb_path = tmp_path / "test.ipynb"
-        nb_path.write_text(json.dumps({
-            "cells": [],
-            "metadata": {},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        }))
+        nb_path.write_text(
+            json.dumps(
+                {
+                    "cells": [],
+                    "metadata": {},
+                    "nbformat": 4,
+                    "nbformat_minor": 5,
+                }
+            )
+        )
         nb = Notebook.from_file(nb_path)
         repr_str = repr(nb)
         assert "test.ipynb" in repr_str
 
     def test_repr_without_path(self) -> None:
         """Test repr without source path."""
-        nb = Notebook.from_dict({
-            "cells": [],
-            "metadata": {},
-            "nbformat": 4,
-            "nbformat_minor": 5,
-        })
+        nb = Notebook.from_dict(
+            {
+                "cells": [],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
         repr_str = repr(nb)
         assert "None" in repr_str

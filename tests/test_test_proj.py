@@ -82,8 +82,7 @@ class TestNotebookDiscovery:
 
         # Find the utils notebook in submodule
         submodule_nbs = [
-            nb for nb in nbs_notebooks
-            if nb.source_path and "submodule" in str(nb.source_path)
+            nb for nb in nbs_notebooks if nb.source_path and "submodule" in str(nb.source_path)
         ]
         assert len(submodule_nbs) == 1
         assert submodule_nbs[0].source_path.stem == "utils"
@@ -110,10 +109,7 @@ class TestNotebookParsing:
         assert nb.default_exp == "workflow"
 
         # Check for export_as_func directive
-        has_export_as_func = any(
-            cell.has_directive("export_as_func")
-            for cell in nb.cells
-        )
+        has_export_as_func = any(cell.has_directive("export_as_func") for cell in nb.cells)
         assert has_export_as_func
 
     def test_parse_directives_notebook(self) -> None:

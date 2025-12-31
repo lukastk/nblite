@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from nblite.convert import module_to_notebook, modules_to_notebooks
+from nblite.cli.commands.from_module import module_to_notebook, modules_to_notebooks
 from nblite.core.notebook import Notebook
 from nblite.templates.renderer import (
     get_builtin_templates,

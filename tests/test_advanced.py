@@ -10,6 +10,7 @@ from nblite.convert import module_to_notebook, modules_to_notebooks
 from nblite.core.notebook import Notebook
 from nblite.templates.renderer import (
     get_builtin_templates,
+    infer_template_format,
     render_template,
     render_template_string,
 )
@@ -93,6 +94,99 @@ def {{ function_name }}():
         assert "#|default_exp workflow" in result
         assert "#|export_as_func true" in result
         assert "def run(input_path: str):" in result
+
+    def test_builtin_default_template_no_export(self) -> None:
+        """Test the default template with no_export=True."""
+        templates = get_builtin_templates()
+        result = render_template_string(
+            templates["default"],
+            module_name="mymodule",
+            title="My Module",
+            no_export=True
+        )
+        # When no_export=True, the default_exp directive should not appear
+        assert "#|default_exp" not in result
+        assert "# My Module" in result
+
+    def test_builtin_script_template_no_export(self) -> None:
+        """Test the script template with no_export=True."""
+        templates = get_builtin_templates()
+        result = render_template_string(
+            templates["script"],
+            module_name="workflow",
+            no_export=True
+        )
+        # When no_export=True, the default_exp directive should not appear
+        assert "#|default_exp" not in result
+        # But export_as_func should still be there
+        assert "#|export_as_func true" in result
+
+    def test_infer_template_format_ipynb(self) -> None:
+        """Test inferring ipynb format from extension."""
+        assert infer_template_format("template.ipynb.jinja") == "ipynb"
+        assert infer_template_format("template.ipynb") == "ipynb"
+
+    def test_infer_template_format_percent(self) -> None:
+        """Test inferring percent format from extension."""
+        assert infer_template_format("template.pct.py.jinja") == "percent"
+        assert infer_template_format("template.pct.py") == "percent"
+        assert infer_template_format("template.py.jinja") == "percent"
+        assert infer_template_format("template.py") == "percent"
+
+    def test_infer_template_format_default(self) -> None:
+        """Test default format for unknown extensions."""
+        assert infer_template_format("template.txt.jinja") == "percent"
+        assert infer_template_format("template.jinja") == "percent"
+
+    def test_render_template_with_dest_fmt(self, tmp_path: Path) -> None:
+        """Test rendering template with format conversion."""
+        # Create a percent-format template
+        template_content = """# %%
+#|default_exp {{ module_name }}
+
+# %% [markdown]
+# # {{ title }}
+
+# %%
+#|export
+def hello():
+    pass
+"""
+        template_path = tmp_path / "test.pct.py.jinja"
+        template_path.write_text(template_content)
+
+        # Render to ipynb format
+        result = render_template(
+            template_path,
+            dest_fmt="ipynb",
+            module_name="utils",
+            title="Utils Module"
+        )
+
+        # Should be valid JSON (ipynb format)
+        import json
+        nb_data = json.loads(result)
+        assert "cells" in nb_data
+        assert nb_data["nbformat"] == 4
+
+    def test_render_template_same_format(self, tmp_path: Path) -> None:
+        """Test rendering template without format conversion."""
+        template_content = """# %%
+#|default_exp {{ module_name }}
+"""
+        template_path = tmp_path / "test.pct.py.jinja"
+        template_path.write_text(template_content)
+
+        # Render to same format (percent)
+        result = render_template(
+            template_path,
+            dest_fmt="percent",
+            module_name="utils"
+        )
+
+        # Should still be percent format
+        assert "# %%" in result
+        assert "#|default_exp utils" in result
 
 
 class TestFromModule:

@@ -135,6 +135,85 @@ class TestNewCommand:
             if cell.get("cell_type") == "code":
                 assert "#|default_exp" not in cell.get("source", "")
 
+    def test_new_creates_percent_format(self, sample_project: Path) -> None:
+        """Test nbl new creates percent-format notebook."""
+        os.chdir(sample_project)
+        result = runner.invoke(app, ["new", "nbs/api.pct.py", "-n", "api"])
+
+        assert result.exit_code == 0
+        nb_path = sample_project / "nbs" / "api.pct.py"
+        assert nb_path.exists()
+
+        # Should be percent format (contains # %%)
+        content = nb_path.read_text()
+        assert "# %%" in content
+        assert "#|default_exp api" in content
+
+    def test_new_with_var_option(self, sample_project: Path) -> None:
+        """Test nbl new with --var option for custom template variables."""
+        os.chdir(sample_project)
+
+        # Create a custom template that uses custom vars
+        templates_dir = sample_project / "templates"
+        templates_dir.mkdir(exist_ok=True)
+        template_content = """# %%
+#|default_exp {{ module_name }}
+
+# %% [markdown]
+# Author: {{ author }}
+# Version: {{ version }}
+"""
+        (templates_dir / "custom.pct.py.jinja").write_text(template_content)
+
+        result = runner.invoke(app, [
+            "new", "nbs/test.ipynb",
+            "-n", "test",
+            "--template", "custom",
+            "--var", "author=John Doe",
+            "--var", "version=1.0.0"
+        ])
+
+        assert result.exit_code == 0
+        nb_path = sample_project / "nbs" / "test.ipynb"
+        assert nb_path.exists()
+
+        content = json.loads(nb_path.read_text())
+        # Check the markdown cell contains the custom variables
+        markdown_cells = [c for c in content["cells"] if c.get("cell_type") == "markdown"]
+        markdown_content = "".join(c.get("source", "") for c in markdown_cells)
+        assert "John Doe" in markdown_content
+        assert "1.0.0" in markdown_content
+
+    def test_new_with_custom_template_file(self, sample_project: Path) -> None:
+        """Test nbl new with a custom template file path."""
+        os.chdir(sample_project)
+
+        # Create a custom template
+        templates_dir = sample_project / "my_templates"
+        templates_dir.mkdir(exist_ok=True)
+        template_content = """# %%
+#|default_exp {{ module_name }}
+
+# %% [markdown]
+# # Custom Template: {{ title or module_name }}
+"""
+        (templates_dir / "my_template.pct.py.jinja").write_text(template_content)
+
+        result = runner.invoke(app, [
+            "new", "nbs/custom.ipynb",
+            "-n", "custom",
+            "--template", "my_templates/my_template.pct.py.jinja"
+        ])
+
+        assert result.exit_code == 0
+        nb_path = sample_project / "nbs" / "custom.ipynb"
+        assert nb_path.exists()
+
+        content = json.loads(nb_path.read_text())
+        markdown_cells = [c for c in content["cells"] if c.get("cell_type") == "markdown"]
+        markdown_content = "".join(c.get("source", "") for c in markdown_cells)
+        assert "Custom Template" in markdown_content
+
 
 class TestExportCommand:
     def test_export_runs(self, sample_project: Path) -> None:

@@ -382,7 +382,7 @@ nblite includes two built-in templates:
 **"default"** - Standard notebook template:
 ```python
 # %%
-#|default_exp {{ module_name }}
+{% if not no_export %}#|default_exp {{ module_name }}{% endif %}
 
 # %% [markdown]
 # # {{ title or module_name }}
@@ -394,8 +394,8 @@ nblite includes two built-in templates:
 **"script"** - For notebooks exported as functions:
 ```python
 # %%
-#|default_exp {{ module_name }}
-#|export_as_func true
+{% if not no_export %}#|default_exp {{ module_name }}
+{% endif %}#|export_as_func true
 
 # %%
 #|top_export
@@ -413,21 +413,56 @@ pass
 
 ### Custom Templates
 
-Create custom templates in your templates folder using Jinja2 syntax:
+Create custom templates in your templates folder using Jinja2 syntax. Templates can be written in any notebook format:
 
 ```
 templates/
-├── default.pct.py.jinja
-├── script.pct.py.jinja
-└── custom.pct.py.jinja
+├── default.pct.py.jinja    # Percent format template
+├── notebook.ipynb.jinja    # ipynb format template
+└── custom.py.jinja         # Plain Python (treated as percent)
 ```
 
-Template variables:
-- `{{ module_name }}` - Module name
-- `{{ title }}` - Notebook title
-- `{{ function_name }}` - Function name (for script templates)
-- `{{ args }}` - Function arguments
-- `{{ author }}` - Author name
+The template format is inferred from the file extension (before `.jinja`), and templates are automatically converted to the output format specified by the notebook path.
+
+### Template Variables
+
+**Built-in variables** (always available):
+- `{{ module_name }}` - Module name (from `--name` or inferred from path)
+- `{{ title }}` - Notebook title (from `--title`, may be None)
+- `{{ no_export }}` - Boolean, true if `--no-export` flag was used
+- `{{ pyproject }}` - Contents of `pyproject.toml` as a nested dictionary (if exists)
+
+**Custom variables** can be passed via `--var key=value`:
+```bash
+nbl new my_notebook.ipynb --var author="John Doe" --var version="1.0"
+```
+
+These are then accessible in templates as `{{ author }}` and `{{ version }}`.
+
+### Output Format
+
+The output format is inferred from the notebook path:
+- `.ipynb` → Jupyter notebook format
+- `.pct.py` → Percent format
+- `.py` → Percent format
+
+Templates written in one format are automatically converted to the output format. For example, a template written in percent format (`.pct.py.jinja`) can create an `.ipynb` file.
+
+### Examples
+
+```bash
+# Create notebook with default template
+nbl new my_notebook.ipynb
+
+# Create percent-format notebook
+nbl new my_notebook.pct.py
+
+# Use script template with custom variables
+nbl new workflow.ipynb --template script --var function_name=run_pipeline --var args="config: dict"
+
+# Use project data in templates
+nbl new my_notebook.ipynb  # {{ pyproject.project.name }} available in template
+```
 
 ---
 

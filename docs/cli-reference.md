@@ -76,14 +76,25 @@ nbl new NOTEBOOK_PATH [OPTIONS]
 |--------|-------|-------------|
 | `--name` | `-n` | Module name for `#\|default_exp` directive |
 | `--title` | `-t` | Notebook title (creates markdown cell) |
-| `--template` | | Template to use (default: "default") |
+| `--template` | | Template to use (name, path, or built-in: "default", "script") |
 | `--no-export` | | Don't include `#\|default_exp` directive |
+| `--var` | `-v` | Template variable as `key=value` (can be repeated) |
+
+**Output format:**
+
+The output format is inferred from the notebook path:
+- `.ipynb` → Jupyter notebook format
+- `.pct.py` → Percent format
+- `.py` → Percent format
 
 **Examples:**
 
 ```bash
-# Create notebook with automatic module name
+# Create ipynb notebook with automatic module name
 nbl new nbs/utils.ipynb
+
+# Create percent-format notebook
+nbl new nbs/utils.pct.py
 
 # Create notebook with title
 nbl new nbs/core.ipynb --title "Core Module"
@@ -94,9 +105,25 @@ nbl new nbs/helpers.ipynb --name mylib.helpers
 # Create notebook without export directive
 nbl new nbs/scratch.ipynb --no-export
 
-# Use script template
-nbl new nbs/workflow.ipynb --template script
+# Use script template with custom variables
+nbl new nbs/workflow.ipynb --template script --var function_name=run_pipeline --var args="config: dict"
+
+# Pass multiple custom variables
+nbl new nbs/app.ipynb --var author="John Doe" --var version="1.0"
+
+# Use a custom template file
+nbl new nbs/custom.ipynb --template templates/my_template.pct.py.jinja
 ```
+
+**Template variables:**
+
+Built-in variables available in all templates:
+- `module_name` - Module name (from `--name` or inferred from path)
+- `title` - Notebook title (from `--title`)
+- `no_export` - Boolean, true if `--no-export` was used
+- `pyproject` - Contents of `pyproject.toml` as a nested dict (if exists)
+
+Custom variables can be passed via `--var key=value` and used as `{{ key }}` in templates.
 
 ---
 

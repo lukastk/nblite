@@ -404,9 +404,7 @@ class TestImportTransformation:
         pkg_dir.mkdir()
         module_path = pkg_dir / "core.py"
 
-        export_notebook_to_module(
-            nb, module_path, project_root=tmp_path, package_name="my_pkg"
-        )
+        export_notebook_to_module(nb, module_path, project_root=tmp_path, package_name="my_pkg")
 
         content = module_path.read_text()
         # At depth 0, should use single dot: from .utils import helper
@@ -445,9 +443,7 @@ class TestImportTransformation:
         pkg_dir.mkdir(parents=True)
         module_path = pkg_dir / "utils.py"
 
-        export_notebook_to_module(
-            nb, module_path, project_root=tmp_path, package_name="my_pkg"
-        )
+        export_notebook_to_module(nb, module_path, project_root=tmp_path, package_name="my_pkg")
 
         content = module_path.read_text()
         # At depth 1, should use two dots: from ..core import greet
@@ -485,9 +481,7 @@ class TestImportTransformation:
         pkg_dir.mkdir()
         module_path = pkg_dir / "core.py"
 
-        export_notebook_to_module(
-            nb, module_path, project_root=tmp_path, package_name="my_pkg"
-        )
+        export_notebook_to_module(nb, module_path, project_root=tmp_path, package_name="my_pkg")
 
         content = module_path.read_text()
         # External imports should be unchanged
@@ -525,9 +519,7 @@ class TestImportTransformation:
         pkg_dir.mkdir()
         module_path = pkg_dir / "utils.py"
 
-        export_notebook_to_module(
-            nb, module_path, project_root=tmp_path, package_name="my_pkg"
-        )
+        export_notebook_to_module(nb, module_path, project_root=tmp_path, package_name="my_pkg")
 
         content = module_path.read_text()
         # from my_pkg import X -> from . import X

@@ -5,8 +5,6 @@ Tests for the readme generation module.
 import json
 from pathlib import Path
 
-import pytest
-
 from nblite.readme import generate_readme, notebook_to_markdown
 
 

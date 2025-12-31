@@ -6,12 +6,9 @@ These tests verify that nblite works correctly with a real project structure.
 
 from pathlib import Path
 
-import pytest
-
-from nblite.config.schema import NbliteConfig, CodeLocationFormat
+from nblite.config.schema import CodeLocationFormat
 from nblite.core.notebook import Notebook
 from nblite.core.project import NbliteProject
-
 
 # Path to the test_proj directory
 TEST_PROJ_PATH = Path(__file__).parent.parent / "test_proj"

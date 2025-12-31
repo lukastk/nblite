@@ -5,8 +5,6 @@ Tests for the CodeLocation class (Milestone 5).
 import json
 from pathlib import Path
 
-import pytest
-
 from nblite.config.schema import CodeLocationFormat, ExportMode
 from nblite.core.code_location import CodeLocation
 

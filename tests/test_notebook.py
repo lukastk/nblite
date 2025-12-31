@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
+from nblite.core.cell import Cell
 from nblite.core.notebook import Format, Notebook
-from nblite.core.cell import Cell, CellType
 
 
 class TestNotebookCreation:

@@ -98,7 +98,7 @@ def render_template(
 
     # Convert format if needed
     if dest_fmt is not None and dest_fmt != source_fmt:
-        from nblite.core.notebook import Format, Notebook
+        from nblite.core.notebook import Notebook
 
         nb = Notebook.from_string(rendered, format=source_fmt)
         rendered = nb.to_string(format=dest_fmt)

@@ -6,7 +6,7 @@ Tests for package setup and imports (Milestone 1).
 def test_package_imports() -> None:
     """Verify all main modules can be imported."""
     import nblite
-    from nblite import core, config, export, git, docs, extensions, cli, sync, utils
+    from nblite import cli, config, core, docs, export, extensions, git, sync, utils
 
     # Verify modules are accessible
     assert nblite is not None

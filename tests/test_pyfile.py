@@ -4,8 +4,6 @@ Tests for the PyFile class (Milestone 5).
 
 from pathlib import Path
 
-import pytest
-
 from nblite.core.pyfile import PyFile, PyFileCell
 
 

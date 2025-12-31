@@ -5,16 +5,15 @@ Tests for the directive system (Milestone 2).
 import pytest
 
 from nblite.core.directive import (
-    Directive,
     DirectiveDefinition,
     DirectiveError,
+    _register_builtin_directives,
     clear_directive_definitions,
     get_directive_definition,
     get_source_without_directives,
     list_directive_definitions,
     parse_directives_from_source,
     register_directive,
-    _register_builtin_directives,
 )
 
 

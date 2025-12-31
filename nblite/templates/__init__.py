@@ -26,9 +26,7 @@ __all__ = [
 
 # URL for default templates repository
 GITHUB_TEMPLATES_URL = "https://github.com/lukastk/nblite/tree/main/notebook-templates"
-GITHUB_TEMPLATES_API_URL = (
-    "https://api.github.com/repos/lukastk/nblite/contents/notebook-templates"
-)
+GITHUB_TEMPLATES_API_URL = "https://api.github.com/repos/lukastk/nblite/contents/notebook-templates"
 GITHUB_RAW_BASE_URL = "https://raw.githubusercontent.com/lukastk/nblite/main/notebook-templates"
 
 

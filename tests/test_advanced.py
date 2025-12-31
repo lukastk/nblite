@@ -434,7 +434,9 @@ class TestGlobalTemplates:
         result = get_global_templates_dir()
         assert result == Path.home() / ".config" / "nblite" / "templates"
 
-    def test_find_template_searches_global_dir(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_find_template_searches_global_dir(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """Test that _find_template searches global templates directory."""
         from nblite.cli.commands.new import _find_template
 
@@ -453,7 +455,9 @@ class TestGlobalTemplates:
         assert found_path == template_file
         assert builtin_content is None
 
-    def test_project_templates_take_precedence(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_project_templates_take_precedence(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """Test that project templates take precedence over global templates."""
         from nblite.cli.commands.new import _find_template
 
@@ -481,7 +485,9 @@ class TestGlobalTemplates:
         assert builtin_content is None
         assert "project version" in found_path.read_text()
 
-    def test_global_templates_fallback_to_builtin(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_global_templates_fallback_to_builtin(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """Test that builtin templates are used when no file templates found."""
         from nblite.cli.commands.new import _find_template
 
@@ -499,7 +505,9 @@ class TestGlobalTemplates:
         assert builtin_content is not None
         assert "#|default_exp" in builtin_content
 
-    def test_find_template_nonexistent_returns_none(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    def test_find_template_nonexistent_returns_none(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """Test that _find_template returns None for nonexistent templates."""
         from nblite.cli.commands.new import _find_template
 

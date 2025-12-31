@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 
+import click
 import pytest
 from typer.testing import CliRunner
 
@@ -410,8 +411,10 @@ class TestInstallDefaultTemplatesCommand:
         result = runner.invoke(app, ["install-default-templates", "--help"])
 
         assert result.exit_code == 0
-        assert "Download and install default templates" in result.output
-        assert "--overwrite" in result.output
+        # Use click.unstyle() to strip ANSI codes that can split text in CI
+        output = click.unstyle(result.output)
+        assert "Download and install default templates" in output
+        assert "--overwrite" in output
 
     def test_install_default_templates_creates_directory(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch

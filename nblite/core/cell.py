@@ -42,6 +42,13 @@ class Cell:
         execution_count: Execution count (for code cells)
         index: Cell index in the notebook
         notebook: Reference to the parent notebook (optional)
+
+    Example:
+        >>> # Access cells from a notebook
+        >>> nb = Notebook.from_file("example.ipynb")
+        >>> for cell in nb.cells:
+        ...     if cell.is_code and cell.has_directive("export"):
+        ...         print(cell.source_without_directives)
     """
 
     cell_type: str

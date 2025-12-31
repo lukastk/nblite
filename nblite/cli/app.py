@@ -6,6 +6,8 @@ This module defines the `nbl` command and registers all subcommands.
 
 from __future__ import annotations
 
+__all__ = ["app"]
+
 from pathlib import Path
 from typing import Annotated
 

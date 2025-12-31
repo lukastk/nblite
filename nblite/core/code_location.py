@@ -46,9 +46,23 @@ class CodeLocation:
         """Normalize format to enum."""
         self.path = Path(self.path)
         if isinstance(self.format, str):
-            self.format = CodeLocationFormat(self.format)
+            try:
+                self.format = CodeLocationFormat(self.format)
+            except ValueError:
+                valid_formats = [f.value for f in CodeLocationFormat]
+                raise ValueError(
+                    f"Invalid format '{self.format}' for code location '{self.key}'. "
+                    f"Valid formats: {valid_formats}"
+                ) from None
         if isinstance(self.export_mode, str):
-            self.export_mode = ExportMode(self.export_mode)
+            try:
+                self.export_mode = ExportMode(self.export_mode)
+            except ValueError:
+                valid_modes = [m.value for m in ExportMode]
+                raise ValueError(
+                    f"Invalid export_mode '{self.export_mode}' for code location '{self.key}'. "
+                    f"Valid modes: {valid_modes}"
+                ) from None
 
     @property
     def file_ext(self) -> str:

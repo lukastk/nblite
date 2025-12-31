@@ -72,6 +72,19 @@ class Notebook:
         nbformat_minor: Notebook format minor version
         source_path: Original file path (if loaded from file)
         code_location: Code location key this notebook belongs to
+
+    Example:
+        >>> # Load a notebook from file
+        >>> nb = Notebook.from_file("nbs/core.ipynb")
+        >>> print(f"Notebook has {len(nb.cells)} cells")
+        >>>
+        >>> # Access directives
+        >>> if nb.has_directive("default_exp"):
+        ...     module = nb.get_directive("default_exp").value
+        >>>
+        >>> # Convert to different format
+        >>> percent_str = nb.to_string("percent")
+        >>> nb.to_file("output.pct.py", format="percent")
     """
 
     cells: list[Cell] = field(default_factory=list)

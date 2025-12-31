@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+__all__ = ["console", "CONFIG_PATH_KEY", "version_callback", "get_project", "get_config_path"]
+
 from pathlib import Path
 from typing import TYPE_CHECKING
 

@@ -57,6 +57,21 @@ class NbliteProject:
     Attributes:
         root_path: Project root directory
         config: Project configuration
+
+    Example:
+        >>> # Load project from current directory
+        >>> project = NbliteProject.from_path()
+        >>>
+        >>> # Access code locations
+        >>> nbs_loc = project.get_code_location("nbs")
+        >>> for nb in nbs_loc.get_notebooks():
+        ...     print(nb.source_path)
+        >>>
+        >>> # Export all notebooks
+        >>> project.export_all()
+        >>>
+        >>> # Export with custom pipeline
+        >>> project.export_all(pipeline="nbs -> lib")
     """
 
     root_path: Path

@@ -55,17 +55,19 @@ jobs:
           name: dist
           path: dist/
 
-      - name: Install from wheel
-        run: uv pip install dist/*.whl --system
+      - name: Create venv and install wheel
+        run: |
+          uv venv .venv
+          uv pip install dist/*.whl --python .venv/bin/python
 
       - name: Test CLI works
-        run: nbl --version
+        run: .venv/bin/nbl --version
 
       - name: Install test dependencies
-        run: uv pip install pytest --system
+        run: uv pip install pytest --python .venv/bin/python
 
       - name: Run basic tests
-        run: pytest tests -v -k "not integration" --ignore=tests/test_fill.py --ignore=tests/test_test_proj.py
+        run: .venv/bin/pytest tests -v -k "not integration" --ignore=tests/test_fill.py --ignore=tests/test_test_proj.py
         continue-on-error: true  # Some tests may need the full dev environment
 
   publish-pypi:

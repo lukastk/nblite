@@ -171,6 +171,7 @@ class TestNotebookToModule:
         export_notebook_to_module(
             notebook_with_exports,
             module_path,
+            project_root=tmp_path,
             export_mode=ExportMode.PERCENT,
         )
 
@@ -189,6 +190,7 @@ class TestNotebookToModule:
         export_notebook_to_module(
             notebook_with_exports,
             module_path,
+            project_root=tmp_path,
             export_mode=ExportMode.PY,
         )
 
@@ -204,6 +206,7 @@ class TestNotebookToModule:
         export_notebook_to_module(
             notebook_with_exports,
             module_path,
+            project_root=tmp_path,
             export_mode=ExportMode.PERCENT,
         )
 
@@ -221,6 +224,7 @@ class TestNotebookToModule:
         export_notebook_to_module(
             notebook_with_exports,
             module_path,
+            project_root=tmp_path,
             export_mode=ExportMode.PERCENT,
         )
 
@@ -235,6 +239,7 @@ class TestNotebookToModule:
         export_notebook_to_module(
             notebook_with_exports,
             module_path,
+            project_root=tmp_path,
             export_mode=ExportMode.PERCENT,
             include_warning=False,
         )
@@ -264,7 +269,7 @@ class TestNotebookToModule:
         nb = Notebook.from_file(nb_path)
 
         module_path = tmp_path / "test.py"
-        export_notebook_to_module(nb, module_path)
+        export_notebook_to_module(nb, module_path, project_root=tmp_path)
 
         content = module_path.read_text()
         assert "'MyClass'" in content
@@ -292,7 +297,7 @@ class TestNotebookToModule:
         nb = Notebook.from_file(nb_path)
 
         module_path = tmp_path / "test.py"
-        export_notebook_to_module(nb, module_path)
+        export_notebook_to_module(nb, module_path, project_root=tmp_path)
 
         content = module_path.read_text()
         assert "'DEFAULT_VALUE'" in content
@@ -320,7 +325,7 @@ class TestNotebookToModule:
         nb = Notebook.from_file(nb_path)
 
         module_path = tmp_path / "test.py"
-        export_notebook_to_module(nb, module_path)
+        export_notebook_to_module(nb, module_path, project_root=tmp_path)
 
         content = module_path.read_text()
         assert "'public'" in content
@@ -348,7 +353,7 @@ class TestNotebookToModule:
         nb = Notebook.from_file(nb_path)
 
         module_path = tmp_path / "test.py"
-        export_notebook_to_module(nb, module_path)
+        export_notebook_to_module(nb, module_path, project_root=tmp_path)
 
         content = module_path.read_text()
         assert "def internal_func():" in content
@@ -359,7 +364,7 @@ class TestNotebookToModule:
         """Test that parent directories are created."""
         module_path = tmp_path / "nested" / "dir" / "utils.py"
 
-        export_notebook_to_module(notebook_with_exports, module_path)
+        export_notebook_to_module(notebook_with_exports, module_path, project_root=tmp_path)
 
         assert module_path.exists()
 

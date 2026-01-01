@@ -317,7 +317,9 @@ class NbliteProject:
                             twin_path = target_cl.path / (module_path + target_cl.file_ext)
                         else:
                             # For notebook exports, preserve directory structure
-                            twin_path = target_cl.path / rel_path.parent / (stem + target_cl.file_ext)
+                            twin_path = (
+                                target_cl.path / rel_path.parent / (stem + target_cl.file_ext)
+                            )
                         twins.append(twin_path)
                         visited.add(rule.to_key)
                         to_visit.append(rule.to_key)

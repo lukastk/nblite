@@ -124,8 +124,7 @@ def _parse_code_location(key: str, data: dict[str, Any]) -> CodeLocationConfig:
     if format_str is None:
         valid_formats = [f.value for f in CodeLocationFormat]
         raise ConfigError(
-            f"Missing 'format' for code location '{key}'. "
-            f"Valid formats: {valid_formats}"
+            f"Missing 'format' for code location '{key}'. Valid formats: {valid_formats}"
         )
     try:
         format_enum = CodeLocationFormat(format_str)

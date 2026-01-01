@@ -119,8 +119,14 @@ def find_config_file(start_path: Path | None = None) -> Path | None:
 
 def _parse_code_location(key: str, data: dict[str, Any]) -> CodeLocationConfig:
     """Parse a code location config from TOML data."""
-    # Handle format string to enum
-    format_str = data.get("format", "ipynb")
+    # Handle format string to enum - format is required
+    format_str = data.get("format")
+    if format_str is None:
+        valid_formats = [f.value for f in CodeLocationFormat]
+        raise ConfigError(
+            f"Missing 'format' for code location '{key}'. "
+            f"Valid formats: {valid_formats}"
+        )
     try:
         format_enum = CodeLocationFormat(format_str)
     except ValueError:

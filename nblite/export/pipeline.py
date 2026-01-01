@@ -259,8 +259,8 @@ def _transform_imports(source: str, package_name: str, module_depth: int) -> str
 
         # Check if this import is from our package
         if module_path == package_name:
-            # from my_lib import X -> from . import X
-            return f"{indent}from . import {imports}"
+            # from my_lib import X -> from .. import X (with appropriate dots based on depth)
+            return f"{indent}from {dots} import {imports}"
         elif module_path.startswith(f"{package_name}."):
             # from my_lib.core import X -> from .core import X (with appropriate dots)
             rest = module_path[len(package_name) + 1 :]  # Remove "my_lib."

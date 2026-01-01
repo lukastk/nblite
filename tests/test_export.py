@@ -525,6 +525,46 @@ class TestImportTransformation:
         # from my_pkg import X -> from . import X
         assert "from . import something" in content
 
+    def test_transform_imports_from_package_root_depth_one(self, tmp_path: Path) -> None:
+        """Test 'from package import X' transformation at depth 1."""
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp utils._base",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\nfrom my_pkg import const",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb_path = tmp_path / "test.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        # Create package directory structure (depth 1)
+        pkg_dir = tmp_path / "my_pkg" / "utils"
+        pkg_dir.mkdir(parents=True)
+        module_path = pkg_dir / "_base.py"
+
+        export_notebook_to_module(nb, module_path, project_root=tmp_path, package_name="my_pkg")
+
+        content = module_path.read_text()
+        # from my_pkg import X -> from .. import X (at depth 1, needs 2 dots)
+        assert "from .. import const" in content
+        assert "from . import const" not in content
+        assert "from my_pkg import" not in content
+
 
 class TestExportResult:
     def test_export_result_defaults(self) -> None:

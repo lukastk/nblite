@@ -265,10 +265,12 @@ class NbliteProject:
         """
         if isinstance(notebook, Path):
             source_path = notebook
+            nb = Notebook.from_file(source_path)
         else:
             if notebook.source_path is None:
                 return []
             source_path = notebook.source_path
+            nb = notebook
 
         twins: list[Path] = []
 
@@ -303,7 +305,19 @@ class NbliteProject:
                 if rule.from_key == current_key and rule.to_key not in visited:
                     target_cl = self.code_locations.get(rule.to_key)
                     if target_cl:
-                        twin_path = target_cl.path / rel_path.parent / (stem + target_cl.file_ext)
+                        if target_cl.format == CodeLocationFormat.MODULE:
+                            # For module exports, use default_exp to determine path
+                            default_exp = nb.default_exp
+                            if default_exp is None:
+                                # No default_exp, skip module twin
+                                visited.add(rule.to_key)
+                                to_visit.append(rule.to_key)
+                                continue
+                            module_path = default_exp.replace(".", "/")
+                            twin_path = target_cl.path / (module_path + target_cl.file_ext)
+                        else:
+                            # For notebook exports, preserve directory structure
+                            twin_path = target_cl.path / rel_path.parent / (stem + target_cl.file_ext)
                         twins.append(twin_path)
                         visited.add(rule.to_key)
                         to_visit.append(rule.to_key)
@@ -444,10 +458,21 @@ class NbliteProject:
                     continue
 
                 # Calculate output path
-                stem = rel_path.stem
-                if stem.endswith(".pct"):
-                    stem = stem[:-4]
-                output_path = to_cl.path / rel_path.parent / (stem + to_cl.file_ext)
+                if to_cl.format == CodeLocationFormat.MODULE:
+                    # For module exports, use the default_exp directive to determine output path
+                    default_exp = nb.default_exp
+                    if default_exp is None:
+                        # No default_exp directive, skip this notebook for module export
+                        continue
+                    # Convert module path to file path (e.g., "submodule.utils" -> "submodule/utils.py")
+                    module_path = default_exp.replace(".", "/")
+                    output_path = to_cl.path / (module_path + to_cl.file_ext)
+                else:
+                    # For notebook-to-notebook exports, preserve directory structure
+                    stem = rel_path.stem
+                    if stem.endswith(".pct"):
+                        stem = stem[:-4]
+                    output_path = to_cl.path / rel_path.parent / (stem + to_cl.file_ext)
 
                 # Trigger PRE_NOTEBOOK_EXPORT hook
                 HookRegistry.trigger(

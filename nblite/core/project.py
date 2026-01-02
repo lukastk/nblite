@@ -25,6 +25,11 @@ from nblite.extensions import HookRegistry, HookType, load_extension
 __all__ = ["NbliteProject", "NotebookLineage"]
 
 
+def _path_contains_dunder(path: Path) -> bool:
+    """Check if any part of the path starts with double underscores."""
+    return any(part.startswith("__") for part in path.parts)
+
+
 @dataclass
 class NotebookLineage:
     """
@@ -306,6 +311,11 @@ class NbliteProject:
                     target_cl = self.code_locations.get(rule.to_key)
                     if target_cl:
                         if target_cl.format == CodeLocationFormat.MODULE:
+                            # Skip notebooks in dunder folders/files for module exports
+                            if _path_contains_dunder(rel_path):
+                                visited.add(rule.to_key)
+                                to_visit.append(rule.to_key)
+                                continue
                             # For module exports, use default_exp to determine path
                             default_exp = nb.default_exp
                             if default_exp is None:
@@ -458,6 +468,12 @@ class NbliteProject:
                     rel_path = nb.source_path.relative_to(from_cl.path)
                 except ValueError:
                     continue
+
+                # Skip notebooks in dunder folders/files for module exports only
+                # (they should still be exported to other notebook formats)
+                if to_cl.format == CodeLocationFormat.MODULE:
+                    if _path_contains_dunder(rel_path):
+                        continue
 
                 # Calculate output path
                 if to_cl.format == CodeLocationFormat.MODULE:

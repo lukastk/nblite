@@ -4,6 +4,7 @@ Tests for the test_proj example project.
 These tests verify that nblite works correctly with a real project structure.
 """
 
+import json
 from pathlib import Path
 
 from nblite.config.schema import CodeLocationFormat
@@ -218,6 +219,228 @@ class TestExportPipeline:
         assert "def run_workflow" in content
         assert "input_path: str" in content
         assert "return result" in content
+
+
+class TestDunderFolderExport:
+    """Test that notebooks in dunder folders are handled correctly."""
+
+    def test_dunder_folder_not_exported_to_module(self, tmp_path: Path) -> None:
+        """Test that notebooks in __dunder__ folders are NOT exported to modules."""
+        import shutil
+
+        # Copy test_proj to tmp_path
+        test_copy = tmp_path / "test_proj"
+        shutil.copytree(TEST_PROJ_PATH, test_copy)
+
+        # Create a notebook inside a dunder folder
+        dunder_dir = test_copy / "nbs" / "__tests__"
+        dunder_dir.mkdir(parents=True)
+
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp test_utils",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef test_func(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        test_nb = dunder_dir / "test_utils.ipynb"
+        test_nb.write_text(nb_content)
+
+        project = NbliteProject.from_path(test_copy)
+        project.export()
+
+        # The notebook should NOT be exported to the module location
+        module_path = test_copy / "my_lib" / "test_utils.py"
+        assert not module_path.exists(), "Notebooks in dunder folders should not be exported to modules"
+
+    def test_dunder_folder_exported_to_notebook_format(self, tmp_path: Path) -> None:
+        """Test that notebooks in __dunder__ folders ARE exported to other notebook formats."""
+        import shutil
+
+        # Copy test_proj to tmp_path
+        test_copy = tmp_path / "test_proj"
+        shutil.copytree(TEST_PROJ_PATH, test_copy)
+
+        # Create a notebook inside a dunder folder
+        dunder_dir = test_copy / "nbs" / "__tests__"
+        dunder_dir.mkdir(parents=True)
+
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp test_utils",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "def test_func(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        test_nb = dunder_dir / "test_utils.ipynb"
+        test_nb.write_text(nb_content)
+
+        project = NbliteProject.from_path(test_copy)
+        project.export()
+
+        # The notebook SHOULD be exported to the percent format location
+        pct_path = test_copy / "pcts" / "__tests__" / "test_utils.pct.py"
+        assert pct_path.exists(), "Notebooks in dunder folders should still be exported to notebook formats"
+
+    def test_dunder_filename_not_exported_to_module(self, tmp_path: Path) -> None:
+        """Test that notebooks with __dunder__ filenames are NOT exported to modules."""
+        import shutil
+
+        # Copy test_proj to tmp_path
+        test_copy = tmp_path / "test_proj"
+        shutil.copytree(TEST_PROJ_PATH, test_copy)
+
+        # Create a notebook with a dunder filename
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp __private_utils",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef private_func(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        test_nb = test_copy / "nbs" / "__private.ipynb"
+        test_nb.write_text(nb_content)
+
+        project = NbliteProject.from_path(test_copy)
+        project.export()
+
+        # The notebook should NOT be exported to the module location
+        module_path = test_copy / "my_lib" / "__private_utils.py"
+        assert not module_path.exists(), "Notebooks with dunder filenames should not be exported to modules"
+
+    def test_nested_dunder_folder_not_exported_to_module(self, tmp_path: Path) -> None:
+        """Test that notebooks in nested dunder folders are NOT exported to modules."""
+        import shutil
+
+        # Copy test_proj to tmp_path
+        test_copy = tmp_path / "test_proj"
+        shutil.copytree(TEST_PROJ_PATH, test_copy)
+
+        # Create a notebook inside a nested dunder folder
+        dunder_dir = test_copy / "nbs" / "__tests__" / "unit"
+        dunder_dir.mkdir(parents=True)
+
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp unit_tests",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef unit_test(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        test_nb = dunder_dir / "test_core.ipynb"
+        test_nb.write_text(nb_content)
+
+        project = NbliteProject.from_path(test_copy)
+        project.export()
+
+        # The notebook should NOT be exported to the module location
+        module_path = test_copy / "my_lib" / "unit_tests.py"
+        assert not module_path.exists(), "Notebooks in nested dunder folders should not be exported to modules"
+
+    def test_get_notebook_twins_excludes_module_for_dunder(self, tmp_path: Path) -> None:
+        """Test that get_notebook_twins excludes module twin for dunder folder notebooks."""
+        import shutil
+
+        # Copy test_proj to tmp_path
+        test_copy = tmp_path / "test_proj"
+        shutil.copytree(TEST_PROJ_PATH, test_copy)
+
+        # Create a notebook inside a dunder folder
+        dunder_dir = test_copy / "nbs" / "__tests__"
+        dunder_dir.mkdir(parents=True)
+
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp test_utils",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef test_func(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        test_nb = dunder_dir / "test_utils.ipynb"
+        test_nb.write_text(nb_content)
+
+        project = NbliteProject.from_path(test_copy)
+
+        # Get twins for the dunder folder notebook
+        nb = Notebook.from_file(test_nb)
+        twins = project.get_notebook_twins(nb)
+
+        # Should have twin in pcts but NOT in lib (module)
+        twin_paths = [str(t) for t in twins]
+        assert any("pcts" in p and "test_utils.pct.py" in p for p in twin_paths), \
+            "Dunder folder notebooks should have pcts twins"
+        assert not any("my_lib" in p for p in twin_paths), \
+            "Dunder folder notebooks should NOT have module twins"
 
 
 class TestNotebookTwins:

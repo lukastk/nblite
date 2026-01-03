@@ -1356,7 +1356,7 @@ wheels = [
 
 [[package]]
 name = "nblite"
-version = "1.0.1"
+version = "1.0.3"
 source = { editable = "." }
 dependencies = [
     { name = "jinja2" },
@@ -1396,7 +1396,7 @@ requires-dist = [
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.0.0" },
     { name = "nbconvert", specifier = ">=7.0.0" },
     { name = "nbformat", specifier = ">=5.0.0" },
-    { name = "notebookx-py", specifier = ">=0.1.3" },
+    { name = "notebookx-py", specifier = ">=0.1.4" },
     { name = "pydantic", specifier = ">=2.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0.0" },
@@ -1428,16 +1428,16 @@ wheels = [
 
 [[package]]
 name = "notebookx-py"
-version = "0.1.3"
+version = "0.1.4"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/45/49/f3d01a09d8ce082ed274fdbd16d2d2e0151affc3c726689fde13011ba39e/notebookx_py-0.1.3.tar.gz", hash = "sha256:0a24701ca2e98a705c0ee11abac6f732208f17724b72337eddf49c7290d8d1c1", size = 39114, upload-time = "2026-01-03T13:09:12.251Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a2/8c/7aae4e91077c183dd966feba362ca0474292ea07e8baaff44218c81be6cb/notebookx_py-0.1.4.tar.gz", hash = "sha256:f0f057c81550912b0e426e74613714e90828e7a9e72a0681bb6742bc3c1fff02", size = 39465, upload-time = "2026-01-03T15:08:00.466Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/99/09/62c1eb18261b1991a3a46c8b0695ce2b0919bfa96f16f7a0f20a95df4ccd/notebookx_py-0.1.3-cp38-abi3-macosx_10_12_x86_64.whl", hash = "sha256:af9361ef9784848d410311f6c26c5fdbf7f366ac77939a2164e499c44bfe1cda", size = 726202, upload-time = "2026-01-03T13:09:00.386Z" },
-    { url = "https://files.pythonhosted.org/packages/fc/0c/d015658941f5e27a69458f3f6de3dc60cd1a2259fc502216fff5e52c9567/notebookx_py-0.1.3-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:2d943c4e05f214879f91e4b3bbfb097b414eee9242b4aee18ce9248fb30b82b2", size = 700731, upload-time = "2026-01-03T13:09:02.342Z" },
-    { url = "https://files.pythonhosted.org/packages/a4/af/d0225e2005ae119e3e4f4631566d7606e2e5163423915147c08ecd518d2d/notebookx_py-0.1.3-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:7ae0677cf87108f28eb9b2af29fa347b31c8764b32dd10deaa72d4beef907120", size = 756939, upload-time = "2026-01-03T13:09:04.052Z" },
-    { url = "https://files.pythonhosted.org/packages/9a/2f/21ea275bb60d45a40881642b176384fab2853ebc5ba1413c9fe325ab82a8/notebookx_py-0.1.3-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b46c8450777a0b5158fffbd91acada805bc6b16ac6c810873799dc7eb9b510f0", size = 778186, upload-time = "2026-01-03T13:09:05.625Z" },
-    { url = "https://files.pythonhosted.org/packages/20/3f/06850da17caab0a3677f092c1c9ee1f36d510446d361048d67de9ae01e6a/notebookx_py-0.1.3-cp38-abi3-win_amd64.whl", hash = "sha256:5ed8e67a3cf5dbae0e879d8ffdd1d85f8418fd4483509db32e99c2c0e363017e", size = 593884, upload-time = "2026-01-03T13:09:07.196Z" },
-    { url = "https://files.pythonhosted.org/packages/c8/98/a0ce5176d7613b67d6d5f24b5594603ef2f41205e26f774ab79440ea82e6/notebookx_py-0.1.3-pp310-pypy310_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:cc55143396840964dc71e04a7f6600d4bf7ae7b063e8537b52ce173ea8453967", size = 755524, upload-time = "2026-01-03T13:09:08.963Z" },
+    { url = "https://files.pythonhosted.org/packages/72/3b/d957c8e7b3de994d53c84e35707cdd34effb5895d0229a3978cd1e13501c/notebookx_py-0.1.4-cp38-abi3-macosx_10_12_x86_64.whl", hash = "sha256:a03f0bc8a212a4ab70e12c70ce50fe44827fdf3688d97b535be4de6a2f570623", size = 736900, upload-time = "2026-01-03T15:07:47.541Z" },
+    { url = "https://files.pythonhosted.org/packages/e5/ee/0a0ab96c3059fa1ef07f9bac113d991845cd17b82367c4b8884aadcfa7d5/notebookx_py-0.1.4-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:9ba75f6c387889291b0f47fdfbec56e03f1676fbbb26ef260b419b31c88c42b3", size = 709252, upload-time = "2026-01-03T15:07:49.598Z" },
+    { url = "https://files.pythonhosted.org/packages/06/eb/1ff6be0cc46e295dfbf3a4815181c053152ce9bbe4274c2be4e7413a415b/notebookx_py-0.1.4-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:13710af47aa1ec36133c21458ff98a9a110ac0d5f92535cb70b04c5d0cde7fcc", size = 764274, upload-time = "2026-01-03T15:07:51.884Z" },
+    { url = "https://files.pythonhosted.org/packages/06/a2/5a7a90f884cef894dbca0030aed91dc76f0d1fe39a6713c5a1820a08f75f/notebookx_py-0.1.4-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:807f5d04647f68b8374085a5e3267f916d3c9a42c032720b8de9e6c675cdd18c", size = 788555, upload-time = "2026-01-03T15:07:53.43Z" },
+    { url = "https://files.pythonhosted.org/packages/fb/9e/39e6d503254e185fdef2125c008f7b9a6e1f092bc9f47c920bcdf23f8992/notebookx_py-0.1.4-cp38-abi3-win_amd64.whl", hash = "sha256:01dfd7db0586bd3c183fb5c1334b123cb0a05f84a1d51ebe5d22c2860f942fb8", size = 598200, upload-time = "2026-01-03T15:07:55.158Z" },
+    { url = "https://files.pythonhosted.org/packages/31/d5/92303262ff2e880cf0c231da2f347eab7a61239bb62ba7e60593f6c58b2d/notebookx_py-0.1.4-pp310-pypy310_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:946889ef9c858d4a1a904a73a4bd851c0c0df032107123ccd9541f879867651a", size = 763357, upload-time = "2026-01-03T15:07:57.311Z" },
 ]
 
 [[package]]

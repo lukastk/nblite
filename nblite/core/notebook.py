@@ -205,6 +205,16 @@ class Notebook:
         data = json.loads(ipynb_str)
         return cls.from_dict(data, source_path=source_path)
 
+    def to_notebookx(self) -> notebookx.Notebook:
+        """
+        Convert to a notebookx Notebook instance.
+
+        Returns:
+            notebookx Notebook object
+        """
+        ipynb_str = json.dumps(self.to_dict())
+        return notebookx.Notebook.from_string(ipynb_str, notebookx.Format.Ipynb)
+
     def to_dict(self) -> dict[str, Any]:
         """
         Convert to dictionary (ipynb JSON structure).
@@ -273,6 +283,7 @@ class Notebook:
         Return a cleaned copy of this notebook.
 
         All options default to False (no changes) matching nbx clean behavior.
+        This delegates to notebookx for the actual cleaning.
 
         Args:
             remove_outputs: Remove all outputs from code cells
@@ -288,88 +299,32 @@ class Notebook:
         Returns:
             New Notebook instance with cleaned content
         """
-        # Clean notebook metadata
-        cleaned_nb_metadata = self.metadata.copy()
-        if remove_notebook_metadata:
-            cleaned_nb_metadata = {}
-        elif keep_only_metadata is not None:
-            cleaned_nb_metadata = {
-                k: v for k, v in cleaned_nb_metadata.items() if k in keep_only_metadata
-            }
+        # Convert to notebookx Notebook
+        nbx_nb = self.to_notebookx()
 
-        if remove_kernel_info:
-            cleaned_nb_metadata.pop("kernelspec", None)
-            cleaned_nb_metadata.pop("language_info", None)
+        # Create CleanOptions for notebookx
+        # Map keep_only_metadata to allowed_*_metadata_keys
+        allowed_cell_keys = keep_only_metadata if keep_only_metadata else None
+        allowed_nb_keys = keep_only_metadata if keep_only_metadata else None
 
-        # Create cleaned notebook
-        cleaned_notebook = Notebook(
-            metadata=cleaned_nb_metadata,
-            nbformat=self.nbformat,
-            nbformat_minor=self.nbformat_minor,
-            source_path=self.source_path,
+        clean_options = notebookx.CleanOptions(
+            remove_outputs=remove_outputs,
+            remove_execution_counts=remove_execution_counts,
+            remove_cell_metadata=remove_cell_metadata,
+            remove_notebook_metadata=remove_notebook_metadata,
+            remove_kernel_info=remove_kernel_info,
+            preserve_cell_ids=preserve_cell_ids,
+            remove_output_metadata=remove_output_metadata,
+            remove_output_execution_counts=remove_output_execution_counts,
+            allowed_cell_metadata_keys=allowed_cell_keys,
+            allowed_notebook_metadata_keys=allowed_nb_keys,
         )
 
-        # Clean cells
-        cleaned_cells: list[Cell] = []
-        for i, cell in enumerate(self.cells):
-            # Clean cell metadata
-            cell_metadata = cell.metadata.copy()
-            if remove_cell_metadata:
-                cell_metadata = {}
-            elif keep_only_metadata is not None:
-                cell_metadata = {k: v for k, v in cell_metadata.items() if k in keep_only_metadata}
+        # Clean using notebookx
+        cleaned_nbx = nbx_nb.clean(clean_options)
 
-            # Handle cell ID
-            if not preserve_cell_ids:
-                cell_metadata.pop("id", None)
-
-            # Handle outputs for code cells
-            if cell.is_code:
-                outputs = cell.outputs.copy() if cell.outputs else []
-
-                if remove_outputs:
-                    outputs = []
-                else:
-                    # Clean individual outputs
-                    cleaned_outputs = []
-                    for output in outputs:
-                        cleaned_output = output.copy()
-                        if remove_output_metadata and "metadata" in cleaned_output:
-                            del cleaned_output["metadata"]
-                        if remove_output_execution_counts and "execution_count" in cleaned_output:
-                            del cleaned_output["execution_count"]
-                        cleaned_outputs.append(cleaned_output)
-                    outputs = cleaned_outputs
-
-                # Handle execution count
-                execution_count = cell.execution_count
-                if remove_execution_counts or remove_outputs:
-                    execution_count = None
-
-                new_cell = Cell(
-                    cell_type=cell.cell_type,
-                    source=cell.source,
-                    metadata=cell_metadata,
-                    outputs=outputs,
-                    execution_count=execution_count,
-                    index=i,
-                    notebook=cleaned_notebook,
-                )
-            else:
-                # Non-code cells
-                new_cell = Cell(
-                    cell_type=cell.cell_type,
-                    source=cell.source,
-                    metadata=cell_metadata,
-                    outputs=[],
-                    execution_count=None,
-                    index=i,
-                    notebook=cleaned_notebook,
-                )
-            cleaned_cells.append(new_cell)
-
-        cleaned_notebook.cells = cleaned_cells
-        return cleaned_notebook
+        # Convert back to nblite Notebook
+        return Notebook.from_notebookx(cleaned_nbx, source_path=self.source_path)
 
     @property
     def directives(self) -> dict[str, list[Directive]]:

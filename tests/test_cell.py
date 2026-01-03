@@ -72,14 +72,14 @@ class TestCellCreation:
             cell_type=CellType.CODE,
             source="x = 1",
             metadata={"key": "value"},
-            outputs=[{"output_type": "stream", "text": "1"}],
+            outputs=[{"output_type": "stream", "name": "stdout", "text": "1"}],
             execution_count=1,
         )
         data = cell.to_dict()
         assert data["cell_type"] == "code"
         assert data["source"] == "x = 1"
         assert data["metadata"] == {"key": "value"}
-        assert data["outputs"] == [{"output_type": "stream", "text": "1"}]
+        assert data["outputs"] == [{"output_type": "stream", "name": "stdout", "text": "1"}]
         assert data["execution_count"] == 1
 
     def test_to_dict_markdown(self) -> None:

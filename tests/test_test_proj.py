@@ -265,7 +265,9 @@ class TestDunderFolderExport:
 
         # The notebook should NOT be exported to the module location
         module_path = test_copy / "my_lib" / "test_utils.py"
-        assert not module_path.exists(), "Notebooks in dunder folders should not be exported to modules"
+        assert not module_path.exists(), (
+            "Notebooks in dunder folders should not be exported to modules"
+        )
 
     def test_dunder_folder_exported_to_notebook_format(self, tmp_path: Path) -> None:
         """Test that notebooks in __dunder__ folders ARE exported to other notebook formats."""
@@ -308,7 +310,9 @@ class TestDunderFolderExport:
 
         # The notebook SHOULD be exported to the percent format location
         pct_path = test_copy / "pcts" / "__tests__" / "test_utils.pct.py"
-        assert pct_path.exists(), "Notebooks in dunder folders should still be exported to notebook formats"
+        assert pct_path.exists(), (
+            "Notebooks in dunder folders should still be exported to notebook formats"
+        )
 
     def test_dunder_filename_not_exported_to_module(self, tmp_path: Path) -> None:
         """Test that notebooks with __dunder__ filenames are NOT exported to modules."""
@@ -348,7 +352,9 @@ class TestDunderFolderExport:
 
         # The notebook should NOT be exported to the module location
         module_path = test_copy / "my_lib" / "__private_utils.py"
-        assert not module_path.exists(), "Notebooks with dunder filenames should not be exported to modules"
+        assert not module_path.exists(), (
+            "Notebooks with dunder filenames should not be exported to modules"
+        )
 
     def test_nested_dunder_folder_not_exported_to_module(self, tmp_path: Path) -> None:
         """Test that notebooks in nested dunder folders are NOT exported to modules."""
@@ -391,7 +397,9 @@ class TestDunderFolderExport:
 
         # The notebook should NOT be exported to the module location
         module_path = test_copy / "my_lib" / "unit_tests.py"
-        assert not module_path.exists(), "Notebooks in nested dunder folders should not be exported to modules"
+        assert not module_path.exists(), (
+            "Notebooks in nested dunder folders should not be exported to modules"
+        )
 
     def test_get_notebook_twins_excludes_module_for_dunder(self, tmp_path: Path) -> None:
         """Test that get_notebook_twins excludes module twin for dunder folder notebooks."""
@@ -437,10 +445,12 @@ class TestDunderFolderExport:
 
         # Should have twin in pcts but NOT in lib (module)
         twin_paths = [str(t) for t in twins]
-        assert any("pcts" in p and "test_utils.pct.py" in p for p in twin_paths), \
+        assert any("pcts" in p and "test_utils.pct.py" in p for p in twin_paths), (
             "Dunder folder notebooks should have pcts twins"
-        assert not any("my_lib" in p for p in twin_paths), \
+        )
+        assert not any("my_lib" in p for p in twin_paths), (
             "Dunder folder notebooks should NOT have module twins"
+        )
 
 
 class TestNotebookTwins:

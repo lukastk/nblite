@@ -641,7 +641,7 @@ class NbliteProject:
                 continue
 
             cleaned = nb.clean(**clean_opts)
-            content = json.dumps(cleaned.to_dict(), indent=2)
+            content = json.dumps(cleaned.to_dict(), indent=2) + "\n"
             nb.source_path.write_text(content)
             cleaned_notebooks.append(nb.source_path)
 

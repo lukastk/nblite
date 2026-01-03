@@ -40,6 +40,7 @@ class Cell:
         metadata: Cell metadata dictionary
         outputs: Cell outputs (for code cells)
         execution_count: Execution count (for code cells)
+        id: Cell ID (nbformat 4.5+)
         index: Cell index in the notebook
         notebook: Reference to the parent notebook (optional)
 
@@ -56,6 +57,7 @@ class Cell:
     metadata: dict[str, Any] = field(default_factory=dict)
     outputs: list[dict[str, Any]] = field(default_factory=list)
     execution_count: int | None = None
+    id: str | None = None
     index: int = 0
     notebook: Notebook | None = field(default=None, repr=False)
 
@@ -90,6 +92,7 @@ class Cell:
             metadata=data.get("metadata", {}),
             outputs=data.get("outputs", []),
             execution_count=data.get("execution_count"),
+            id=data.get("id"),
             index=index,
             notebook=notebook,
         )
@@ -106,6 +109,10 @@ class Cell:
             "source": self.source,
             "metadata": self.metadata,
         }
+
+        # Include cell ID if present (nbformat 4.5+)
+        if self.id is not None:
+            result["id"] = self.id
 
         if self.cell_type == CellType.CODE:
             result["outputs"] = self.outputs

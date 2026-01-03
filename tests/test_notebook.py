@@ -351,8 +351,10 @@ class TestFormat:
         assert Format.from_path(Path("test.pct.py")) == Format.PERCENT
 
     def test_from_path_py(self) -> None:
-        """Test format detection for .py."""
-        assert Format.from_path(Path("test.py")) == Format.PERCENT
+        """Test format detection for plain .py (unknown format defaults to IPYNB)."""
+        # Plain .py files are not recognized as a notebook format by notebookx
+        # Only .pct.py files are recognized as percent format
+        assert Format.from_path(Path("test.py")) == Format.IPYNB
 
     def test_from_extension(self) -> None:
         """Test format from extension."""

@@ -27,32 +27,39 @@ class Format:
 
     @classmethod
     def from_extension(cls, ext: str) -> str:
-        """Get format from file extension."""
-        ext = ext.lower().lstrip(".")
-        if ext == "ipynb":
-            return cls.IPYNB
-        elif ext in ("pct.py", "py") or ext.endswith(".pct.py"):
-            return cls.PERCENT
-        return cls.IPYNB
+        """Get format from file extension.
+
+        Delegates to notebookx.format_from_extension().
+        """
+        nbx_fmt = notebookx.format_from_extension(ext)
+        if nbx_fmt is not None:
+            return cls.from_notebookx(nbx_fmt)
+        return cls.IPYNB  # Default fallback
 
     @classmethod
     def from_path(cls, path: Path) -> str:
-        """Infer format from file path."""
-        name = path.name.lower()
-        if name.endswith(".pct.py"):
-            return cls.PERCENT
-        elif name.endswith(".ipynb"):
-            return cls.IPYNB
-        elif name.endswith(".py"):
-            return cls.PERCENT
-        return cls.IPYNB
+        """Infer format from file path.
+
+        Delegates to notebookx.format_from_path().
+        """
+        nbx_fmt = notebookx.format_from_path(str(path))
+        if nbx_fmt is not None:
+            return cls.from_notebookx(nbx_fmt)
+        return cls.IPYNB  # Default fallback
 
     @classmethod
     def to_notebookx(cls, fmt: str) -> notebookx.Format:
-        """Convert to notebookx Format."""
+        """Convert string format to notebookx Format enum."""
         if fmt == cls.PERCENT:
             return notebookx.Format.Percent
         return notebookx.Format.Ipynb
+
+    @classmethod
+    def from_notebookx(cls, fmt: notebookx.Format) -> str:
+        """Convert notebookx Format enum to string format."""
+        if fmt == notebookx.Format.Percent:
+            return cls.PERCENT
+        return cls.IPYNB
 
 
 @dataclass

@@ -25,7 +25,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "notebookx-py>=0.1.0",
+    "notebookx-py>=1.0.3",
     "pydantic>=2.0.0",
     "typer>=0.9.0",
     "rich>=13.0.0",
@@ -106,3 +106,6 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+
+[tool.uv.sources]
+notebookx-py = { path = "../20251229_kahguh__notebookx", editable = true }

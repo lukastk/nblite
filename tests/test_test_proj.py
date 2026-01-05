@@ -11,8 +11,8 @@ from nblite.config.schema import CodeLocationFormat
 from nblite.core.notebook import Notebook
 from nblite.core.project import NbliteProject
 
-# Path to the test_proj directory
-TEST_PROJ_PATH = Path(__file__).parent.parent / "test_proj"
+# Path to the test project directory
+TEST_PROJ_PATH = Path(__file__).parent.parent / "example_projects" / "00_basic"
 
 
 class TestProjectLoading:

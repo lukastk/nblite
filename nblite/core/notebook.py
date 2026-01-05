@@ -277,19 +277,21 @@ class Notebook:
         self,
         *,
         remove_outputs: bool = False,
-        remove_execution_counts: bool = False,
-        remove_cell_metadata: bool = False,
+        remove_execution_counts: bool = True,
+        remove_cell_metadata: bool = True,
         remove_notebook_metadata: bool = False,
         remove_kernel_info: bool = False,
         preserve_cell_ids: bool = True,
-        remove_output_metadata: bool = False,
-        remove_output_execution_counts: bool = False,
+        remove_output_metadata: bool = True,
+        remove_output_execution_counts: bool = True,
         keep_only_metadata: list[str] | None = None,
     ) -> Notebook:
         """
         Return a cleaned copy of this notebook.
 
-        All options default to False (no changes) matching nbx clean behavior.
+        Defaults are based on notebookx.CleanOptions.for_vcs() which provides
+        sensible defaults for version control. Note: preserve_cell_ids defaults
+        to True (unlike for_vcs) for idempotency.
         This delegates to notebookx for the actual cleaning.
 
         Args:

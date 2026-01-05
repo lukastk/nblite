@@ -150,17 +150,17 @@ class TestGitConfig:
 
 class TestCleanConfig:
     def test_clean_config_defaults(self) -> None:
-        """Test clean config default values (all removal options False by default)."""
+        """Test clean config default values (based on for_vcs() defaults)."""
         cc = CleanConfig()
-        # All removal options default to False (matching nbx clean behavior)
-        assert cc.remove_outputs is False
-        assert cc.remove_execution_counts is False
-        assert cc.remove_cell_metadata is False
-        assert cc.remove_notebook_metadata is False
-        assert cc.remove_kernel_info is False
-        assert cc.preserve_cell_ids is True
-        assert cc.remove_output_metadata is False
-        assert cc.remove_output_execution_counts is False
+        # Defaults based on notebookx.CleanOptions.for_vcs() for VCS-friendly cleaning
+        assert cc.remove_outputs is False  # Keep outputs
+        assert cc.remove_execution_counts is True  # Remove for clean diffs
+        assert cc.remove_cell_metadata is True  # Remove for clean diffs
+        assert cc.remove_notebook_metadata is False  # Keep notebook metadata
+        assert cc.remove_kernel_info is False  # Keep kernel info
+        assert cc.preserve_cell_ids is True  # Preserve for idempotency
+        assert cc.remove_output_metadata is True  # Remove for clean diffs
+        assert cc.remove_output_execution_counts is True  # Remove for clean diffs
         assert cc.keep_only_metadata is None
         # Exclusion options still default to True
         assert cc.exclude_dunders is True

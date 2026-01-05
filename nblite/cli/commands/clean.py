@@ -59,13 +59,15 @@ def clean(
 ) -> None:
     """Clean notebooks by removing outputs and metadata.
 
-    By default, no changes are made unless options are specified.
-    Options can also be configured in nblite.toml under [clean].
+    By default, uses sensible VCS defaults: removes execution counts, cell
+    metadata, output metadata, and output execution counts. Outputs and
+    kernel info are preserved. Options can be configured in nblite.toml
+    under [clean].
 
     Examples:
-        nbl clean -O                    # Remove outputs
-        nbl clean -O -e                 # Remove outputs and execution counts
-        nbl clean --remove-cell-metadata
+        nbl clean                       # Clean with VCS defaults
+        nbl clean -O                    # Also remove outputs
+        nbl clean --remove-kernel-info  # Also remove kernel info
     """
     project = get_project(ctx)
 

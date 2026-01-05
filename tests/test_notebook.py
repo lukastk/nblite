@@ -317,14 +317,14 @@ class TestNotebookClean:
         # Cleaned has no outputs
         assert len(cleaned.cells[0].outputs) == 0
 
-    def test_clean_preserves_outputs_by_default(self) -> None:
-        """Test clean preserves outputs by default (matching nbx behavior)."""
+    def test_clean_vcs_defaults(self) -> None:
+        """Test clean uses VCS-friendly defaults (based on for_vcs())."""
         data = {
             "cells": [
                 {
                     "cell_type": "code",
                     "source": "print(1)",
-                    "metadata": {},
+                    "metadata": {"scrolled": True},
                     "outputs": [{"output_type": "stream", "name": "stdout", "text": "1"}],
                     "execution_count": 1,
                 },
@@ -334,11 +334,14 @@ class TestNotebookClean:
             "nbformat_minor": 5,
         }
         nb = Notebook.from_dict(data)
-        cleaned = nb.clean()  # No options = no changes
+        cleaned = nb.clean()  # Uses VCS-friendly defaults
 
-        # Outputs should be preserved
+        # Outputs should be preserved (remove_outputs=False)
         assert len(cleaned.cells[0].outputs) == 1
-        assert cleaned.cells[0].execution_count == 1
+        # Execution count should be removed (remove_execution_counts=True)
+        assert cleaned.cells[0].execution_count is None
+        # Cell metadata should be removed (remove_cell_metadata=True)
+        assert cleaned.cells[0].metadata == {}
 
 
 class TestFormat:

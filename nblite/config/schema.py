@@ -174,7 +174,11 @@ class CleanConfig(BaseModel):
     """
     Configuration for notebook cleaning.
 
-    All removal options default to False (matching nbx clean behavior).
+    Defaults are based on notebookx.CleanOptions.for_vcs() which provides
+    sensible defaults for version control (removes execution counts and
+    metadata that causes noisy diffs, but preserves outputs and kernel info).
+
+    Note: preserve_cell_ids defaults to True (unlike for_vcs) for idempotency.
 
     Attributes:
         remove_outputs: Remove all outputs from code cells
@@ -195,11 +199,11 @@ class CleanConfig(BaseModel):
         description="Remove all outputs from code cells",
     )
     remove_execution_counts: bool = Field(
-        default=False,
+        default=True,
         description="Remove execution counts from code cells",
     )
     remove_cell_metadata: bool = Field(
-        default=False,
+        default=True,
         description="Remove cell-level metadata",
     )
     remove_notebook_metadata: bool = Field(
@@ -215,11 +219,11 @@ class CleanConfig(BaseModel):
         description="Preserve cell IDs",
     )
     remove_output_metadata: bool = Field(
-        default=False,
+        default=True,
         description="Remove metadata from outputs (ExecuteResult, DisplayData)",
     )
     remove_output_execution_counts: bool = Field(
-        default=False,
+        default=True,
         description="Remove execution counts from output results",
     )
     keep_only_metadata: list[str] | None = Field(

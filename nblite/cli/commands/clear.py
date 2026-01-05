@@ -6,7 +6,6 @@ Clears code locations downstream from a specified location.
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Annotated
 
 import typer
@@ -115,7 +114,6 @@ def _get_top_level_code_locations(project) -> set[str]:
     A top-level code location is one that appears only as a source (from_key)
     in the export pipeline, never as a destination (to_key).
     """
-    from nblite.core.project import NbliteProject
 
     # Collect all destination keys
     destination_keys: set[str] = set()

@@ -1,0 +1,19 @@
+# %% [markdown]
+# # {{ title or module_name | title | replace("_", " ") }}
+#
+# A simple script notebook.
+
+# %%
+{% if not no_export %}#|default_exp {{ module_name }}{% endif %}
+
+# %%
+{% if not no_export %}#|export{% endif %}
+
+def main():
+    """Main entry point."""
+    print("Hello from {{ module_name }}!")
+    return 0
+
+# %%
+if __name__ == "__main__":
+    main()

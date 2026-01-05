@@ -1,0 +1,26 @@
+# Multi-Pipeline Example
+# Demonstrates complex multi-branch export pipelines
+
+export_pipeline = """
+nbs -> pcts
+nbs -> lib
+pcts -> lib_alt
+"""
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.pcts]
+path = "pcts"
+format = "percent"
+
+[cl.lib]
+path = "mypackage"
+format = "module"
+export_mode = "percent"  # With cell markers
+
+[cl.lib_alt]
+path = "mypackage_alt"
+format = "module"
+export_mode = "py"  # Clean Python

@@ -1,0 +1,21 @@
+# Export Modes Example
+# Demonstrates the difference between 'percent' and 'py' export modes
+
+export_pipeline = """
+nbs -> lib_percent
+nbs -> lib_plain
+"""
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.lib_percent]
+path = "mypackage_percent"
+format = "module"
+export_mode = "percent"  # Includes cell markers like: # %% ../nbs/utils.ipynb 3
+
+[cl.lib_plain]
+path = "mypackage_plain"
+format = "module"
+export_mode = "py"  # Clean Python without any cell references

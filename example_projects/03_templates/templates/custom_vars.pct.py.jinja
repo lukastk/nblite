@@ -1,0 +1,22 @@
+# %% [markdown]
+# # {{ title or module_name | title | replace("_", " ") }}
+#
+# Author: {{ author | default("Unknown") }}
+# Version: {{ version | default("0.1.0") }}
+# Description: {{ description | default("No description provided") }}
+
+# %%
+{% if not no_export %}#|default_exp {{ module_name }}{% endif %}
+
+# %%
+{% if not no_export %}#|export{% endif %}
+
+__author__ = "{{ author | default('Unknown') }}"
+__version__ = "{{ version | default('0.1.0') }}"
+
+# %%
+{% if not no_export %}#|export{% endif %}
+
+def hello():
+    """Say hello."""
+    return f"Hello from {{ module_name }} v{__version__}!"

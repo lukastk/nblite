@@ -1,0 +1,29 @@
+# %% [markdown]
+# # {{ title or module_name | title | replace("_", " ") }}
+#
+# Data analysis notebook.
+
+# %%
+{% if not no_export %}#|default_exp {{ module_name }}{% endif %}
+
+# %% [markdown]
+# ## Setup
+
+# %%
+{% if not no_export %}#|export{% endif %}
+
+import pandas as pd
+import numpy as np
+
+# %% [markdown]
+# ## Load Data
+
+# %%
+# Load your data here
+# df = pd.read_csv("data.csv")
+
+# %% [markdown]
+# ## Analysis
+
+# %%
+# Your analysis code here

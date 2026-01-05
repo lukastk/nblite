@@ -1,0 +1,16 @@
+# Extensions Example
+# Demonstrates the nblite hook/extension system
+
+export_pipeline = "nbs -> lib"
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.lib]
+path = "mypackage"
+format = "module"
+
+# Load extension from file path
+[[extensions]]
+path = "nblite_ext.py"

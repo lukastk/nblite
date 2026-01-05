@@ -1,0 +1,19 @@
+# Fill Execution Example
+# Demonstrates notebook execution configuration
+
+export_pipeline = ""
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+# Fill (execution) configuration
+[fill]
+timeout = 60                       # 60 second timeout per cell
+n_workers = 2                      # Parallel execution workers
+skip_unchanged = true              # Skip notebooks that haven't changed
+remove_outputs_first = false       # Don't clear outputs before running
+code_locations = ["nbs"]           # Only fill nbs location
+exclude_patterns = ["scratch/*"]   # Exclude scratch notebooks
+exclude_dunders = true
+exclude_hidden = true

@@ -1,0 +1,12 @@
+# Directives Showcase Example
+# Demonstrates all built-in nblite directives
+
+export_pipeline = "nbs -> lib"
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.lib]
+path = "mypackage"
+format = "module"

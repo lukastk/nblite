@@ -1,0 +1,21 @@
+# Clean Options Example
+# Demonstrates various notebook cleaning configurations
+
+export_pipeline = ""
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+# Cleaning configuration
+[clean]
+remove_outputs = true               # Remove cell outputs
+remove_execution_counts = true      # Remove [1], [2], etc.
+remove_cell_metadata = false        # Keep cell metadata
+remove_notebook_metadata = false    # Keep notebook metadata
+remove_kernel_info = false          # Keep kernel info
+preserve_cell_ids = true            # Keep cell IDs for stable diffs
+remove_output_metadata = true       # Clean output metadata
+remove_output_execution_counts = true
+exclude_dunders = true              # Skip __*.ipynb files
+exclude_hidden = true               # Skip .*.ipynb files

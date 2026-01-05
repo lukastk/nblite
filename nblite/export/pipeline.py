@@ -125,13 +125,20 @@ def export_notebook_to_module(
     module_depth = 0
     if package_name:
         try:
-            # Get the path relative to project root, then relative to package
+            # Get the path relative to project root
             rel_to_project = output_path.relative_to(project_root)
-            # The package is the first part, count remaining directory depth
             parts = rel_to_project.parts
-            if parts and parts[0] == package_name:
-                # Subtract 1 for package dir, subtract 1 for filename
-                module_depth = len(parts) - 2
+            # Find where the package name appears in the path
+            # (it may not be at index 0 if package is inside src/ or similar)
+            try:
+                pkg_index = parts.index(package_name)
+                # module_depth = number of directories after the package, minus the filename
+                # e.g., src/my_lib/submodule/utils.py with my_lib at index 1:
+                #   parts after package = ('submodule', 'utils.py'), depth = 1
+                module_depth = len(parts) - pkg_index - 2
+            except ValueError:
+                # Package name not found in path
+                pass
         except ValueError:
             pass
 

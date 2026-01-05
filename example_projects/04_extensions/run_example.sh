@@ -14,14 +14,14 @@ head -30 nblite_ext.py
 echo "..."
 echo ""
 
-# Clean notebooks
-echo "Cleaning notebooks..."
-nbl clean
-echo ""
-
 # Fill notebooks (execute and save outputs)
 echo "Filling notebooks..."
 nbl fill
+echo ""
+
+# Clean notebooks (remove execution metadata added by fill)
+echo "Cleaning notebooks..."
+nbl clean
 echo ""
 
 # Clear any existing exports

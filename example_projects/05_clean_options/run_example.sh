@@ -22,15 +22,15 @@ for i, cell in enumerate(nb['cells']):
 "
 
 echo ""
-echo "Running nbl clean..."
-nbl clean
-
-echo ""
 echo "Running nbl fill..."
 nbl fill
 
 echo ""
-echo "After cleaning:"
+echo "Running nbl clean..."
+nbl clean
+
+echo ""
+echo "After fill and clean:"
 echo "==============="
 python -c "
 import json

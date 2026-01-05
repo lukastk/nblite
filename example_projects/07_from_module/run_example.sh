@@ -51,14 +51,14 @@ echo ""
 echo "=== Running clean and export ==="
 echo ""
 
-# Clean notebooks
-echo "Cleaning notebooks..."
-nbl clean
-echo ""
-
 # Fill notebooks (execute and save outputs)
 echo "Filling notebooks..."
 nbl fill
+echo ""
+
+# Clean notebooks (remove execution metadata added by fill)
+echo "Cleaning notebooks..."
+nbl clean
 echo ""
 
 # Run export

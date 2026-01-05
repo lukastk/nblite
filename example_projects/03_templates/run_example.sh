@@ -52,17 +52,12 @@ echo ""
 nbl convert nbs/versioned.ipynb --format percent --stdout 2>/dev/null || cat nbs/versioned.ipynb
 
 echo ""
-echo "=== Running fill, clean, and export ==="
+echo "=== Running fill and export ==="
 echo ""
 
-# Fill notebooks (execute and save outputs)
+# Fill notebooks (execute and save outputs, auto-cleans)
 echo "Filling notebooks..."
 nbl fill
-echo ""
-
-# Clean notebooks (remove execution metadata added by fill)
-echo "Cleaning notebooks..."
-nbl clean
 echo ""
 
 # Clear any existing exports

@@ -128,6 +128,8 @@ def fill_notebook(
     working_dir: Path | str | None = None,
     dry_run: bool = False,
     remove_outputs_first: bool = False,
+    clean: bool = True,
+    save_hash: bool = True,
 ) -> FillResult:
     """
     Execute a notebook and fill its outputs.
@@ -138,6 +140,10 @@ def fill_notebook(
         working_dir: Working directory for execution (default: notebook's directory).
         dry_run: If True, execute but don't save the notebook.
         remove_outputs_first: If True, clear existing outputs before execution.
+        clean: If True, clean the notebook after execution (removes execution
+            metadata for cleaner VCS diffs). Cleaning happens before hash is
+            computed to ensure hash validity.
+        save_hash: If True, save the notebook hash in metadata for change detection.
 
     Returns:
         FillResult with status and any error information.
@@ -190,18 +196,21 @@ def fill_notebook(
         # Restore skipped cells
         nb = _restore_skipped_cells(nb, skipped_indices)
 
-        # Calculate and store new hash
-        # We need to create a temporary Notebook to calculate the hash
-        # First, save to get consistent format
         if not dry_run:
-            # Update the hash in metadata
-            nb_for_hash = Notebook.from_dict(dict(nb))
-            new_hash = get_notebook_hash(nb_for_hash)
-            nb.metadata[HASH_METADATA_KEY] = new_hash
+            # Convert to nblite Notebook for cleaning and hash calculation
+            nb_obj = Notebook.from_dict(dict(nb))
+
+            # Clean the notebook if requested (must happen BEFORE hash calculation)
+            if clean:
+                nb_obj = nb_obj.clean()
+
+            # Calculate and store new hash if requested
+            if save_hash:
+                new_hash = get_notebook_hash(nb_obj)
+                nb_obj.metadata[HASH_METADATA_KEY] = new_hash
 
             # Write back to file
-            with open(path, "w", encoding="utf-8") as f:
-                nbformat.write(nb, f)
+            nb_obj.to_file(path)
 
         return FillResult(
             status=FillStatus.SUCCESS,
@@ -224,6 +233,8 @@ def fill_notebooks(
     timeout: int | None = None,
     dry_run: bool = False,
     remove_outputs_first: bool = False,
+    clean: bool = True,
+    save_hash: bool = True,
     skip_unchanged: bool = True,
     n_workers: int = 1,
     on_progress: callable | None = None,
@@ -236,6 +247,8 @@ def fill_notebooks(
         timeout: Cell execution timeout in seconds.
         dry_run: If True, execute but don't save notebooks.
         remove_outputs_first: If True, clear existing outputs before execution.
+        clean: If True, clean notebooks after execution.
+        save_hash: If True, save notebook hash in metadata.
         skip_unchanged: If True, skip notebooks that haven't changed.
         n_workers: Number of parallel workers (1 = sequential).
         on_progress: Optional callback(path, result) for progress updates.
@@ -279,6 +292,8 @@ def fill_notebooks(
             timeout=timeout,
             dry_run=dry_run,
             remove_outputs_first=remove_outputs_first,
+            clean=clean,
+            save_hash=save_hash,
         )
         if on_progress:
             on_progress(path, result)

@@ -21,6 +21,8 @@ def _run_fill(
     n_workers: int,
     fill_unchanged: bool,
     remove_outputs_first: bool,
+    clean: bool,
+    save_hash: bool,
     exclude_dunders: bool,
     exclude_hidden: bool,
     dry_run: bool,
@@ -165,6 +167,8 @@ def _run_fill(
             timeout=timeout,
             dry_run=dry_run,
             remove_outputs_first=remove_outputs_first,
+            clean=clean,
+            save_hash=save_hash,
         )
         if result.status == FillStatus.SUCCESS:
             task_statuses[nb_path] = ("ok", "Success")
@@ -266,6 +270,14 @@ def fill(
         bool,
         typer.Option("--remove-outputs", help="Remove existing outputs before fill"),
     ] = False,
+    clean: Annotated[
+        bool,
+        typer.Option("--clean/--no-clean", help="Clean notebook after fill (removes execution metadata)"),
+    ] = True,
+    save_hash: Annotated[
+        bool,
+        typer.Option("--hash/--no-hash", help="Save notebook hash for change detection"),
+    ] = True,
     include_dunders: Annotated[
         bool,
         typer.Option("--include-dunders", help="Include __* notebooks"),
@@ -293,6 +305,10 @@ def fill(
     to track changes and skip unchanged notebooks (use --fill-unchanged
     to override).
 
+    By default, notebooks are cleaned after execution to remove execution
+    metadata (timestamps, execution counts) for cleaner VCS diffs. Use
+    --no-clean to disable this.
+
     By default, nbl_export() calls in notebooks are disabled during fill
     to prevent interference with notebook execution. Use --allow-export
     to enable them.
@@ -312,6 +328,8 @@ def fill(
         n_workers=n_workers,
         fill_unchanged=fill_unchanged,
         remove_outputs_first=remove_outputs_first,
+        clean=clean,
+        save_hash=save_hash,
         exclude_dunders=not include_dunders,
         exclude_hidden=not include_hidden,
         dry_run=dry_run,
@@ -382,6 +400,8 @@ def test(
         n_workers=n_workers,
         fill_unchanged=fill_unchanged,
         remove_outputs_first=False,
+        clean=True,  # Doesn't matter for dry_run but keep default
+        save_hash=True,  # Doesn't matter for dry_run but keep default
         exclude_dunders=not include_dunders,
         exclude_hidden=not include_hidden,
         dry_run=True,  # Always dry run for test

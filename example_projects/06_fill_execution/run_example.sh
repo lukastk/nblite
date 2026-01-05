@@ -36,10 +36,6 @@ for nb_name in ['runnable.ipynb', 'quick_test.ipynb']:
 "
 
 echo ""
-echo "Cleaning notebooks (remove execution metadata)..."
-nbl clean
-
-echo ""
 echo "Running export (no pipeline configured, so this is a no-op)..."
 nbl export
 

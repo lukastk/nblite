@@ -8,14 +8,9 @@ cd "$(dirname "$0")"
 echo "=== Directives Showcase Example ==="
 echo ""
 
-# Fill notebooks (execute and save outputs)
+# Fill notebooks (execute and save outputs, auto-cleans)
 echo "Filling notebooks..."
 nbl fill
-echo ""
-
-# Clean notebooks (remove execution metadata added by fill)
-echo "Cleaning notebooks..."
-nbl clean
 echo ""
 
 # Clear any existing exports

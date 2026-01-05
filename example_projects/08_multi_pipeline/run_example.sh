@@ -12,14 +12,9 @@ echo "Pipeline configuration:"
 grep -A 5 "export_pipeline" nblite.toml
 echo ""
 
-# Fill notebooks (execute and save outputs)
+# Fill notebooks (execute and save outputs, auto-cleans)
 echo "Filling notebooks..."
 nbl fill
-echo ""
-
-# Clean notebooks (remove execution metadata added by fill)
-echo "Cleaning notebooks..."
-nbl clean
 echo ""
 
 # Clear existing exports

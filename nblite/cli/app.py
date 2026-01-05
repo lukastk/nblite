@@ -17,6 +17,7 @@ from nblite.cli._helpers import CONFIG_PATH_KEY, version_callback
 
 # Import command functions
 from nblite.cli.commands.clean import clean
+from nblite.cli.commands.clear import clear
 from nblite.cli.commands.convert import convert
 from nblite.cli.commands.docs import preview_docs_cmd, render_docs_cmd
 from nblite.cli.commands.export import export
@@ -77,6 +78,7 @@ app.command()(init)
 app.command()(new)
 app.command()(export)
 app.command()(clean)
+app.command()(clear)
 app.command()(convert)
 app.command("from-module")(from_module_cmd)
 app.command()(info)

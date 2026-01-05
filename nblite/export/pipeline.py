@@ -18,6 +18,7 @@ from nblite.extensions import HookRegistry, HookType
 __all__ = [
     "export_notebook_to_notebook",
     "export_notebook_to_module",
+    "get_export_targets",
     "ExportResult",
 ]
 
@@ -76,6 +77,7 @@ def export_notebook_to_module(
     include_warning: bool = True,
     cell_reference_style: str = "relative",
     package_name: str | None = None,
+    target_module: str | None = None,
 ) -> None:
     """
     Export a notebook to a Python module.
@@ -90,6 +92,9 @@ def export_notebook_to_module(
         package_name: Package name for converting absolute imports to relative imports.
             If provided, imports like "from {package_name}.X import Y" will be
             converted to relative imports like "from .X import Y".
+        target_module: If specified, only export cells targeting this module.
+            Cells with #|export go to default_exp, cells with #|export_to
+            go to their specified module.
     """
     output_path = Path(output_path)
     project_root = Path(project_root)
@@ -132,7 +137,7 @@ def export_notebook_to_module(
 
     # Collect exported cells
     exported_content = _collect_exported_content(
-        notebook, export_mode, source_ref, package_name, module_depth
+        notebook, export_mode, source_ref, package_name, module_depth, target_module
     )
 
     # Build module content
@@ -158,12 +163,59 @@ def export_notebook_to_module(
     output_path.write_text("\n".join(lines))
 
 
+def get_export_targets(notebook: Notebook) -> dict[str, list[int]]:
+    """
+    Get all export target modules from a notebook.
+
+    Returns a dict mapping module paths to lists of cell indices.
+    - Cells with #|export or #|exporti use the notebook's default_exp (key: "" if no default_exp)
+    - Cells with #|export_to use the specified module path
+
+    Args:
+        notebook: Source notebook
+
+    Returns:
+        Dict mapping module paths to cell indices. Key "" means default_exp target.
+    """
+    targets: dict[str, list[int]] = {}
+    default_exp = notebook.default_exp
+
+    for cell in notebook.cells:
+        if not cell.is_code:
+            continue
+
+        has_export = cell.has_directive("export") or cell.has_directive("exporti")
+        has_export_to = cell.has_directive("export_to")
+
+        if not (has_export or has_export_to):
+            continue
+
+        if has_export_to:
+            # Use the module specified in export_to
+            export_to_directive = cell.get_directive("export_to")
+            if export_to_directive and export_to_directive.value_parsed:
+                target_module = export_to_directive.value_parsed.get("module", "")
+                if target_module:
+                    if target_module not in targets:
+                        targets[target_module] = []
+                    targets[target_module].append(cell.index)
+        elif has_export:
+            # Use default_exp target (empty string as key if no default_exp)
+            target_key = default_exp or ""
+            if target_key not in targets:
+                targets[target_key] = []
+            targets[target_key].append(cell.index)
+
+    return targets
+
+
 def _collect_exported_content(
     notebook: Notebook,
     export_mode: ExportMode,
     source_ref: str,
     package_name: str | None = None,
     module_depth: int = 0,
+    target_module: str | None = None,
 ) -> str:
     """
     Collect content from exported cells.
@@ -174,12 +226,16 @@ def _collect_exported_content(
         source_ref: Source reference string for cell markers
         package_name: Package name for import transformation
         module_depth: Depth of module within package (for relative imports)
+        target_module: If specified, only include cells targeting this module.
+                       Cells with #|export go to default_exp, cells with #|export_to
+                       go to their specified module.
 
     Hooks triggered:
         PRE_CELL_EXPORT: Before each cell export (cell=cell, notebook=notebook)
         POST_CELL_EXPORT: After each cell export (cell=cell, notebook=notebook, source=str)
     """
     parts: list[str] = []
+    default_exp = notebook.default_exp
 
     for cell in notebook.cells:
         if not cell.is_code:
@@ -191,6 +247,19 @@ def _collect_exported_content(
 
         if not (has_export or has_export_to):
             continue
+
+        # Filter by target module if specified
+        if target_module is not None:
+            cell_target = None
+            if has_export_to:
+                export_to_directive = cell.get_directive("export_to")
+                if export_to_directive and export_to_directive.value_parsed:
+                    cell_target = export_to_directive.value_parsed.get("module", "")
+            elif has_export:
+                cell_target = default_exp
+
+            if cell_target != target_module:
+                continue
 
         # Get source without directives
         source = cell.source_without_directives.strip()

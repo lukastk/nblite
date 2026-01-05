@@ -44,4 +44,16 @@ echo ""
 cat mypackage/data_processor.py
 
 echo ""
+echo "=== Sample Output: standalone_utils.py ==="
+echo "Created from notebook with #|export_to but NO #|default_exp:"
+echo ""
+cat mypackage/standalone_utils.py
+
+echo ""
+echo "=== Sample Output: separate_module.py ==="
+echo "Also from the same notebook - exports to multiple modules:"
+echo ""
+cat mypackage/separate_module.py
+
+echo ""
 echo "=== Example complete ==="

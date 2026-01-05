@@ -9,7 +9,9 @@ Directives are special comments in notebook cells that control behavior:
 
 from __future__ import annotations
 
+import io
 import re
+import tokenize
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
@@ -149,6 +151,71 @@ def _has_code_before(lines: list[str], line_num: int) -> bool:
     return False
 
 
+def _get_string_ranges(source: str) -> list[tuple[int, int, int, int]]:
+    """
+    Get the ranges of all string literals in the source code.
+
+    Uses Python's tokenize module to accurately identify strings,
+    including multi-line strings, f-strings, raw strings, etc.
+
+    Args:
+        source: Python source code
+
+    Returns:
+        List of (start_row, start_col, end_row, end_col) tuples.
+        Rows are 1-indexed (as returned by tokenize).
+    """
+    ranges: list[tuple[int, int, int, int]] = []
+    try:
+        tokens = tokenize.generate_tokens(io.StringIO(source).readline)
+        for tok in tokens:
+            if tok.type == tokenize.STRING:
+                # tok.start and tok.end are (row, col) tuples, 1-indexed rows
+                ranges.append((tok.start[0], tok.start[1], tok.end[0], tok.end[1]))
+    except tokenize.TokenizeError:
+        # Handle incomplete/invalid Python code gracefully
+        # Return empty list - directives will be parsed normally
+        pass
+    return ranges
+
+
+def _is_position_in_string(
+    line_num_0indexed: int,
+    col: int,
+    string_ranges: list[tuple[int, int, int, int]],
+) -> bool:
+    """
+    Check if a position (line, col) falls inside any string range.
+
+    Args:
+        line_num_0indexed: 0-indexed line number
+        col: Column position (0-indexed)
+        string_ranges: List of (start_row, start_col, end_row, end_col),
+                       where rows are 1-indexed
+
+    Returns:
+        True if the position is inside a string literal
+    """
+    # Convert to 1-indexed for comparison with tokenize output
+    line_num = line_num_0indexed + 1
+
+    for start_row, start_col, end_row, end_col in string_ranges:
+        # Check if position is within this string range
+        if start_row == end_row:
+            # Single-line string
+            if line_num == start_row and start_col <= col < end_col:
+                return True
+        else:
+            # Multi-line string
+            if line_num == start_row and col >= start_col:
+                return True
+            elif line_num == end_row and col < end_col:
+                return True
+            elif start_row < line_num < end_row:
+                return True
+    return False
+
+
 def parse_directives_from_source(
     source: str,
     validate: bool = False,
@@ -174,6 +241,9 @@ def parse_directives_from_source(
     directives: list[Directive] = []
     lines = source.split("\n")
 
+    # Get string ranges to avoid parsing directives inside strings
+    string_ranges = _get_string_ranges(source)
+
     i = 0
     while i < len(lines):
         line = lines[i]
@@ -182,6 +252,15 @@ def parse_directives_from_source(
 
         if match:
             py_code = match.group("py_code") or ""
+
+            # Check if the #| is inside a string literal
+            # The #| starts at the end of py_code
+            directive_col = len(py_code)
+            if _is_position_in_string(directive_start_line, directive_col, string_ranges):
+                # Skip this match - it's inside a string
+                i += 1
+                continue
+
             name = match.group("name")
             value = match.group("value") or ""
 
@@ -260,6 +339,9 @@ def get_source_without_directives(source: str) -> str:
     lines = source.split("\n")
     result_lines: list[str] = []
 
+    # Get string ranges to avoid treating directives inside strings as real directives
+    string_ranges = _get_string_ranges(source)
+
     i = 0
     while i < len(lines):
         line = lines[i]
@@ -267,6 +349,15 @@ def get_source_without_directives(source: str) -> str:
 
         if match:
             py_code = match.group("py_code") or ""
+
+            # Check if the #| is inside a string literal
+            directive_col = len(py_code)
+            if _is_position_in_string(i, directive_col, string_ranges):
+                # Not a real directive - keep the line as-is
+                result_lines.append(line)
+                i += 1
+                continue
+
             value = match.group("value") or ""
 
             # Skip continuation lines

@@ -4,7 +4,7 @@ __all__ = ['explicit_module', 'regular_export', 'with_order']
 
 # %% nbs/02_export_to.ipynb 3
 def regular_export():
-    """Exported with standard
+    """Exported with standard #|export directive."""
     return "regular"
 
 # %% nbs/02_export_to.ipynb 5

@@ -271,6 +271,88 @@ class TestSourceWithoutDirectives:
         assert "#|export" not in result
 
 
+class TestDirectivesInsideStrings:
+    """Test that directives inside string literals are correctly ignored."""
+
+    def test_directive_in_docstring_ignored(self) -> None:
+        """Test that #|directive inside a docstring is ignored."""
+        source = '''#|export
+def foo():
+    """This mentions #|export in docstring."""
+    pass
+'''
+        directives = parse_directives_from_source(source)
+        assert len(directives) == 1
+        assert directives[0].name == "export"
+        assert directives[0].line_num == 0
+
+    def test_directive_in_single_line_string_ignored(self) -> None:
+        """Test that #|directive inside a single-line string is ignored."""
+        source = '''#|export
+text = "Use #|export to export code"
+'''
+        directives = parse_directives_from_source(source)
+        assert len(directives) == 1
+        assert directives[0].name == "export"
+
+    def test_directive_in_multiline_string_ignored(self) -> None:
+        """Test that #|directive inside multiline string is ignored."""
+        source = '''text = """
+This is a multiline string
+with #|export inside it
+"""
+#|export
+x = 1
+'''
+        directives = parse_directives_from_source(source)
+        assert len(directives) == 1
+        assert directives[0].name == "export"
+        assert directives[0].line_num == 4
+
+    def test_directive_in_fstring_ignored(self) -> None:
+        """Test that #|directive inside f-string is ignored."""
+        source = '''#|export
+msg = f"Directive: #|export"
+'''
+        directives = parse_directives_from_source(source)
+        assert len(directives) == 1
+        assert directives[0].name == "export"
+
+    def test_directive_in_raw_string_ignored(self) -> None:
+        """Test that #|directive inside raw string is ignored."""
+        source = '''#|export
+pattern = r"#|export"
+'''
+        directives = parse_directives_from_source(source)
+        assert len(directives) == 1
+        assert directives[0].name == "export"
+
+    def test_source_without_directives_preserves_strings(self) -> None:
+        """Test get_source_without_directives preserves directive text in strings."""
+        source = '''#|export
+def foo():
+    """Exported with #|export directive."""
+    return "regular"
+'''
+        result = get_source_without_directives(source)
+        assert "#|export" not in result.split("\n")[0]  # First line removed
+        assert '"""Exported with #|export directive."""' in result
+
+    def test_multiple_directives_some_in_strings(self) -> None:
+        """Test mix of real directives and directive-like text in strings."""
+        source = '''#|default_exp utils
+#|export
+def foo():
+    """See #|default_exp for default export."""
+    x = "#|hide this"
+    return x
+'''
+        directives = parse_directives_from_source(source)
+        assert len(directives) == 2
+        assert directives[0].name == "default_exp"
+        assert directives[1].name == "export"
+
+
 class TestDirectiveValueParsing:
     def setup_method(self) -> None:
         """Reset registry to built-in directives before each test."""

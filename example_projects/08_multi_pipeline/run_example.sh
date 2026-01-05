@@ -17,6 +17,11 @@ echo "Cleaning notebooks..."
 nbl clean
 echo ""
 
+# Fill notebooks (execute and save outputs)
+echo "Filling notebooks..."
+nbl fill
+echo ""
+
 # Clear existing exports
 echo "Clearing existing exports..."
 nbl clear --all 2>/dev/null || true

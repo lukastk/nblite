@@ -26,6 +26,10 @@ echo "Running nbl clean..."
 nbl clean
 
 echo ""
+echo "Running nbl fill..."
+nbl fill
+
+echo ""
 echo "After cleaning:"
 echo "==============="
 python -c "

@@ -56,6 +56,11 @@ echo "Cleaning notebooks..."
 nbl clean
 echo ""
 
+# Fill notebooks (execute and save outputs)
+echo "Filling notebooks..."
+nbl fill
+echo ""
+
 # Run export
 echo "Running export..."
 nbl export

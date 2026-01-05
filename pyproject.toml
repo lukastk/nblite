@@ -36,13 +36,16 @@ dependencies = [
     "notebookx-py>=0.1.4",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
-    "pytest>=7.0.0",
+    "pytest>=9.0.2",
     "pytest-cov>=4.0.0",
     "ruff>=0.1.0",
     "mypy>=1.0.0",
 ]
+
+
+[project.optional-dependencies]
 docs = [
     "jupyter-book>=0.15.0",
     "mkdocs>=1.5.0",
@@ -106,3 +109,4 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+

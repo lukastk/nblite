@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+
+SCRIPT_PATH="$(dirname "$0")"
+REPO_FOLDER="$(dirname "$SCRIPT_PATH")"
+PREV_CWD=$(pwd)
+
+cd "$REPO_FOLDER"
+
 set -euo pipefail
 
 cd "$(dirname "$0")"
@@ -32,3 +39,4 @@ else
   exit 1
 fi
 
+cd "$PREV_CWD"

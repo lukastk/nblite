@@ -11,8 +11,6 @@ cd "$REPO_FOLDER/example_projects"
 ./run_all_examples.sh
 RES_EXAMPLES=$?
 
-cd "$PREV_CWD"
-
 echo -e "\n\n"
 
 echo "pytest:           $([[ $RES_PYTEST   == 0 ]] && echo Passed || echo Failed)"
@@ -20,3 +18,5 @@ echo "example_projects: $([[ $RES_EXAMPLES == 0 ]] && echo Passed || echo Failed
 
 # Exit with failure if either failed
 [[ $RES_PYTEST == 0 && $RES_EXAMPLES == 0 ]]
+
+cd "$PREV_CWD"

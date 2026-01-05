@@ -272,7 +272,9 @@ def fill(
     ] = False,
     clean: Annotated[
         bool,
-        typer.Option("--clean/--no-clean", help="Clean notebook after fill (removes execution metadata)"),
+        typer.Option(
+            "--clean/--no-clean", help="Clean notebook after fill (removes execution metadata)"
+        ),
     ] = True,
     save_hash: Annotated[
         bool,

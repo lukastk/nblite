@@ -288,9 +288,9 @@ def foo():
 
     def test_directive_in_single_line_string_ignored(self) -> None:
         """Test that #|directive inside a single-line string is ignored."""
-        source = '''#|export
+        source = """#|export
 text = "Use #|export to export code"
-'''
+"""
         directives = parse_directives_from_source(source)
         assert len(directives) == 1
         assert directives[0].name == "export"
@@ -311,18 +311,18 @@ x = 1
 
     def test_directive_in_fstring_ignored(self) -> None:
         """Test that #|directive inside f-string is ignored."""
-        source = '''#|export
+        source = """#|export
 msg = f"Directive: #|export"
-'''
+"""
         directives = parse_directives_from_source(source)
         assert len(directives) == 1
         assert directives[0].name == "export"
 
     def test_directive_in_raw_string_ignored(self) -> None:
         """Test that #|directive inside raw string is ignored."""
-        source = '''#|export
+        source = """#|export
 pattern = r"#|export"
-'''
+"""
         directives = parse_directives_from_source(source)
         assert len(directives) == 1
         assert directives[0].name == "export"

@@ -524,7 +524,9 @@ class NbliteProject:
                                 result.files_created.append(output_path)
 
                         except Exception as e:
-                            result.errors.append(f"Failed to export {nb.source_path} to {target_module}: {e}")
+                            result.errors.append(
+                                f"Failed to export {nb.source_path} to {target_module}: {e}"
+                            )
                             result.success = False
                             export_success = False
 

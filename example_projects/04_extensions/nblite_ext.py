@@ -46,8 +46,10 @@ def after_cell(cell, notebook, source, **kwargs):
 @hook(HookType.POST_EXPORT)
 def after_export(project, result, **kwargs):
     """Called after export completes."""
-    print(f"[EXT] Export complete!")
-    print(f"[EXT] Stats: {export_stats['notebooks']} notebooks, {export_stats['cells']} cells exported")
+    print("[EXT] Export complete!")
+    print(
+        f"[EXT] Stats: {export_stats['notebooks']} notebooks, {export_stats['cells']} cells exported"
+    )
     if result.errors:
         print(f"[EXT] Errors: {len(result.errors)}")
 
@@ -55,7 +57,7 @@ def after_export(project, result, **kwargs):
 @hook(HookType.PRE_CLEAN)
 def before_clean(project, notebooks, **kwargs):
     """Called before clean starts."""
-    print(f"[EXT] Starting clean operation")
+    print("[EXT] Starting clean operation")
 
 
 @hook(HookType.POST_CLEAN)

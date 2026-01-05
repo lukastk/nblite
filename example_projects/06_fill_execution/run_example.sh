@@ -8,6 +8,11 @@ cd "$(dirname "$0")"
 echo "=== Fill Execution Example ==="
 echo ""
 
+# Clean notebooks first
+echo "Cleaning notebooks..."
+nbl clean
+echo ""
+
 echo "Fill configuration from nblite.toml:"
 grep -A 10 "^\[fill\]" nblite.toml
 echo ""
@@ -34,6 +39,10 @@ for nb_name in ['runnable.ipynb', 'quick_test.ipynb']:
     cells_with_output = sum(1 for c in code_cells if c.get('outputs'))
     print(f'{nb_name}: {cells_with_output}/{len(code_cells)} cells have outputs')
 "
+
+echo ""
+echo "Running export (no pipeline configured, so this is a no-op)..."
+nbl export
 
 echo ""
 echo "=== Example complete ==="

@@ -8,8 +8,9 @@ cd "$(dirname "$0")"
 echo "=== From Module Example ==="
 echo ""
 
-# Clean up any existing notebooks
+# Clean up any existing notebooks and exports
 rm -rf nbs/*
+nbl clear --all 2>/dev/null || true
 
 echo "Source Python files in src/:"
 ls -1 src/*.py
@@ -46,4 +47,22 @@ for cell in nb['cells'][:3]:
     print()
 "
 
+echo ""
+echo "=== Running clean and export ==="
+echo ""
+
+# Clean notebooks
+echo "Cleaning notebooks..."
+nbl clean
+echo ""
+
+# Run export
+echo "Running export..."
+nbl export
+
+echo ""
+echo "=== Exported module ==="
+ls -1 mypackage/*.py 2>/dev/null | grep -v __init__ || echo "  (no modules exported)"
+
+echo ""
 echo "=== Example complete ==="

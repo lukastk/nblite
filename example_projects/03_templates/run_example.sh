@@ -52,4 +52,22 @@ echo ""
 nbl convert nbs/versioned.ipynb --format percent --stdout 2>/dev/null || cat nbs/versioned.ipynb
 
 echo ""
+echo "=== Running clean and export ==="
+echo ""
+
+# Clean notebooks
+echo "Cleaning notebooks..."
+nbl clean
+echo ""
+
+# Clear any existing exports
+echo "Clearing existing exports..."
+nbl clear --all 2>/dev/null || true
+echo ""
+
+# Run export
+echo "Running export..."
+nbl export
+
+echo ""
 echo "=== Example complete ==="

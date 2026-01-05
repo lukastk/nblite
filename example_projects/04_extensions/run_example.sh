@@ -14,6 +14,11 @@ head -30 nblite_ext.py
 echo "..."
 echo ""
 
+# Clean notebooks
+echo "Cleaning notebooks..."
+nbl clean
+echo ""
+
 # Clear any existing exports
 echo "Clearing existing exports..."
 nbl clear --all 2>/dev/null || true

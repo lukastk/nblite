@@ -44,4 +44,8 @@ echo "Clean configuration from nblite.toml:"
 grep -A 15 "^\[clean\]" nblite.toml
 
 echo ""
+echo "Running export (no pipeline configured, so this is a no-op)..."
+nbl export
+
+echo ""
 echo "=== Example complete ==="

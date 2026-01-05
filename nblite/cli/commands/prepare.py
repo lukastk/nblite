@@ -89,6 +89,8 @@ def prepare(
             n_workers=fill_workers,
             fill_unchanged=fill_unchanged,
             remove_outputs_first=False,
+            clean=True,
+            save_hash=True,
             exclude_dunders=True,
             exclude_hidden=True,
             dry_run=False,

@@ -214,7 +214,11 @@ def new(
     }
 
     # Determine template to use
-    template_name = template or "default"
+    # Use project config default if available, otherwise built-in "default"
+    default_template = "default"
+    if project is not None and project.config.templates.default:
+        default_template = project.config.templates.default
+    template_name = template or default_template
 
     # Check if template is a file path
     template_as_path = Path(template_name)

@@ -10,7 +10,8 @@
 # ## Setup
 
 # %%
-{% if not no_export %}#|export{% endif %}
+{% if not no_export %}#|export
+{% endif %}#|eval: false
 
 import pandas as pd
 import numpy as np
@@ -19,6 +20,8 @@ import numpy as np
 # ## Load Data
 
 # %%
+#|eval: false
+
 # Load your data here
 # df = pd.read_csv("data.csv")
 

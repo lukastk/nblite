@@ -15,14 +15,14 @@ from nblite.config.schema import CodeLocationFormat
 from nblite.core.code_location import CodeLocation
 from nblite.core.notebook import Format, Notebook
 from nblite.core.pyfile import PyFile
+from nblite.export.function_export import is_function_notebook
 from nblite.export.pipeline import (
     ExportResult,
     export_notebook_to_module,
-    export_notebooks_to_module,
     export_notebook_to_notebook,
+    export_notebooks_to_module,
     get_export_targets,
 )
-from nblite.export.function_export import is_function_notebook
 from nblite.extensions import HookRegistry, HookType, load_extension
 
 __all__ = ["NbliteProject", "NotebookLineage"]
@@ -508,7 +508,7 @@ class NbliteProject:
                                 module_to_notebooks[target_module].append((nb, source_ref))
 
                 # Phase 2a: Export function notebooks (one at a time, no aggregation)
-                for nb, source_ref, target_module in function_notebooks:
+                for nb, _source_ref, target_module in function_notebooks:
                     module_path = target_module.replace(".", "/")
                     output_path = to_cl.path / (module_path + to_cl.file_ext)
 

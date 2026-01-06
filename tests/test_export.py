@@ -12,8 +12,8 @@ from nblite.core.notebook import Notebook
 from nblite.export.pipeline import (
     ExportResult,
     export_notebook_to_module,
-    export_notebooks_to_module,
     export_notebook_to_notebook,
+    export_notebooks_to_module,
 )
 
 
@@ -711,7 +711,9 @@ class TestCellOrdering:
         # #|export (order 0) should appear before #|export_to (order 2)
         export_pos = content.find("def from_export():")
         export_to_pos = content.find("def from_export_to():")
-        assert export_pos < export_to_pos, "#|export (order 0) should appear before #|export_to (order 2)"
+        assert export_pos < export_to_pos, (
+            "#|export (order 0) should appear before #|export_to (order 2)"
+        )
 
     def test_export_stable_sort(self, tmp_path: Path) -> None:
         """Test that cells with same order maintain original order (stable sort)."""

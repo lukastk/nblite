@@ -51,6 +51,7 @@ def main(
     if config is not None:
         ctx.obj[CONFIG_PATH_KEY] = config
 
+
 from nblite.cli.commands import (  # noqa: E402, F401
     clean,
     clear,

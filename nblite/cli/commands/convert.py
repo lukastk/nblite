@@ -8,7 +8,7 @@ from typing import Annotated
 import typer
 
 from nblite.cli._helpers import console
-
+from nblite.core.notebook import Format
 
 def convert(
     input_path: Annotated[
@@ -21,11 +21,11 @@ def convert(
     ],
     from_format: Annotated[
         str | None,
-        typer.Option("--from", help="Input format: ipynb, percent (auto-detected if omitted)"),
+        typer.Option("--from", help=f"Input format. Available formats: {', '.join(Format.get_valid_formats())}"),
     ] = None,
     to_format: Annotated[
         str | None,
-        typer.Option("--to", help="Output format: ipynb, percent (auto-detected if omitted)"),
+        typer.Option("--to", help=f"Output format. Available formats: {', '.join(Format.get_valid_formats())}"),
     ] = None,
 ) -> None:
     """Convert notebook between formats."""

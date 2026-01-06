@@ -37,9 +37,9 @@ def export(
     Multiple rules can be comma-separated: 'nbs->pcts,pcts->lib'
 
     Example:
-        nbl export                           # Use config pipeline
-        nbl export --export-pipeline 'nbs->lib'  # Custom pipeline
-        nbl export --export-pipeline 'pcts->nbs' # Reverse (pct to ipynb)
+        nbl export                           
+        nbl export --export-pipeline 'nbs->lib'  
+        nbl export --export-pipeline 'pts->nbs' 
     """
     project = get_project(ctx)
 

@@ -2,7 +2,7 @@
 
 __all__ = ['this_will_first_of_all', 'will_be_first', 'will_be_last']
 
-# %% nbs/02_export_to_2.ipynb 3
+# %% nbs/02_export_to_2.ipynb 2
 def this_will_first_of_all():
     """Explicitly specifies the target module."""
     return "explicit"

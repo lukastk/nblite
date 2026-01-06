@@ -12,26 +12,23 @@
 # This notebook exports to multiple targets via branching pipelines.
 
 # %%
-# |default_exp core
+#|default_exp core
 
 # %%
-# |export
+#|export
 VERSION = "1.0.0"
 
-
 # %%
-# |export
+#|export
 def hello() -> str:
     """Say hello."""
     return "Hello from core!"
 
-
 # %%
-# |export
+#|export
 def get_version() -> str:
     """Get the version string."""
     return VERSION
-
 
 # %%
 # Test

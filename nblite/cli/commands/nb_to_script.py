@@ -69,22 +69,44 @@ def nb_to_script(
 
     Example:
         nbl nb-to-script input.ipynb output.py
-        nbl nb-to-script input.ipynb # Print the output path to standard output
+        nbl nb-to-script input.ipynb  # Print content to stdout
     """
+    import tempfile
+
     from nblite.core.directive import Directive
     from nblite.export.pipeline import export_notebook_to_module
 
     nb = Notebook.from_file(input_path, format=input_format)
     nb.directives["default_exp"] = [Directive(name="default_exp", value="main")]
-    export_notebook_to_module(
-        nb,
-        output_path,
-        project_root=Path.cwd(),
-        export_mode=export_mode,
-        include_warning=include_warning,
-        cell_reference_style=cell_reference_style,
-        package_name=None,
-        target_module="main",
-    )
 
-    console.print(f"[green]Exported {input_path} to {output_path}[/green]")
+    # If no output path provided, export to temp file and print to stdout
+    if output_path is None:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as tmp:
+            tmp_path = Path(tmp.name)
+
+        export_notebook_to_module(
+            nb,
+            tmp_path,
+            project_root=Path.cwd(),
+            export_mode=export_mode,
+            include_warning=include_warning,
+            cell_reference_style=cell_reference_style,
+            package_name=None,
+            target_module="main",
+        )
+
+        # Print content to stdout
+        print(tmp_path.read_text())
+        tmp_path.unlink()
+    else:
+        export_notebook_to_module(
+            nb,
+            output_path,
+            project_root=Path.cwd(),
+            export_mode=export_mode,
+            include_warning=include_warning,
+            cell_reference_style=cell_reference_style,
+            package_name=None,
+            target_module="main",
+        )
+        console.print(f"[green]Exported {input_path} to {output_path}[/green]")

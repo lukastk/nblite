@@ -10,8 +10,3 @@ def process_data(input_list: list, multiplier: int = 2) -> list:
     result = [x * multiplier for x in input_list]
     return result
     return result
-    if True:
-        "The below return statement won't be exported properly either"
-        return
-    if True:
-        return "This will be messed up"

@@ -10,6 +10,7 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+from enum import Enum
 
 import notebookx
 
@@ -21,18 +22,18 @@ __all__ = ["Notebook", "Format", "FormatError"]
 
 class FormatError(ValueError):
     """Error raised when format cannot be determined or is invalid."""
-
     pass
 
-
-class Format:
+class Format(Enum):
     """Notebook format constants."""
 
     IPYNB = "ipynb"
     PERCENT = "percent"
 
-    # All valid format strings
-    VALID_FORMATS = {IPYNB, PERCENT}
+    @classmethod
+    def get_valid_formats(self) -> list[str]:
+        """All valid format strings."""
+        return [f.value for f in self]
 
     @classmethod
     def validate(cls, fmt: str) -> str:
@@ -47,9 +48,8 @@ class Format:
         Raises:
             FormatError: If format is not valid
         """
-        if fmt not in cls.VALID_FORMATS:
-            valid = ", ".join(sorted(cls.VALID_FORMATS))
-            raise FormatError(f"Invalid format '{fmt}'. Valid formats are: {valid}")
+        if fmt not in cls.get_valid_formats():
+            raise FormatError(f"Invalid format '{fmt}'. Valid formats are: {cls.get_valid_formats()}")
         return fmt
 
     @classmethod
@@ -90,14 +90,20 @@ class Format:
         cls.validate(fmt)
         if fmt == cls.PERCENT:
             return notebookx.Format.Percent
-        return notebookx.Format.Ipynb
+        elif fmt == cls.IPYNB:
+            return notebookx.Format.Ipynb
+        else:
+            raise FormatError(f"Invalid format '{fmt}'")
 
     @classmethod
     def from_notebookx(cls, fmt: notebookx.Format) -> str:
         """Convert notebookx Format enum to string format."""
         if fmt == notebookx.Format.Percent:
             return cls.PERCENT
-        return cls.IPYNB
+        elif fmt == notebookx.Format.Ipynb:
+            return cls.IPYNB
+        else:
+            raise FormatError(f"Invalid notebookx format '{fmt}'")
 
 
 @dataclass

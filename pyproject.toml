@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "nblite"
-version = "1.0.5"
+version = "1.0.6"
 description = "Notebook-driven Python package development tool"
 readme = "README.md"
 license = "MIT"
@@ -70,8 +70,9 @@ target-version = "py310"
 line-length = 100
 exclude = [
     "notebook-templates",
-    "test_proj",
+    "example_projects",
 ]
+extend-exclude = ["*.ipynb"] # ruff does not play nice with nblite
 
 [tool.ruff.lint]
 select = [
@@ -109,4 +110,3 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
-

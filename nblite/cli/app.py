@@ -32,6 +32,7 @@ from nblite.cli.commands.hooks import (
 from nblite.cli.commands.info import info
 from nblite.cli.commands.init import init
 from nblite.cli.commands.list import list_files
+from nblite.cli.commands.nb_to_script import nb_to_script
 from nblite.cli.commands.new import new
 from nblite.cli.commands.prepare import prepare
 from nblite.cli.commands.readme import readme
@@ -94,7 +95,7 @@ app.command()(prepare)
 app.command("render-docs")(render_docs_cmd)
 app.command("preview-docs")(preview_docs_cmd)
 app.command("install-default-templates")(install_default_templates)
-
+app.command("nb-to-script")(nb_to_script)
 
 if __name__ == "__main__":
     app()

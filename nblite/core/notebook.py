@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
 from typing import Any
-from enum import Enum
 
 import notebookx
 
@@ -22,7 +22,9 @@ __all__ = ["Notebook", "Format", "FormatError"]
 
 class FormatError(ValueError):
     """Error raised when format cannot be determined or is invalid."""
+
     pass
+
 
 class Format(Enum):
     """Notebook format constants."""
@@ -36,7 +38,7 @@ class Format(Enum):
         return [f.value for f in self]
 
     @classmethod
-    def validate(cls, fmt: str | "Format") -> str:
+    def validate(cls, fmt: str | Format) -> str:
         """Validate that a format string is valid.
 
         Args:
@@ -52,11 +54,13 @@ class Format(Enum):
         if isinstance(fmt, cls):
             return fmt.value
         if fmt not in cls.get_valid_formats():
-            raise FormatError(f"Invalid format '{fmt}'. Valid formats are: {cls.get_valid_formats()}")
+            raise FormatError(
+                f"Invalid format '{fmt}'. Valid formats are: {cls.get_valid_formats()}"
+            )
         return fmt
 
     @classmethod
-    def from_extension(cls, ext: str) -> "Format":
+    def from_extension(cls, ext: str) -> Format:
         """Get format from file extension.
 
         Delegates to notebookx.format_from_extension().
@@ -70,7 +74,7 @@ class Format(Enum):
         raise FormatError(f"Cannot infer format from extension '{ext}'")
 
     @classmethod
-    def from_path(cls, path: Path) -> "Format":
+    def from_path(cls, path: Path) -> Format:
         """Infer format from file path.
 
         Delegates to notebookx.format_from_path().
@@ -84,7 +88,7 @@ class Format(Enum):
         raise FormatError(f"Cannot infer format from path '{path}'")
 
     @classmethod
-    def to_notebookx(cls, fmt: str | "Format") -> notebookx.Format:
+    def to_notebookx(cls, fmt: str | Format) -> notebookx.Format:
         """Convert string format or Format enum to notebookx Format enum.
 
         Raises:
@@ -99,7 +103,7 @@ class Format(Enum):
             raise FormatError(f"Invalid format '{fmt}'")
 
     @classmethod
-    def from_notebookx(cls, fmt: notebookx.Format) -> "Format":
+    def from_notebookx(cls, fmt: notebookx.Format) -> Format:
         """Convert notebookx Format enum to Format enum."""
         if fmt == notebookx.Format.Percent:
             return cls.PERCENT

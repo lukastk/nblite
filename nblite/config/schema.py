@@ -48,6 +48,7 @@ class CellReferenceStyle(str, Enum):
 
     RELATIVE = "relative"
     ABSOLUTE = "absolute"
+    NONE = "none"
 
 
 class ExportRule(BaseModel):

@@ -117,8 +117,12 @@ def export_notebook_to_module(
             source_ref = str(source_path.relative_to(project_root))
         except ValueError:
             source_ref = str(source_path)
+    elif cell_reference_style == CellReferenceStyle.ABSOLUTE:
+        source_ref = str(source_path)
+    elif cell_reference_style == CellReferenceStyle.NONE:
+        source_ref = ""
     else:
-        source_ref = str(source_path) if source_path else "unknown"
+        raise ValueError(f"Invalid cell reference style: {cell_reference_style}")
 
     # Calculate module depth for relative imports
     # e.g., my_lib/submodule/utils.py has depth 1 (one subdirectory)
@@ -219,7 +223,7 @@ def get_export_targets(notebook: Notebook) -> dict[str, list[int]]:
 def _collect_exported_content(
     notebook: Notebook,
     export_mode: ExportMode,
-    source_ref: str,
+    source_ref: str | None,
     package_name: str | None = None,
     module_depth: int = 0,
     target_module: str | None = None,
@@ -286,7 +290,10 @@ def _collect_exported_content(
 
         if export_mode == ExportMode.PERCENT:
             # Add cell marker
-            parts.append(f"# %% {source_ref} {cell.index}")
+            if source_ref is not None:
+                parts.append(f"# %% {source_ref} {cell.index}")
+            else:
+                parts.append(f"# %% {cell.index}")
             parts.append(source)
             parts.append("")
         else:

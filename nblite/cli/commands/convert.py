@@ -10,6 +10,7 @@ import typer
 from nblite.cli._helpers import console
 from nblite.core.notebook import Format
 
+
 def convert(
     input_path: Annotated[
         Path,
@@ -21,11 +22,17 @@ def convert(
     ],
     from_format: Annotated[
         str | None,
-        typer.Option("--from", help=f"Input format. Available formats: {', '.join(Format.get_valid_formats())}"),
+        typer.Option(
+            "--from",
+            help=f"Input format. Available formats: {', '.join(Format.get_valid_formats())}",
+        ),
     ] = None,
     to_format: Annotated[
         str | None,
-        typer.Option("--to", help=f"Output format. Available formats: {', '.join(Format.get_valid_formats())}"),
+        typer.Option(
+            "--to",
+            help=f"Output format. Available formats: {', '.join(Format.get_valid_formats())}",
+        ),
     ] = None,
 ) -> None:
     """Convert notebook between formats."""

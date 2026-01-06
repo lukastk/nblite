@@ -37,9 +37,9 @@ def export(
     Multiple rules can be comma-separated: 'nbs->pcts,pcts->lib'
 
     Example:
-        nbl export                           
-        nbl export --export-pipeline 'nbs->lib'  
-        nbl export --export-pipeline 'pts->nbs' 
+        nbl export
+        nbl export --export-pipeline 'nbs->lib'
+        nbl export --export-pipeline 'pts->nbs'
     """
     project = get_project(ctx)
 

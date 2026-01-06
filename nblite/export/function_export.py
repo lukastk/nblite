@@ -287,11 +287,31 @@ def _process_func_return_lines(source: str) -> list[str]:
 
         # Check for inline func_return_line directive
         if "#|func_return_line" in line:
-            # Remove the directive and prepend return
+            # Remove the directive
             code = re.sub(r"\s*#\|func_return_line\s*$", "", line)
-            code = code.rstrip()
-            if code:
-                lines.append(f"return {code}")
+
+            # Extract leading whitespace to preserve indentation
+            leading_ws = ""
+            for char in code:
+                if char in " \t":
+                    leading_ws += char
+                else:
+                    break
+
+            code_stripped = code.strip()
+            if code_stripped:
+                # Inline with code: preserve indentation and prepend return
+                lines.append(f"{leading_ws}return {code_stripped}")
+            else:
+                # Directive on its own line: add bare return with same indentation
+                # Get indentation from the original line
+                orig_leading_ws = ""
+                for char in line:
+                    if char in " \t":
+                        orig_leading_ws += char
+                    else:
+                        break
+                lines.append(f"{orig_leading_ws}return")
         else:
             lines.append(line)
     return lines

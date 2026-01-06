@@ -48,6 +48,6 @@ def convert(
         export_notebook_to_notebook(nb, output_path, format=to_format)
     except FormatError as e:
         console.print(f"[red]Error: {e}[/red]")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
     console.print(f"[green]Converted {input_path} -> {output_path}[/green]")

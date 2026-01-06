@@ -100,7 +100,10 @@ def export_function_notebook(
     signature = _get_function_signature(notebook)
     if signature is None:
         # Default signature if not provided
+        # Use only the last part of the module path (after final dot) as function name
         module_name = notebook.default_exp or "exported_func"
+        if "." in module_name:
+            module_name = module_name.rsplit(".", 1)[-1]
         signature = f"def {module_name}():"
 
     # Add function definition
@@ -145,10 +148,10 @@ def _get_function_signature(notebook: Notebook) -> str | None:
             continue
         if cell.has_directive("set_func_signature"):
             code = cell.source_without_directives.strip()
-            # Extract the def line
+            # Extract the def line (supports both sync and async functions)
             for line in code.split("\n"):
                 line = line.strip()
-                if line.startswith("def "):
+                if line.startswith("def ") or line.startswith("async def "):
                     # Remove any ellipsis or pass
                     if line.endswith("..."):
                         line = line[:-3].rstrip()

@@ -12,6 +12,7 @@ from rich.text import Text
 
 from nblite import DISABLE_NBLITE_EXPORT_ENV_VAR
 from nblite.cli._helpers import console
+from nblite.cli.app import app
 
 
 def _run_fill(
@@ -244,6 +245,7 @@ def _run_fill(
     return exit_code
 
 
+@app.command()
 def fill(
     ctx: typer.Context,
     notebooks: Annotated[
@@ -343,6 +345,7 @@ def fill(
         raise typer.Exit(exit_code)
 
 
+@app.command()
 def test(
     ctx: typer.Context,
     notebooks: Annotated[

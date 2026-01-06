@@ -9,6 +9,7 @@ from typing import Annotated
 import typer
 
 from nblite.cli._helpers import console
+from nblite.cli.app import app
 
 __all__ = ["install_default_templates"]
 
@@ -66,6 +67,7 @@ def _download_file(url: str) -> bytes:
         raise RuntimeError(f"Failed to download {url}: {e}") from e
 
 
+@app.command(name="install-default-templates")
 def install_default_templates(
     overwrite: Annotated[
         bool,

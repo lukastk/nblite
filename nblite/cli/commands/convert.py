@@ -8,9 +8,11 @@ from typing import Annotated
 import typer
 
 from nblite.cli._helpers import console
+from nblite.cli.app import app
 from nblite.core.notebook import Format
 
 
+@app.command()
 def convert(
     input_path: Annotated[
         Path,

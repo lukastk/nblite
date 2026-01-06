@@ -8,6 +8,7 @@ from typing import Annotated
 import typer
 
 from nblite.cli._helpers import console
+from nblite.cli.app import app
 from nblite.core.notebook import Notebook
 
 __all__ = ["from_module_cmd", "module_to_notebook", "modules_to_notebooks"]
@@ -143,6 +144,7 @@ def modules_to_notebooks(
     return created_files
 
 
+@app.command(name="from-module")
 def from_module_cmd(
     input_path: Annotated[
         Path,

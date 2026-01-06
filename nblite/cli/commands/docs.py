@@ -9,8 +9,10 @@ from typing import Annotated
 import typer
 
 from nblite.cli._helpers import console, get_project
+from nblite.cli.app import app
 
 
+@app.command(name="render-docs")
 def render_docs_cmd(
     ctx: typer.Context,
     output_folder: Annotated[
@@ -86,6 +88,7 @@ def render_docs_cmd(
         raise typer.Exit(1) from None
 
 
+@app.command(name="preview-docs")
 def preview_docs_cmd(
     ctx: typer.Context,
     generator: Annotated[

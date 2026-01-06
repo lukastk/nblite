@@ -8,6 +8,7 @@ from typing import Annotated
 import typer
 
 from nblite.cli._helpers import CONFIG_PATH_KEY, console
+from nblite.cli.app import app
 
 
 def _load_pyproject(project_root: Path | None) -> dict | None:
@@ -122,6 +123,7 @@ def _parse_var_args(var_args: list[str]) -> dict[str, str]:
     return result
 
 
+@app.command()
 def new(
     ctx: typer.Context,
     notebook_path: Annotated[

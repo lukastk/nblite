@@ -8,10 +8,12 @@ from typing import Annotated
 import typer
 
 from nblite.cli._helpers import console
+from nblite.cli.app import app
 from nblite.config.schema import CellReferenceStyle, ExportMode
 from nblite.core.notebook import Format, Notebook
 
 
+@app.command(name="nb-to-script")
 def nb_to_script(
     ctx: typer.Context,
     input_path: Annotated[

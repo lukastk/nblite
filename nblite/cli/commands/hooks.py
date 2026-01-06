@@ -7,8 +7,10 @@ from typing import Annotated
 import typer
 
 from nblite.cli._helpers import CONFIG_PATH_KEY, console, get_project
+from nblite.cli.app import app
 
 
+@app.command(name="install-hooks")
 def install_hooks_cmd(ctx: typer.Context) -> None:
     """Install git hooks for the project."""
     from nblite.git.hooks import install_hooks
@@ -23,6 +25,7 @@ def install_hooks_cmd(ctx: typer.Context) -> None:
         raise typer.Exit(1) from None
 
 
+@app.command(name="uninstall-hooks")
 def uninstall_hooks_cmd(ctx: typer.Context) -> None:
     """Remove git hooks for the project."""
     from nblite.git.hooks import uninstall_hooks
@@ -32,6 +35,7 @@ def uninstall_hooks_cmd(ctx: typer.Context) -> None:
     console.print("[green]Git hooks removed[/green]")
 
 
+@app.command(name="validate")
 def validate_cmd(ctx: typer.Context) -> None:
     """Validate git staging state."""
     from nblite.git.staging import validate_staging
@@ -53,6 +57,7 @@ def validate_cmd(ctx: typer.Context) -> None:
         console.print("[green]Staging is valid[/green]")
 
 
+@app.command(name="hook")
 def hook_cmd(
     ctx: typer.Context,
     hook_name: Annotated[

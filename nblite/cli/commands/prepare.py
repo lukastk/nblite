@@ -7,9 +7,11 @@ from typing import Annotated
 import typer
 
 from nblite.cli._helpers import console, get_config_path, get_project
+from nblite.cli.app import app
 from nblite.cli.commands.fill import _run_fill
 
 
+@app.command()
 def prepare(
     ctx: typer.Context,
     skip_export: Annotated[

@@ -8,8 +8,10 @@ from typing import Annotated
 import typer
 
 from nblite.cli._helpers import console
+from nblite.cli.app import app
 
 
+@app.command()
 def init(
     name: Annotated[
         str | None,

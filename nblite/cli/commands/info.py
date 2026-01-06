@@ -6,8 +6,10 @@ import typer
 from rich.table import Table
 
 from nblite.cli._helpers import console, get_project
+from nblite.cli.app import app
 
 
+@app.command()
 def info(ctx: typer.Context) -> None:
     """Show project information."""
     project = get_project(ctx)

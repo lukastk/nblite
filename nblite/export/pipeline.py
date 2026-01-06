@@ -10,7 +10,7 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from nblite.config.schema import ExportMode
+from nblite.config.schema import CellReferenceStyle, ExportMode
 from nblite.core.notebook import Format, Notebook
 from nblite.export.function_export import export_function_notebook, is_function_notebook
 from nblite.extensions import HookRegistry, HookType
@@ -75,7 +75,7 @@ def export_notebook_to_module(
     project_root: Path | str,
     export_mode: ExportMode = ExportMode.PERCENT,
     include_warning: bool = True,
-    cell_reference_style: str = "relative",
+    cell_reference_style: CellReferenceStyle = CellReferenceStyle.RELATIVE,
     package_name: str | None = None,
     target_module: str | None = None,
 ) -> None:
@@ -112,7 +112,7 @@ def export_notebook_to_module(
     source_path = notebook.source_path
 
     # Calculate relative path for cell references
-    if source_path and cell_reference_style == "relative":
+    if source_path and cell_reference_style == CellReferenceStyle.RELATIVE:
         try:
             source_ref = str(source_path.relative_to(project_root))
         except ValueError:

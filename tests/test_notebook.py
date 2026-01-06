@@ -353,16 +353,45 @@ class TestFormat:
         """Test format detection for pct.py."""
         assert Format.from_path(Path("test.pct.py")) == Format.PERCENT
 
-    def test_from_path_py(self) -> None:
-        """Test format detection for plain .py (unknown format defaults to IPYNB)."""
+    def test_from_path_py_raises(self) -> None:
+        """Test format detection for plain .py raises FormatError."""
         # Plain .py files are not recognized as a notebook format by notebookx
         # Only .pct.py files are recognized as percent format
-        assert Format.from_path(Path("test.py")) == Format.IPYNB
+        from nblite.core.notebook import FormatError
+
+        with pytest.raises(FormatError):
+            Format.from_path(Path("test.py"))
 
     def test_from_extension(self) -> None:
         """Test format from extension."""
         assert Format.from_extension("ipynb") == Format.IPYNB
         assert Format.from_extension(".ipynb") == Format.IPYNB
+
+    def test_from_extension_unknown_raises(self) -> None:
+        """Test that unknown extensions raise FormatError."""
+        from nblite.core.notebook import FormatError
+
+        with pytest.raises(FormatError):
+            Format.from_extension(".txt")
+
+    def test_validate_valid_formats(self) -> None:
+        """Test that valid formats pass validation."""
+        assert Format.validate("ipynb") == "ipynb"
+        assert Format.validate("percent") == "percent"
+
+    def test_validate_invalid_format_raises(self) -> None:
+        """Test that invalid formats raise FormatError."""
+        from nblite.core.notebook import FormatError
+
+        with pytest.raises(FormatError, match="Invalid format 'invalid'"):
+            Format.validate("invalid")
+
+    def test_to_notebookx_invalid_format_raises(self) -> None:
+        """Test that to_notebookx raises FormatError for invalid formats."""
+        from nblite.core.notebook import FormatError
+
+        with pytest.raises(FormatError):
+            Format.to_notebookx("invalid")
 
 
 class TestNotebookRoundTrip:

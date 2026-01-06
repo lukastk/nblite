@@ -16,7 +16,13 @@ import notebookx
 from nblite.core.cell import Cell
 from nblite.core.directive import Directive
 
-__all__ = ["Notebook", "Format"]
+__all__ = ["Notebook", "Format", "FormatError"]
+
+
+class FormatError(ValueError):
+    """Error raised when format cannot be determined or is invalid."""
+
+    pass
 
 
 class Format:
@@ -25,31 +31,63 @@ class Format:
     IPYNB = "ipynb"
     PERCENT = "percent"
 
+    # All valid format strings
+    VALID_FORMATS = {IPYNB, PERCENT}
+
+    @classmethod
+    def validate(cls, fmt: str) -> str:
+        """Validate that a format string is valid.
+
+        Args:
+            fmt: Format string to validate
+
+        Returns:
+            The validated format string
+
+        Raises:
+            FormatError: If format is not valid
+        """
+        if fmt not in cls.VALID_FORMATS:
+            valid = ", ".join(sorted(cls.VALID_FORMATS))
+            raise FormatError(f"Invalid format '{fmt}'. Valid formats are: {valid}")
+        return fmt
+
     @classmethod
     def from_extension(cls, ext: str) -> str:
         """Get format from file extension.
 
         Delegates to notebookx.format_from_extension().
+
+        Raises:
+            FormatError: If format cannot be inferred from extension
         """
         nbx_fmt = notebookx.format_from_extension(ext)
         if nbx_fmt is not None:
             return cls.from_notebookx(nbx_fmt)
-        return cls.IPYNB  # Default fallback
+        raise FormatError(f"Cannot infer format from extension '{ext}'")
 
     @classmethod
     def from_path(cls, path: Path) -> str:
         """Infer format from file path.
 
         Delegates to notebookx.format_from_path().
+
+        Raises:
+            FormatError: If format cannot be inferred from path
         """
         nbx_fmt = notebookx.format_from_path(str(path))
         if nbx_fmt is not None:
             return cls.from_notebookx(nbx_fmt)
-        return cls.IPYNB  # Default fallback
+        raise FormatError(f"Cannot infer format from path '{path}'")
 
     @classmethod
     def to_notebookx(cls, fmt: str) -> notebookx.Format:
-        """Convert string format to notebookx Format enum."""
+        """Convert string format to notebookx Format enum.
+
+        Raises:
+            FormatError: If format is not valid
+        """
+        cls.validate(fmt)
         if fmt == cls.PERCENT:
             return notebookx.Format.Percent
         return notebookx.Format.Ipynb

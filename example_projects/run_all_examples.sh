@@ -2,7 +2,6 @@
 # Run All Examples
 # Loops through all example projects and runs their run_example.sh scripts
 
-set -e
 cd "$(dirname "$0")"
 
 echo "=========================================="
@@ -13,6 +12,7 @@ echo ""
 # Find all example directories with run_example.sh
 failed=0
 passed=0
+failed_examples=()
 
 for example_dir in */; do
     # Skip if no run_example.sh
@@ -35,6 +35,7 @@ for example_dir in */; do
         echo ""
         echo "[FAIL] $example_name failed!"
         ((failed++))
+        failed_examples+=("$example_name")
     fi
 done
 
@@ -44,12 +45,17 @@ echo "  Summary"
 echo "=========================================="
 echo "Passed: $passed"
 echo "Failed: $failed"
-echo ""
 
 if [ $failed -gt 0 ]; then
-    echo "Some examples failed!"
+    echo ""
+    echo "Failed examples:"
+    for example in "${failed_examples[@]}"; do
+        echo "  - $example"
+    done
+    echo ""
     exit 1
 else
+    echo ""
     echo "All examples passed!"
     exit 0
 fi

@@ -12,6 +12,7 @@ from nblite.core.notebook import Notebook
 from nblite.export.pipeline import (
     ExportResult,
     export_notebook_to_module,
+    export_notebooks_to_module,
     export_notebook_to_notebook,
 )
 
@@ -822,3 +823,360 @@ class TestCellOrdering:
         module_path = tmp_path / "test.py"
         with pytest.raises(ValueError, match="bottom_export.*function notebooks"):
             export_notebook_to_module(nb, module_path, project_root=tmp_path)
+
+
+class TestMultiNotebookExport:
+    """Test multi-notebook export aggregation."""
+
+    def test_two_notebooks_same_module(self, tmp_path: Path) -> None:
+        """Test that two notebooks exporting to same module are aggregated."""
+        # Create notebook 1
+        nb1_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export_to shared 1\ndef from_nb1(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb1_path = tmp_path / "nbs" / "nb1.ipynb"
+        nb1_path.parent.mkdir(parents=True, exist_ok=True)
+        nb1_path.write_text(nb1_content)
+        nb1 = Notebook.from_file(nb1_path)
+
+        # Create notebook 2
+        nb2_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp shared",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef from_nb2(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb2_path = tmp_path / "nbs" / "nb2.ipynb"
+        nb2_path.write_text(nb2_content)
+        nb2 = Notebook.from_file(nb2_path)
+
+        module_path = tmp_path / "shared.py"
+        source_ref1 = str(nb1_path.relative_to(tmp_path))
+        source_ref2 = str(nb2_path.relative_to(tmp_path))
+
+        export_notebooks_to_module(
+            [(nb1, source_ref1), (nb2, source_ref2)],
+            module_path,
+            project_root=tmp_path,
+            target_module="shared",
+        )
+
+        content = module_path.read_text()
+        # Both functions should be present
+        assert "def from_nb1():" in content
+        assert "def from_nb2():" in content
+        # __all__ should include both
+        assert "'from_nb1'" in content
+        assert "'from_nb2'" in content
+
+    def test_ordering_across_notebooks(self, tmp_path: Path) -> None:
+        """Test that cells are ordered correctly across notebooks."""
+        # Notebook 1 has order 2
+        nb1_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export_to shared 2\ndef second(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb1_path = tmp_path / "nbs" / "nb1.ipynb"
+        nb1_path.parent.mkdir(parents=True, exist_ok=True)
+        nb1_path.write_text(nb1_content)
+        nb1 = Notebook.from_file(nb1_path)
+
+        # Notebook 2 has order 0 (default for #|export)
+        nb2_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp shared",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef first(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb2_path = tmp_path / "nbs" / "nb2.ipynb"
+        nb2_path.write_text(nb2_content)
+        nb2 = Notebook.from_file(nb2_path)
+
+        module_path = tmp_path / "shared.py"
+        source_ref1 = str(nb1_path.relative_to(tmp_path))
+        source_ref2 = str(nb2_path.relative_to(tmp_path))
+
+        export_notebooks_to_module(
+            [(nb1, source_ref1), (nb2, source_ref2)],
+            module_path,
+            project_root=tmp_path,
+            target_module="shared",
+        )
+
+        content = module_path.read_text()
+        # first() (order 0) should appear before second() (order 2)
+        first_pos = content.find("def first():")
+        second_pos = content.find("def second():")
+        assert first_pos < second_pos, "first() should appear before second()"
+
+    def test_header_lists_multiple_files(self, tmp_path: Path) -> None:
+        """Test that header comment lists all source files."""
+        nb1_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export_to shared\ndef from_nb1(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb1_path = tmp_path / "nbs" / "nb1.ipynb"
+        nb1_path.parent.mkdir(parents=True, exist_ok=True)
+        nb1_path.write_text(nb1_content)
+        nb1 = Notebook.from_file(nb1_path)
+
+        nb2_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export_to shared\ndef from_nb2(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb2_path = tmp_path / "nbs" / "nb2.ipynb"
+        nb2_path.write_text(nb2_content)
+        nb2 = Notebook.from_file(nb2_path)
+
+        module_path = tmp_path / "shared.py"
+        source_ref1 = str(nb1_path.relative_to(tmp_path))
+        source_ref2 = str(nb2_path.relative_to(tmp_path))
+
+        export_notebooks_to_module(
+            [(nb1, source_ref1), (nb2, source_ref2)],
+            module_path,
+            project_root=tmp_path,
+            target_module="shared",
+        )
+
+        content = module_path.read_text()
+        # Header should list both files
+        assert "Files to edit:" in content
+        assert "nbs/nb1.ipynb" in content
+        assert "nbs/nb2.ipynb" in content
+
+    def test_cell_references_show_correct_notebook(self, tmp_path: Path) -> None:
+        """Test that cell reference comments show the correct source notebook."""
+        nb1_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export_to shared\ndef from_nb1(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb1_path = tmp_path / "nbs" / "nb1.ipynb"
+        nb1_path.parent.mkdir(parents=True, exist_ok=True)
+        nb1_path.write_text(nb1_content)
+        nb1 = Notebook.from_file(nb1_path)
+
+        nb2_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export_to shared\ndef from_nb2(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb2_path = tmp_path / "nbs" / "nb2.ipynb"
+        nb2_path.write_text(nb2_content)
+        nb2 = Notebook.from_file(nb2_path)
+
+        module_path = tmp_path / "shared.py"
+        source_ref1 = str(nb1_path.relative_to(tmp_path))
+        source_ref2 = str(nb2_path.relative_to(tmp_path))
+
+        export_notebooks_to_module(
+            [(nb1, source_ref1), (nb2, source_ref2)],
+            module_path,
+            project_root=tmp_path,
+            target_module="shared",
+            export_mode=ExportMode.PERCENT,
+        )
+
+        content = module_path.read_text()
+        # Cell references should point to correct notebooks
+        assert "# %% nbs/nb1.ipynb" in content
+        assert "# %% nbs/nb2.ipynb" in content
+
+    def test_function_notebook_raises_in_multi_export(self, tmp_path: Path) -> None:
+        """Test that function notebooks raise error when aggregated."""
+        # Function notebook
+        func_nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp shared\n#|export_as_func true",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|set_func_signature\ndef workflow(): ...",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\nx = 1",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        func_nb_path = tmp_path / "nbs" / "func_nb.ipynb"
+        func_nb_path.parent.mkdir(parents=True, exist_ok=True)
+        func_nb_path.write_text(func_nb_content)
+        func_nb = Notebook.from_file(func_nb_path)
+
+        # Regular notebook
+        regular_nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export_to shared\ndef helper(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        regular_nb_path = tmp_path / "nbs" / "regular.ipynb"
+        regular_nb_path.write_text(regular_nb_content)
+        regular_nb = Notebook.from_file(regular_nb_path)
+
+        module_path = tmp_path / "shared.py"
+
+        # Should raise error when trying to aggregate function notebook
+        with pytest.raises(ValueError, match="Function notebooks cannot be aggregated"):
+            export_notebooks_to_module(
+                [(func_nb, "nbs/func_nb.ipynb"), (regular_nb, "nbs/regular.ipynb")],
+                module_path,
+                project_root=tmp_path,
+                target_module="shared",
+            )
+
+    def test_single_notebook_header(self, tmp_path: Path) -> None:
+        """Test that single notebook uses singular 'File to edit'."""
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export_to shared\ndef func(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb_path = tmp_path / "nbs" / "nb.ipynb"
+        nb_path.parent.mkdir(parents=True, exist_ok=True)
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        module_path = tmp_path / "shared.py"
+        source_ref = str(nb_path.relative_to(tmp_path))
+
+        export_notebooks_to_module(
+            [(nb, source_ref)],
+            module_path,
+            project_root=tmp_path,
+            target_module="shared",
+        )
+
+        content = module_path.read_text()
+        # Single file should use singular form
+        assert "File to edit:" in content
+        assert "Files to edit:" not in content

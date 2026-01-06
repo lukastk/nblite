@@ -18,9 +18,11 @@ from nblite.core.pyfile import PyFile
 from nblite.export.pipeline import (
     ExportResult,
     export_notebook_to_module,
+    export_notebooks_to_module,
     export_notebook_to_notebook,
     get_export_targets,
 )
+from nblite.export.function_export import is_function_notebook
 from nblite.extensions import HookRegistry, HookType, load_extension
 
 __all__ = ["NbliteProject", "NotebookLineage"]
@@ -460,91 +462,55 @@ class NbliteProject:
                 else:
                     continue
 
-            # Export each notebook
-            for nb in nbs_to_export:
-                if nb.source_path is None:
-                    continue
+            # Handle module exports with two-phase approach for aggregation
+            if to_cl.format == CodeLocationFormat.MODULE:
+                # Phase 1: Collect all notebooks and their export targets
+                # Maps target_module -> list of (notebook, source_ref) tuples
+                module_to_notebooks: dict[str, list[tuple[Notebook, str]]] = {}
+                # Track function notebooks separately (they can't aggregate)
+                function_notebooks: list[tuple[Notebook, str, str]] = []  # (nb, source_ref, target)
 
-                try:
-                    rel_path = nb.source_path.relative_to(from_cl.path)
-                except ValueError:
-                    continue
+                for nb in nbs_to_export:
+                    if nb.source_path is None:
+                        continue
 
-                # Skip notebooks in dunder folders/files for module exports only
-                # (they should still be exported to other notebook formats)
-                if to_cl.format == CodeLocationFormat.MODULE:
+                    try:
+                        rel_path = nb.source_path.relative_to(from_cl.path)
+                    except ValueError:
+                        continue
+
+                    # Skip notebooks in dunder folders/files
                     if _path_contains_dunder(rel_path):
                         continue
 
-                # Calculate output path(s) and export
-                if to_cl.format == CodeLocationFormat.MODULE:
-                    # For module exports, get all export targets from the notebook
-                    # This supports both #|default_exp with #|export, and #|export_to
-                    export_targets = get_export_targets(nb)
+                    # Compute source reference for cell markers
+                    try:
+                        source_ref = str(nb.source_path.relative_to(self.root_path))
+                    except ValueError:
+                        source_ref = str(nb.source_path)
 
+                    export_targets = get_export_targets(nb)
                     if not export_targets:
-                        # No export directives in this notebook
                         continue
 
-                    # Export to each target module
-                    for target_module, _cell_indices in export_targets.items():
-                        # Skip empty target (cells with #|export but no default_exp)
-                        if not target_module:
-                            continue
+                    # Check if this is a function notebook
+                    if is_function_notebook(nb):
+                        # Function notebooks are handled separately (no aggregation)
+                        for target_module in export_targets:
+                            if target_module:
+                                function_notebooks.append((nb, source_ref, target_module))
+                    else:
+                        # Regular notebooks can aggregate
+                        for target_module in export_targets:
+                            if target_module:
+                                if target_module not in module_to_notebooks:
+                                    module_to_notebooks[target_module] = []
+                                module_to_notebooks[target_module].append((nb, source_ref))
 
-                        # Convert module path to file path
-                        module_path = target_module.replace(".", "/")
-                        output_path = to_cl.path / (module_path + to_cl.file_ext)
-
-                        # Trigger PRE_NOTEBOOK_EXPORT hook
-                        HookRegistry.trigger(
-                            HookType.PRE_NOTEBOOK_EXPORT,
-                            notebook=nb,
-                            output_path=output_path,
-                            from_location=from_cl,
-                            to_location=to_cl,
-                        )
-
-                        export_success = True
-                        try:
-                            # Export to module with target_module filter
-                            package_name = to_cl.path.name
-                            export_notebook_to_module(
-                                nb,
-                                output_path,
-                                self.root_path,
-                                export_mode=to_cl.export_mode,
-                                include_warning=self.config.export.include_autogenerated_warning,
-                                cell_reference_style=self.config.export.cell_reference_style,
-                                package_name=package_name,
-                                target_module=target_module,
-                            )
-
-                            if output_path.exists():
-                                result.files_created.append(output_path)
-
-                        except Exception as e:
-                            result.errors.append(
-                                f"Failed to export {nb.source_path} to {target_module}: {e}"
-                            )
-                            result.success = False
-                            export_success = False
-
-                        # Trigger POST_NOTEBOOK_EXPORT hook
-                        HookRegistry.trigger(
-                            HookType.POST_NOTEBOOK_EXPORT,
-                            notebook=nb,
-                            output_path=output_path,
-                            from_location=from_cl,
-                            to_location=to_cl,
-                            success=export_success,
-                        )
-                else:
-                    # For notebook-to-notebook exports, preserve directory structure
-                    stem = rel_path.stem
-                    if stem.endswith(".pct"):
-                        stem = stem[:-4]
-                    output_path = to_cl.path / rel_path.parent / (stem + to_cl.file_ext)
+                # Phase 2a: Export function notebooks (one at a time, no aggregation)
+                for nb, source_ref, target_module in function_notebooks:
+                    module_path = target_module.replace(".", "/")
+                    output_path = to_cl.path / (module_path + to_cl.file_ext)
 
                     # Trigger PRE_NOTEBOOK_EXPORT hook
                     HookRegistry.trigger(
@@ -557,19 +523,25 @@ class NbliteProject:
 
                     export_success = True
                     try:
-                        # Export to notebook format
-                        fmt = (
-                            Format.PERCENT.value
-                            if to_cl.format == CodeLocationFormat.PERCENT
-                            else Format.IPYNB.value
+                        package_name = to_cl.path.name
+                        export_notebook_to_module(
+                            nb,
+                            output_path,
+                            self.root_path,
+                            export_mode=to_cl.export_mode,
+                            include_warning=self.config.export.include_autogenerated_warning,
+                            cell_reference_style=self.config.export.cell_reference_style,
+                            package_name=package_name,
+                            target_module=target_module,
                         )
-                        export_notebook_to_notebook(nb, output_path, format=fmt)
 
                         if output_path.exists():
                             result.files_created.append(output_path)
 
                     except Exception as e:
-                        result.errors.append(f"Failed to export {nb.source_path}: {e}")
+                        result.errors.append(
+                            f"Failed to export {nb.source_path} to {target_module}: {e}"
+                        )
                         result.success = False
                         export_success = False
 
@@ -582,6 +554,114 @@ class NbliteProject:
                         to_location=to_cl,
                         success=export_success,
                     )
+
+                # Phase 2b: Export aggregated regular notebooks
+                for target_module, notebooks_list in module_to_notebooks.items():
+                    module_path = target_module.replace(".", "/")
+                    output_path = to_cl.path / (module_path + to_cl.file_ext)
+
+                    # Trigger PRE_NOTEBOOK_EXPORT hooks for all contributing notebooks
+                    for nb, _source_ref in notebooks_list:
+                        HookRegistry.trigger(
+                            HookType.PRE_NOTEBOOK_EXPORT,
+                            notebook=nb,
+                            output_path=output_path,
+                            from_location=from_cl,
+                            to_location=to_cl,
+                        )
+
+                    export_success = True
+                    try:
+                        package_name = to_cl.path.name
+                        export_notebooks_to_module(
+                            notebooks_list,
+                            output_path,
+                            self.root_path,
+                            export_mode=to_cl.export_mode,
+                            include_warning=self.config.export.include_autogenerated_warning,
+                            cell_reference_style=self.config.export.cell_reference_style,
+                            package_name=package_name,
+                            target_module=target_module,
+                        )
+
+                        if output_path.exists():
+                            result.files_created.append(output_path)
+
+                    except Exception as e:
+                        nb_paths = ", ".join(str(nb.source_path) for nb, _ in notebooks_list)
+                        result.errors.append(
+                            f"Failed to export notebooks ({nb_paths}) to {target_module}: {e}"
+                        )
+                        result.success = False
+                        export_success = False
+
+                    # Trigger POST_NOTEBOOK_EXPORT hooks for all contributing notebooks
+                    for nb, _source_ref in notebooks_list:
+                        HookRegistry.trigger(
+                            HookType.POST_NOTEBOOK_EXPORT,
+                            notebook=nb,
+                            output_path=output_path,
+                            from_location=from_cl,
+                            to_location=to_cl,
+                            success=export_success,
+                        )
+
+            # Handle notebook-to-notebook exports
+            for nb in nbs_to_export:
+                if nb.source_path is None:
+                    continue
+
+                try:
+                    rel_path = nb.source_path.relative_to(from_cl.path)
+                except ValueError:
+                    continue
+
+                if to_cl.format == CodeLocationFormat.MODULE:
+                    # Module exports already handled above
+                    continue
+
+                # For notebook-to-notebook exports, preserve directory structure
+                stem = rel_path.stem
+                if stem.endswith(".pct"):
+                    stem = stem[:-4]
+                output_path = to_cl.path / rel_path.parent / (stem + to_cl.file_ext)
+
+                # Trigger PRE_NOTEBOOK_EXPORT hook
+                HookRegistry.trigger(
+                    HookType.PRE_NOTEBOOK_EXPORT,
+                    notebook=nb,
+                    output_path=output_path,
+                    from_location=from_cl,
+                    to_location=to_cl,
+                )
+
+                export_success = True
+                try:
+                    # Export to notebook format
+                    fmt = (
+                        Format.PERCENT.value
+                        if to_cl.format == CodeLocationFormat.PERCENT
+                        else Format.IPYNB.value
+                    )
+                    export_notebook_to_notebook(nb, output_path, format=fmt)
+
+                    if output_path.exists():
+                        result.files_created.append(output_path)
+
+                except Exception as e:
+                    result.errors.append(f"Failed to export {nb.source_path}: {e}")
+                    result.success = False
+                    export_success = False
+
+                # Trigger POST_NOTEBOOK_EXPORT hook
+                HookRegistry.trigger(
+                    HookType.POST_NOTEBOOK_EXPORT,
+                    notebook=nb,
+                    output_path=output_path,
+                    from_location=from_cl,
+                    to_location=to_cl,
+                    success=export_success,
+                )
 
         # Trigger POST_EXPORT hook
         HookRegistry.trigger(

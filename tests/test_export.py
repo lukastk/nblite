@@ -3,6 +3,7 @@ Tests for the export pipeline (Milestone 6).
 """
 
 import json
+import os
 from pathlib import Path
 
 import pytest
@@ -1017,10 +1018,10 @@ class TestMultiNotebookExport:
         )
 
         content = module_path.read_text()
-        # Header should list both files
+        # Header should list both files (use os.sep for cross-platform)
         assert "Files to edit:" in content
-        assert "nbs/nb1.ipynb" in content
-        assert "nbs/nb2.ipynb" in content
+        assert f"nbs{os.sep}nb1.ipynb" in content
+        assert f"nbs{os.sep}nb2.ipynb" in content
 
     def test_cell_references_show_correct_notebook(self, tmp_path: Path) -> None:
         """Test that cell reference comments show the correct source notebook."""
@@ -1076,9 +1077,9 @@ class TestMultiNotebookExport:
         )
 
         content = module_path.read_text()
-        # Cell references should point to correct notebooks
-        assert "# %% nbs/nb1.ipynb" in content
-        assert "# %% nbs/nb2.ipynb" in content
+        # Cell references should point to correct notebooks (use os.sep for cross-platform)
+        assert f"# %% nbs{os.sep}nb1.ipynb" in content
+        assert f"# %% nbs{os.sep}nb2.ipynb" in content
 
     def test_function_notebook_raises_in_multi_export(self, tmp_path: Path) -> None:
         """Test that function notebooks raise error when aggregated."""

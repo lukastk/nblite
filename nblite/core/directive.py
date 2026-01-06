@@ -166,10 +166,22 @@ def _get_string_ranges(source: str) -> list[tuple[int, int, int, int]]:
         Rows are 1-indexed (as returned by tokenize).
     """
     ranges: list[tuple[int, int, int, int]] = []
+
+    # Token types to consider as string content
+    # In Python 3.12+, f-strings are tokenized differently (PEP 701):
+    # - FSTRING_START, FSTRING_MIDDLE, FSTRING_END instead of single STRING token
+    string_token_types = {tokenize.STRING}
+
+    # Add f-string token types if available (Python 3.12+)
+    if hasattr(tokenize, "FSTRING_START"):
+        string_token_types.add(tokenize.FSTRING_START)
+        string_token_types.add(tokenize.FSTRING_MIDDLE)
+        string_token_types.add(tokenize.FSTRING_END)
+
     try:
         tokens = tokenize.generate_tokens(io.StringIO(source).readline)
         for tok in tokens:
-            if tok.type == tokenize.STRING:
+            if tok.type in string_token_types:
                 # tok.start and tok.end are (row, col) tuples, 1-indexed rows
                 ranges.append((tok.start[0], tok.start[1], tok.end[0], tok.end[1]))
     except tokenize.TokenizeError:

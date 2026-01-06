@@ -587,3 +587,238 @@ class TestExportResult:
         assert len(result.files_created) == 1
         assert len(result.files_updated) == 1
         assert len(result.errors) == 1
+
+
+class TestCellOrdering:
+    """Test cell ordering based on order values in export directives."""
+
+    def test_export_order_with_export_to(self, tmp_path: Path) -> None:
+        """Test that cells are ordered by export_to order value."""
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export_to test 2\ndef second(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export_to test 1\ndef first(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb_path = tmp_path / "test.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        module_path = tmp_path / "test.py"
+        export_notebook_to_module(nb, module_path, project_root=tmp_path, target_module="test")
+
+        content = module_path.read_text()
+        # first() should appear before second() due to order values
+        first_pos = content.find("def first():")
+        second_pos = content.find("def second():")
+        assert first_pos < second_pos, "first() should appear before second()"
+
+    def test_export_order_with_export_directive(self, tmp_path: Path) -> None:
+        """Test that #|export can take an order value."""
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp test",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export 5\ndef later(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export -5\ndef earlier(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb_path = tmp_path / "test.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        module_path = tmp_path / "test.py"
+        export_notebook_to_module(nb, module_path, project_root=tmp_path)
+
+        content = module_path.read_text()
+        # earlier() should appear before later() due to order values
+        earlier_pos = content.find("def earlier():")
+        later_pos = content.find("def later():")
+        assert earlier_pos < later_pos, "earlier() should appear before later()"
+
+    def test_export_mixed_ordering(self, tmp_path: Path) -> None:
+        """Test mixed #|export and #|export_to with ordering."""
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp test",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export_to test 2\ndef from_export_to(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef from_export(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb_path = tmp_path / "test.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        module_path = tmp_path / "test.py"
+        export_notebook_to_module(nb, module_path, project_root=tmp_path)
+
+        content = module_path.read_text()
+        # #|export (order 0) should appear before #|export_to (order 2)
+        export_pos = content.find("def from_export():")
+        export_to_pos = content.find("def from_export_to():")
+        assert export_pos < export_to_pos, "#|export (order 0) should appear before #|export_to (order 2)"
+
+    def test_export_stable_sort(self, tmp_path: Path) -> None:
+        """Test that cells with same order maintain original order (stable sort)."""
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp test",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef first_same_order(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef second_same_order(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef third_same_order(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb_path = tmp_path / "test.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        module_path = tmp_path / "test.py"
+        export_notebook_to_module(nb, module_path, project_root=tmp_path)
+
+        content = module_path.read_text()
+        # All have order 0, should maintain original order
+        first_pos = content.find("def first_same_order():")
+        second_pos = content.find("def second_same_order():")
+        third_pos = content.find("def third_same_order():")
+        assert first_pos < second_pos < third_pos, "Same-order cells should maintain original order"
+
+    def test_top_export_in_non_func_notebook_raises(self, tmp_path: Path) -> None:
+        """Test that #|top_export in non-function notebook raises error."""
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp test",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|top_export\nimport os",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb_path = tmp_path / "test.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        module_path = tmp_path / "test.py"
+        with pytest.raises(ValueError, match="top_export.*function notebooks"):
+            export_notebook_to_module(nb, module_path, project_root=tmp_path)
+
+    def test_bottom_export_in_non_func_notebook_raises(self, tmp_path: Path) -> None:
+        """Test that #|bottom_export in non-function notebook raises error."""
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp test",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|bottom_export\nprint('after')",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb_path = tmp_path / "test.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        module_path = tmp_path / "test.py"
+        with pytest.raises(ValueError, match="bottom_export.*function notebooks"):
+            export_notebook_to_module(nb, module_path, project_root=tmp_path)

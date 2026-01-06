@@ -408,14 +408,45 @@ def _parse_bool_false(value: str) -> bool:
     return value.strip().lower() != "false"
 
 
+def _parse_export_order(value: str, default: int = 0) -> dict[str, int]:
+    """Parse export order: '[ORDER]' -> {"order": int}."""
+    value = value.strip()
+    if not value:
+        return {"order": default}
+    try:
+        return {"order": int(value)}
+    except ValueError:
+        return {"order": default}
+
+
+def _parse_export(value: str) -> dict[str, int]:
+    """Parse export directive: '#|export [ORDER]' -> {"order": int}. Default order: 0."""
+    return _parse_export_order(value, default=0)
+
+
+def _parse_exporti(value: str) -> dict[str, int]:
+    """Parse exporti directive: '#|exporti [ORDER]' -> {"order": int}. Default order: 0."""
+    return _parse_export_order(value, default=0)
+
+
+def _parse_top_export(value: str) -> dict[str, int]:
+    """Parse top_export directive: '#|top_export [ORDER]' -> {"order": int}. Default order: -1000."""
+    return _parse_export_order(value, default=-1000)
+
+
+def _parse_bottom_export(value: str) -> dict[str, int]:
+    """Parse bottom_export directive: '#|bottom_export [ORDER]' -> {"order": int}. Default order: 1000."""
+    return _parse_export_order(value, default=1000)
+
+
 def _parse_export_to(value: str) -> dict[str, Any]:
     """Parse export_to value: 'module.path [ORDER]'."""
     parts = value.strip().split()
     if not parts:
-        return {"module": "", "order": 100}
+        return {"module": "", "order": 1}
 
     module = parts[0]
-    order = 100  # Default order
+    order = 1  # Default order
 
     if len(parts) > 1:
         try:
@@ -441,14 +472,16 @@ def _register_builtin_directives() -> None:
         DirectiveDefinition(
             name="export",
             in_topmatter=True,
-            description="Export cell to default module",
+            value_parser=_parse_export,
+            description="Export cell to default module with optional order",
         )
     )
     register_directive(
         DirectiveDefinition(
             name="exporti",
             in_topmatter=True,
-            description="Export cell as internal (not in __all__)",
+            value_parser=_parse_exporti,
+            description="Export cell as internal (not in __all__) with optional order",
         )
     )
     register_directive(
@@ -480,7 +513,16 @@ def _register_builtin_directives() -> None:
         DirectiveDefinition(
             name="top_export",
             in_topmatter=True,
-            description="Code placed at module level before function",
+            value_parser=_parse_top_export,
+            description="Code placed at module level before function (function notebooks only)",
+        )
+    )
+    register_directive(
+        DirectiveDefinition(
+            name="bottom_export",
+            in_topmatter=True,
+            value_parser=_parse_bottom_export,
+            description="Code placed at module level after function (function notebooks only)",
         )
     )
     register_directive(

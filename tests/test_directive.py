@@ -166,7 +166,7 @@ class TestDirectiveParsing:
         directives = parse_directives_from_source(source)
         assert len(directives) == 1
         assert directives[0].value_parsed["module"] == "utils.helpers"
-        assert directives[0].value_parsed["order"] == 100
+        assert directives[0].value_parsed["order"] == 1  # Default order is 1
 
     def test_parse_export_as_func(self) -> None:
         """Test parsing export_as_func directive."""
@@ -178,6 +178,62 @@ class TestDirectiveParsing:
         source2 = "#|export_as_func false"
         directives2 = parse_directives_from_source(source2)
         assert directives2[0].value_parsed is False
+
+    def test_parse_export_with_order(self) -> None:
+        """Test parsing export directive with order value."""
+        # With explicit order
+        source = "#|export 5"
+        directives = parse_directives_from_source(source)
+        assert len(directives) == 1
+        assert directives[0].value_parsed == {"order": 5}
+
+        # With negative order
+        source2 = "#|export -10"
+        directives2 = parse_directives_from_source(source2)
+        assert directives2[0].value_parsed == {"order": -10}
+
+        # Without order (default 0)
+        source3 = "#|export"
+        directives3 = parse_directives_from_source(source3)
+        assert directives3[0].value_parsed == {"order": 0}
+
+    def test_parse_exporti_with_order(self) -> None:
+        """Test parsing exporti directive with order value."""
+        source = "#|exporti 3"
+        directives = parse_directives_from_source(source)
+        assert len(directives) == 1
+        assert directives[0].value_parsed == {"order": 3}
+
+        # Without order (default 0)
+        source2 = "#|exporti"
+        directives2 = parse_directives_from_source(source2)
+        assert directives2[0].value_parsed == {"order": 0}
+
+    def test_parse_top_export_with_order(self) -> None:
+        """Test parsing top_export directive with order value."""
+        # With explicit order
+        source = "#|top_export -500"
+        directives = parse_directives_from_source(source)
+        assert len(directives) == 1
+        assert directives[0].value_parsed == {"order": -500}
+
+        # Without order (default -1000)
+        source2 = "#|top_export"
+        directives2 = parse_directives_from_source(source2)
+        assert directives2[0].value_parsed == {"order": -1000}
+
+    def test_parse_bottom_export_with_order(self) -> None:
+        """Test parsing bottom_export directive with order value."""
+        # With explicit order
+        source = "#|bottom_export 500"
+        directives = parse_directives_from_source(source)
+        assert len(directives) == 1
+        assert directives[0].value_parsed == {"order": 500}
+
+        # Without order (default 1000)
+        source2 = "#|bottom_export"
+        directives2 = parse_directives_from_source(source2)
+        assert directives2[0].value_parsed == {"order": 1000}
 
 
 class TestTopmatter:

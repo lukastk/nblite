@@ -2,12 +2,12 @@
 
 __all__ = ['explicit_module', 'with_order']
 
-# %% nbs/02_export_to.ipynb 2
-def explicit_module():
-    """Explicitly specifies the target module."""
-    return "explicit"
-
 # %% nbs/02_export_to.ipynb 3
 def with_order():
     """Specifies module and order (lower = earlier in file)."""
     return "ordered"
+
+# %% nbs/02_export_to.ipynb 2
+def explicit_module():
+    """Explicitly specifies the target module."""
+    return "explicit"

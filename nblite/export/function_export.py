@@ -12,9 +12,29 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from nblite.core.cell import Cell
     from nblite.core.notebook import Notebook
 
 __all__ = ["export_function_notebook", "is_function_notebook"]
+
+
+def _get_func_cell_order(cell: Cell, directive_name: str, default: int) -> int:
+    """
+    Get the order value for a cell with a specific directive.
+
+    Args:
+        cell: The cell to get order from
+        directive_name: Name of directive to check (e.g., "top_export", "export")
+        default: Default order value if not specified
+
+    Returns:
+        The order value
+    """
+    if cell.has_directive(directive_name):
+        directive = cell.get_directive(directive_name)
+        if directive and directive.value_parsed:
+            return directive.value_parsed.get("order", default)
+    return default
 
 
 def is_function_notebook(notebook: Notebook) -> bool:
@@ -117,6 +137,16 @@ def export_function_notebook(
     else:
         lines.append("    pass")
 
+    # Collect bottom_export cells (code after function)
+    bottom_exports = _collect_bottom_exports(notebook)
+    if bottom_exports:
+        lines.append("")  # Blank line after function
+        for code in bottom_exports:
+            if package_name:
+                code = _transform_imports(code, package_name, module_depth)
+            lines.append(code)
+            lines.append("")
+
     # Write output
     content = "\n".join(lines)
     # Clean up extra blank lines
@@ -127,8 +157,9 @@ def export_function_notebook(
 
 
 def _collect_top_exports(notebook: Notebook) -> list[str]:
-    """Collect code from cells with #|top_export directive."""
-    exports = []
+    """Collect code from cells with #|top_export directive, sorted by order."""
+    # Collect cells with their order
+    cells_with_order: list[tuple[int, int, str]] = []  # (order, index, code)
 
     for cell in notebook.cells:
         if not cell.is_code:
@@ -136,9 +167,13 @@ def _collect_top_exports(notebook: Notebook) -> list[str]:
         if cell.has_directive("top_export"):
             code = cell.source_without_directives.strip()
             if code:
-                exports.append(code)
+                order = _get_func_cell_order(cell, "top_export", -1000)
+                cells_with_order.append((order, cell.index, code))
 
-    return exports
+    # Sort by order, then by original index (stable sort)
+    cells_with_order.sort(key=lambda x: (x[0], x[1]))
+
+    return [code for _, _, code in cells_with_order]
 
 
 def _get_function_signature(notebook: Notebook) -> str | None:
@@ -163,35 +198,82 @@ def _get_function_signature(notebook: Notebook) -> str | None:
 
 
 def _collect_function_body(notebook: Notebook) -> list[str]:
-    """Collect code for function body from exported cells."""
-    body_lines: list[str] = []
+    """Collect code for function body from exported cells, sorted by order."""
+    # Collect cells with their order and processed content
+    cells_with_order: list[tuple[int, int, list[str]]] = []  # (order, index, lines)
 
     for cell in notebook.cells:
         if not cell.is_code:
             continue
 
-        # Skip non-exported cells
-        if not cell.has_directive("export") and not cell.has_directive("func_return"):
+        # Skip non-exported cells (must have export, exporti, or func_return)
+        has_export = cell.has_directive("export") or cell.has_directive("exporti")
+        has_func_return = cell.has_directive("func_return")
+
+        if not has_export and not has_func_return:
             continue
 
-        # Skip cells with set_func_signature or top_export
-        if cell.has_directive("set_func_signature") or cell.has_directive("top_export"):
+        # Skip cells with set_func_signature, top_export, or bottom_export
+        if cell.has_directive("set_func_signature"):
             continue
+        if cell.has_directive("top_export"):
+            continue
+        if cell.has_directive("bottom_export"):
+            continue
+
+        # Get order value (default 0 for export/exporti)
+        if cell.has_directive("export"):
+            order = _get_func_cell_order(cell, "export", 0)
+        elif cell.has_directive("exporti"):
+            order = _get_func_cell_order(cell, "exporti", 0)
+        else:
+            order = 0  # func_return defaults to 0
+
+        cell_lines: list[str] = []
 
         # Handle func_return - prepend return to all code
-        if cell.has_directive("func_return"):
+        if has_func_return:
             source = cell.source_without_directives.strip()
             if source:
-                body_lines.append(f"return {source}")
-            continue
+                cell_lines.append(f"return {source}")
+        else:
+            # Handle func_return_line - inline directive
+            # Process the raw source first, then remove other directives
+            processed_lines = _process_func_return_lines(cell.source)
+            cell_lines.extend(processed_lines)
 
-        # Handle func_return_line - inline directive
-        # Process the raw source first, then remove other directives
-        processed_lines = _process_func_return_lines(cell.source)
-        for line in processed_lines:
-            body_lines.append(line)
+        if cell_lines:
+            cells_with_order.append((order, cell.index, cell_lines))
+
+    # Sort by order, then by original index (stable sort)
+    cells_with_order.sort(key=lambda x: (x[0], x[1]))
+
+    # Flatten all lines
+    body_lines: list[str] = []
+    for _, _, lines in cells_with_order:
+        body_lines.extend(lines)
 
     return body_lines
+
+
+def _collect_bottom_exports(notebook: Notebook) -> list[str]:
+    """Collect code from cells with #|bottom_export directive, sorted by order."""
+    # Collect cells with their order
+    cells_with_order: list[tuple[int, int, str]] = []  # (order, index, code)
+
+    for cell in notebook.cells:
+        if not cell.is_code:
+            continue
+        if cell.has_directive("bottom_export"):
+            code = cell.source_without_directives.strip()
+            if code:
+                order = _get_func_cell_order(cell, "bottom_export", 1000)
+                cells_with_order.append((order, cell.index, code))
+
+    # Sort by order, then by original index (stable sort)
+    cells_with_order.sort(key=lambda x: (x[0], x[1]))
+
+    return [code for _, _, code in cells_with_order]
 
 
 def _process_func_return_lines(source: str) -> list[str]:

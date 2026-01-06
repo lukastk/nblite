@@ -225,3 +225,111 @@ class TestFunctionNotebookExport:
 
         content = module_path.read_text()
         assert "def my_func():" in content
+
+    def test_bottom_export(self, tmp_path: Path) -> None:
+        """Test bottom_export adds code after function."""
+        nb_content = """{
+            "cells": [
+                {"cell_type": "code", "source": "#|default_exp func\\n#|export_as_func true", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|set_func_signature\\ndef func(): ...", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|export\\nx = 1", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|bottom_export\\nresult = func()", "metadata": {}, "outputs": [], "execution_count": null}
+            ],
+            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+            "nbformat": 4,
+            "nbformat_minor": 5
+        }"""
+        nb_path = tmp_path / "func.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        module_path = tmp_path / "func.py"
+        export_function_notebook(nb, module_path)
+
+        content = module_path.read_text()
+        assert "def func():" in content
+        assert "result = func()" in content
+        # bottom_export should appear after the function definition
+        func_pos = content.find("def func():")
+        bottom_pos = content.find("result = func()")
+        assert func_pos < bottom_pos, "bottom_export should appear after function"
+
+    def test_top_export_ordering(self, tmp_path: Path) -> None:
+        """Test top_export cells are sorted by order value."""
+        nb_content = """{
+            "cells": [
+                {"cell_type": "code", "source": "#|default_exp func\\n#|export_as_func true", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|top_export 2\\nimport later_import", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|top_export 1\\nimport earlier_import", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|set_func_signature\\ndef func(): ...", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|export\\npass", "metadata": {}, "outputs": [], "execution_count": null}
+            ],
+            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+            "nbformat": 4,
+            "nbformat_minor": 5
+        }"""
+        nb_path = tmp_path / "func.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        module_path = tmp_path / "func.py"
+        export_function_notebook(nb, module_path)
+
+        content = module_path.read_text()
+        # earlier_import (order 1) should appear before later_import (order 2)
+        earlier_pos = content.find("import earlier_import")
+        later_pos = content.find("import later_import")
+        assert earlier_pos < later_pos, "top_export with lower order should appear first"
+
+    def test_function_body_ordering(self, tmp_path: Path) -> None:
+        """Test function body cells are sorted by order value."""
+        nb_content = """{
+            "cells": [
+                {"cell_type": "code", "source": "#|default_exp func\\n#|export_as_func true", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|set_func_signature\\ndef func(): ...", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|export 5\\nlater_code = 2", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|export -5\\nearlier_code = 1", "metadata": {}, "outputs": [], "execution_count": null}
+            ],
+            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+            "nbformat": 4,
+            "nbformat_minor": 5
+        }"""
+        nb_path = tmp_path / "func.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        module_path = tmp_path / "func.py"
+        export_function_notebook(nb, module_path)
+
+        content = module_path.read_text()
+        # earlier_code (order -5) should appear before later_code (order 5)
+        earlier_pos = content.find("earlier_code = 1")
+        later_pos = content.find("later_code = 2")
+        assert earlier_pos < later_pos, "export with lower order should appear first in body"
+
+    def test_bottom_export_ordering(self, tmp_path: Path) -> None:
+        """Test bottom_export cells are sorted by order value."""
+        nb_content = """{
+            "cells": [
+                {"cell_type": "code", "source": "#|default_exp func\\n#|export_as_func true", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|set_func_signature\\ndef func(): ...", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|export\\npass", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|bottom_export 2000\\nlater_bottom = 2", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|bottom_export 500\\nearlier_bottom = 1", "metadata": {}, "outputs": [], "execution_count": null}
+            ],
+            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+            "nbformat": 4,
+            "nbformat_minor": 5
+        }"""
+        nb_path = tmp_path / "func.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        module_path = tmp_path / "func.py"
+        export_function_notebook(nb, module_path)
+
+        content = module_path.read_text()
+        # earlier_bottom (order 500) should appear before later_bottom (order 2000)
+        earlier_pos = content.find("earlier_bottom = 1")
+        later_pos = content.find("later_bottom = 2")
+        assert earlier_pos < later_pos, "bottom_export with lower order should appear first"

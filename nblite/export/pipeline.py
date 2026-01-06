@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from nblite.config.schema import CellReferenceStyle, ExportMode
+from nblite.core.cell import Cell
 from nblite.core.notebook import Format, Notebook
 from nblite.export.function_export import export_function_notebook, is_function_notebook
 from nblite.extensions import HookRegistry, HookType
@@ -34,6 +35,62 @@ FROM_IMPORT_PATTERN = re.compile(
     r"^(\s*)from\s+([a-zA-Z_][a-zA-Z0-9_.]*)\s+import\s+(.+)$",
     re.MULTILINE,
 )
+
+
+def _get_cell_order(cell: Cell) -> int:
+    """
+    Get the order value for an exported cell.
+
+    Order values determine the position of cells in the exported module.
+    Default values:
+    - #|export: 0
+    - #|exporti: 0
+    - #|export_to: 1
+
+    Args:
+        cell: The cell to get order from
+
+    Returns:
+        The order value (lower = earlier in output)
+    """
+    # Check export_to first (has module and order)
+    if cell.has_directive("export_to"):
+        directive = cell.get_directive("export_to")
+        if directive and directive.value_parsed:
+            return directive.value_parsed.get("order", 1)
+
+    # Check export/exporti
+    for name in ("export", "exporti"):
+        if cell.has_directive(name):
+            directive = cell.get_directive(name)
+            if directive and directive.value_parsed:
+                return directive.value_parsed.get("order", 0)
+            return 0  # Default if no parsed value
+
+    return 0  # Fallback
+
+
+def _validate_function_only_directives(notebook: Notebook) -> None:
+    """
+    Validate that function-only directives are only used in function notebooks.
+
+    Raises:
+        ValueError: If #|top_export or #|bottom_export used in non-function notebook.
+    """
+    if is_function_notebook(notebook):
+        return  # Function notebook, all directives allowed
+
+    for cell in notebook.cells:
+        if cell.has_directive("top_export"):
+            raise ValueError(
+                f"#|top_export directive can only be used in function notebooks "
+                f"(notebooks with #|export_as_func true). Found in cell {cell.index}."
+            )
+        if cell.has_directive("bottom_export"):
+            raise ValueError(
+                f"#|bottom_export directive can only be used in function notebooks "
+                f"(notebooks with #|export_as_func true). Found in cell {cell.index}."
+            )
 
 
 @dataclass
@@ -98,6 +155,9 @@ def export_notebook_to_module(
     """
     output_path = Path(output_path)
     project_root = Path(project_root)
+
+    # Validate function-only directives
+    _validate_function_only_directives(notebook)
 
     # Check if this is a function notebook
     if is_function_notebook(notebook):
@@ -231,6 +291,9 @@ def _collect_exported_content(
     """
     Collect content from exported cells.
 
+    Cells are sorted by their order value (from #|export, #|exporti, or #|export_to).
+    Cells with the same order value maintain their original notebook order (stable sort).
+
     Args:
         notebook: Source notebook
         export_mode: Export mode (percent or py)
@@ -247,6 +310,9 @@ def _collect_exported_content(
     """
     parts: list[str] = []
     default_exp = notebook.default_exp
+
+    # First pass: collect cells that should be exported
+    cells_to_export: list[Cell] = []
 
     for cell in notebook.cells:
         if not cell.is_code:
@@ -272,6 +338,13 @@ def _collect_exported_content(
             if cell_target != target_module:
                 continue
 
+        cells_to_export.append(cell)
+
+    # Sort cells by order value (stable sort maintains original order for same values)
+    cells_to_export.sort(key=lambda c: (_get_cell_order(c), c.index))
+
+    # Second pass: output cells in sorted order
+    for cell in cells_to_export:
         # Get source without directives
         source = cell.source_without_directives.strip()
         if not source:

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-SCRIPT_PATH="$(dirname "$0")"
-REPO_FOLDER="$(dirname "$SCRIPT_PATH")"
+REPO_FOLDER="$(dirname "$(dirname "$0")")"
 PREV_CWD=$(pwd)
 
 pytest "$REPO_FOLDER"

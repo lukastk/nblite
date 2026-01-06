@@ -196,7 +196,11 @@ class TestNewCommand:
         content = json.loads(nb_path.read_text())
         # Check the markdown cell contains the custom variables
         markdown_cells = [c for c in content["cells"] if c.get("cell_type") == "markdown"]
-        markdown_content = "".join(c.get("source", "") for c in markdown_cells)
+        # Source can be a string or list of strings in ipynb format
+        def get_source(cell: dict) -> str:
+            src = cell.get("source", "")
+            return "".join(src) if isinstance(src, list) else src
+        markdown_content = "".join(get_source(c) for c in markdown_cells)
         assert "John Doe" in markdown_content
         assert "1.0.0" in markdown_content
 
@@ -233,7 +237,11 @@ class TestNewCommand:
 
         content = json.loads(nb_path.read_text())
         markdown_cells = [c for c in content["cells"] if c.get("cell_type") == "markdown"]
-        markdown_content = "".join(c.get("source", "") for c in markdown_cells)
+        # Source can be a string or list of strings in ipynb format
+        def get_source(cell: dict) -> str:
+            src = cell.get("source", "")
+            return "".join(src) if isinstance(src, list) else src
+        markdown_content = "".join(get_source(c) for c in markdown_cells)
         assert "Custom Template" in markdown_content
 
 

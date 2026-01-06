@@ -36,11 +36,11 @@ class Format(Enum):
         return [f.value for f in self]
 
     @classmethod
-    def validate(cls, fmt: str) -> str:
+    def validate(cls, fmt: str | "Format") -> str:
         """Validate that a format string is valid.
 
         Args:
-            fmt: Format string to validate
+            fmt: Format string or Format enum member to validate
 
         Returns:
             The validated format string
@@ -48,12 +48,15 @@ class Format(Enum):
         Raises:
             FormatError: If format is not valid
         """
+        # Handle enum members
+        if isinstance(fmt, cls):
+            return fmt.value
         if fmt not in cls.get_valid_formats():
             raise FormatError(f"Invalid format '{fmt}'. Valid formats are: {cls.get_valid_formats()}")
         return fmt
 
     @classmethod
-    def from_extension(cls, ext: str) -> str:
+    def from_extension(cls, ext: str) -> "Format":
         """Get format from file extension.
 
         Delegates to notebookx.format_from_extension().
@@ -67,7 +70,7 @@ class Format(Enum):
         raise FormatError(f"Cannot infer format from extension '{ext}'")
 
     @classmethod
-    def from_path(cls, path: Path) -> str:
+    def from_path(cls, path: Path) -> "Format":
         """Infer format from file path.
 
         Delegates to notebookx.format_from_path().
@@ -81,23 +84,23 @@ class Format(Enum):
         raise FormatError(f"Cannot infer format from path '{path}'")
 
     @classmethod
-    def to_notebookx(cls, fmt: str) -> notebookx.Format:
-        """Convert string format to notebookx Format enum.
+    def to_notebookx(cls, fmt: str | "Format") -> notebookx.Format:
+        """Convert string format or Format enum to notebookx Format enum.
 
         Raises:
             FormatError: If format is not valid
         """
-        cls.validate(fmt)
-        if fmt == cls.PERCENT:
+        fmt_str = cls.validate(fmt)
+        if fmt_str == cls.PERCENT.value:
             return notebookx.Format.Percent
-        elif fmt == cls.IPYNB:
+        elif fmt_str == cls.IPYNB.value:
             return notebookx.Format.Ipynb
         else:
             raise FormatError(f"Invalid format '{fmt}'")
 
     @classmethod
-    def from_notebookx(cls, fmt: notebookx.Format) -> str:
-        """Convert notebookx Format enum to string format."""
+    def from_notebookx(cls, fmt: notebookx.Format) -> "Format":
+        """Convert notebookx Format enum to Format enum."""
         if fmt == notebookx.Format.Percent:
             return cls.PERCENT
         elif fmt == notebookx.Format.Ipynb:

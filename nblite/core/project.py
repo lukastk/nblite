@@ -559,9 +559,9 @@ class NbliteProject:
                     try:
                         # Export to notebook format
                         fmt = (
-                            Format.PERCENT
+                            Format.PERCENT.value
                             if to_cl.format == CodeLocationFormat.PERCENT
-                            else Format.IPYNB
+                            else Format.IPYNB.value
                         )
                         export_notebook_to_notebook(nb, output_path, format=fmt)
 

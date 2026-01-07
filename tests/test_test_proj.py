@@ -1169,9 +1169,7 @@ format = "module"
         # Load project with extra code location
         project = NbliteProject.from_path(
             project_dir,
-            add_code_locations=[
-                {"name": "extra", "path": "extra_nbs", "format": "ipynb"}
-            ],
+            add_code_locations=[{"name": "extra", "path": "extra_nbs", "format": "ipynb"}],
         )
 
         assert "extra" in project.config.code_locations
@@ -1308,9 +1306,7 @@ format = "module"
         project = NbliteProject.from_path(
             project_dir,
             config_override={"docs_title": "New Title"},
-            add_code_locations=[
-                {"name": "extra", "path": "extra_nbs", "format": "ipynb"}
-            ],
+            add_code_locations=[{"name": "extra", "path": "extra_nbs", "format": "ipynb"}],
         )
 
         assert project.config.docs_title == "New Title"

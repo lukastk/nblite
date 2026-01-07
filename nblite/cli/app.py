@@ -8,9 +8,10 @@ from __future__ import annotations
 
 __all__ = ["app"]
 
+import builtins
 import json
 from pathlib import Path
-from typing import Annotated, List
+from typing import Annotated
 
 import typer
 
@@ -50,7 +51,7 @@ def main(
         ),
     ] = None,
     add_code_location: Annotated[
-        List[str] | None,
+        builtins.list[str] | None,
         typer.Option(
             "--add-code-location",
             help='JSON string to add a code location: \'{"name": "cl_name", "path": "...", "format": "..."}\'',

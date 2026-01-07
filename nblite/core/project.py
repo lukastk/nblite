@@ -469,6 +469,9 @@ class NbliteProject:
                 module_to_notebooks: dict[str, list[tuple[Notebook, str]]] = {}
                 # Track function notebooks separately (they can't aggregate)
                 function_notebooks: list[tuple[Notebook, str, str]] = []  # (nb, source_ref, target)
+                # Track notebooks that claim each module via #|default_exp
+                # Maps module -> notebook source_ref (for error messages)
+                default_exp_owners: dict[str, str] = {}
 
                 for nb in nbs_to_export:
                     if nb.source_path is None:
@@ -488,6 +491,18 @@ class NbliteProject:
                         source_ref = str(nb.source_path.relative_to(self.root_path))
                     except ValueError:
                         source_ref = str(nb.source_path)
+
+                    # Check for duplicate #|default_exp
+                    if nb.default_exp:
+                        if nb.default_exp in default_exp_owners:
+                            existing_nb = default_exp_owners[nb.default_exp]
+                            raise ValueError(
+                                f"Multiple notebooks have the same #|default_exp '{nb.default_exp}': "
+                                f"'{existing_nb}' and '{source_ref}'. "
+                                f"Each module can only have one notebook with #|default_exp. "
+                                f"Use #|export_to to export cells to a shared module from multiple notebooks."
+                            )
+                        default_exp_owners[nb.default_exp] = source_ref
 
                     export_targets = get_export_targets(nb)
                     if not export_targets:

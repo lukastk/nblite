@@ -7,6 +7,8 @@ These tests verify that nblite works correctly with a real project structure.
 import json
 from pathlib import Path
 
+import pytest
+
 from nblite.config.schema import CodeLocationFormat
 from nblite.core.notebook import Notebook
 from nblite.core.project import NbliteProject
@@ -219,6 +221,157 @@ class TestExportPipeline:
         assert "def run_workflow" in content
         assert "input_path: str" in content
         assert "return result" in content
+
+    def test_duplicate_default_exp_raises_error(self, tmp_path: Path) -> None:
+        """Test that duplicate #|default_exp raises an error."""
+        import json
+
+        # Create a minimal project with two notebooks having the same default_exp
+        project_dir = tmp_path / "dup_proj"
+        nbs_dir = project_dir / "nbs"
+        lib_dir = project_dir / "mylib"
+        nbs_dir.mkdir(parents=True)
+        lib_dir.mkdir(parents=True)
+
+        # Create nblite.toml
+        config = """
+export_pipeline = "nbs -> lib"
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.lib]
+path = "mylib"
+format = "module"
+"""
+        (project_dir / "nblite.toml").write_text(config)
+
+        # Create first notebook with default_exp = "shared"
+        nb1_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp shared",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef from_nb1(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        (nbs_dir / "nb1.ipynb").write_text(nb1_content)
+
+        # Create second notebook with the SAME default_exp = "shared"
+        nb2_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp shared",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef from_nb2(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        (nbs_dir / "nb2.ipynb").write_text(nb2_content)
+
+        # Try to export - should raise ValueError
+        project = NbliteProject.from_path(project_dir)
+        with pytest.raises(ValueError, match="Multiple notebooks have the same #|default_exp"):
+            project.export()
+
+    def test_export_to_same_module_allowed(self, tmp_path: Path) -> None:
+        """Test that #|export_to to the same module from multiple notebooks is allowed."""
+        import json
+
+        # Create a minimal project with two notebooks using export_to to same module
+        project_dir = tmp_path / "export_to_proj"
+        nbs_dir = project_dir / "nbs"
+        lib_dir = project_dir / "mylib"
+        nbs_dir.mkdir(parents=True)
+        lib_dir.mkdir(parents=True)
+
+        # Create nblite.toml
+        config = """
+export_pipeline = "nbs -> lib"
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.lib]
+path = "mylib"
+format = "module"
+"""
+        (project_dir / "nblite.toml").write_text(config)
+
+        # Create first notebook using export_to (no default_exp for 'shared')
+        nb1_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export_to shared\ndef from_nb1(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        (nbs_dir / "nb1.ipynb").write_text(nb1_content)
+
+        # Create second notebook also using export_to to same module
+        nb2_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export_to shared\ndef from_nb2(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        (nbs_dir / "nb2.ipynb").write_text(nb2_content)
+
+        # Export should succeed
+        project = NbliteProject.from_path(project_dir)
+        result = project.export()
+        assert result.success
+
+        # Both functions should be in the output
+        shared_py = lib_dir / "shared.py"
+        assert shared_py.exists()
+        content = shared_py.read_text()
+        assert "def from_nb1():" in content
+        assert "def from_nb2():" in content
 
 
 class TestDunderFolderExport:

@@ -25,7 +25,7 @@ def export(
     export_pipeline: Annotated[
         str | None,
         typer.Option(
-            "--export-pipeline",
+            "--pipeline",
             help="Custom export pipeline. E.g. 'nbs->lib' or 'pcts->nbs' (to reverse)",
         ),
     ] = None,
@@ -48,7 +48,7 @@ def export(
     """Run the export pipeline.
 
     By default, uses the export_pipeline defined in nblite.toml.
-    Use --export-pipeline to override with a custom pipeline.
+    Use --pipeline to override with a custom pipeline.
     Use --reverse to reverse the pipeline direction (excludes module code locations).
 
     The pipeline format is 'from -> to' where from and to are code location keys.
@@ -56,7 +56,7 @@ def export(
 
     Example:
         nbl export
-        nbl export --export-pipeline 'nbs->lib'
+        nbl export --pipeline 'nbs->lib'
         nbl export --reverse
     """
     project = get_project(ctx)
@@ -64,7 +64,7 @@ def export(
     # Handle --reverse flag
     if reverse:
         if export_pipeline:
-            console.print("[red]Error: Cannot use --reverse with --export-pipeline[/red]")
+            console.print("[red]Error: Cannot use --reverse with --pipeline[/red]")
             raise typer.Exit(1)
         reversed_pipeline = project.get_reversed_pipeline()
         if not reversed_pipeline:

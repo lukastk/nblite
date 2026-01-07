@@ -274,7 +274,7 @@ class TestExportCommand:
         assert result.exit_code == 1
 
     def test_export_with_custom_pipeline(self, sample_project: Path) -> None:
-        """Test nbl export --export-pipeline with custom pipeline."""
+        """Test nbl export --pipeline with custom pipeline."""
         os.chdir(sample_project)
 
         # Create pts directory for the test
@@ -289,14 +289,14 @@ format = "percent"
 """
         (sample_project / "nblite.toml").write_text(config_content)
 
-        result = runner.invoke(app, ["export", "--export-pipeline", "nbs -> pts"])
+        result = runner.invoke(app, ["export", "--pipeline", "nbs -> pts"])
 
         assert result.exit_code == 0
         assert "Using custom pipeline" in result.output
         assert (sample_project / "pts" / "utils.pct.py").exists()
 
     def test_export_with_reverse_pipeline(self, sample_project: Path) -> None:
-        """Test nbl export --export-pipeline with reverse direction."""
+        """Test nbl export --pipeline with reverse direction."""
         os.chdir(sample_project)
 
         # First create a pct.py file
@@ -325,7 +325,7 @@ format = "ipynb"
 """
         (sample_project / "nblite.toml").write_text(config_content)
 
-        result = runner.invoke(app, ["export", "--export-pipeline", "pts -> nbs_out"])
+        result = runner.invoke(app, ["export", "--pipeline", "pts -> nbs_out"])
 
         assert result.exit_code == 0
         assert (sample_project / "nbs_out" / "utils.ipynb").exists()

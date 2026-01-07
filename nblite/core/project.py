@@ -508,6 +508,14 @@ class NbliteProject:
                     if not export_targets:
                         continue
 
+                    # Check for #|export without #|default_exp
+                    if "" in export_targets:
+                        raise ValueError(
+                            f"Notebook '{source_ref}' uses #|export or #|exporti without #|default_exp. "
+                            f"Either add #|default_exp to specify the target module, "
+                            f"or use #|export_to to explicitly specify the target module for each cell."
+                        )
+
                     # Check if this is a function notebook
                     if is_function_notebook(nb):
                         # Function notebooks are handled separately (no aggregation)

@@ -373,6 +373,102 @@ format = "module"
         assert "def from_nb1():" in content
         assert "def from_nb2():" in content
 
+    def test_export_without_default_exp_raises_error(self, tmp_path: Path) -> None:
+        """Test that #|export without #|default_exp raises an error."""
+        import json
+
+        # Create a minimal project with a notebook using #|export but no #|default_exp
+        project_dir = tmp_path / "no_default_exp_proj"
+        nbs_dir = project_dir / "nbs"
+        lib_dir = project_dir / "mylib"
+        nbs_dir.mkdir(parents=True)
+        lib_dir.mkdir(parents=True)
+
+        # Create nblite.toml
+        config = """
+export_pipeline = "nbs -> lib"
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.lib]
+path = "mylib"
+format = "module"
+"""
+        (project_dir / "nblite.toml").write_text(config)
+
+        # Create notebook with #|export but NO #|default_exp
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef orphan_func(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        (nbs_dir / "orphan.ipynb").write_text(nb_content)
+
+        # Try to export - should raise ValueError
+        project = NbliteProject.from_path(project_dir)
+        with pytest.raises(ValueError, match="uses #|export or #|exporti without #|default_exp"):
+            project.export()
+
+    def test_exporti_without_default_exp_raises_error(self, tmp_path: Path) -> None:
+        """Test that #|exporti without #|default_exp also raises an error."""
+        import json
+
+        # Create a minimal project
+        project_dir = tmp_path / "no_default_exp_proj2"
+        nbs_dir = project_dir / "nbs"
+        lib_dir = project_dir / "mylib"
+        nbs_dir.mkdir(parents=True)
+        lib_dir.mkdir(parents=True)
+
+        # Create nblite.toml
+        config = """
+export_pipeline = "nbs -> lib"
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.lib]
+path = "mylib"
+format = "module"
+"""
+        (project_dir / "nblite.toml").write_text(config)
+
+        # Create notebook with #|exporti but NO #|default_exp
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|exporti\ndef _private_func(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        (nbs_dir / "orphan.ipynb").write_text(nb_content)
+
+        # Try to export - should raise ValueError
+        project = NbliteProject.from_path(project_dir)
+        with pytest.raises(ValueError, match="uses #|export or #|exporti without #|default_exp"):
+            project.export()
+
 
 class TestDunderFolderExport:
     """Test that notebooks in dunder folders are handled correctly."""

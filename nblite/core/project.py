@@ -89,7 +89,12 @@ class NbliteProject:
     _loaded_extensions: list[Any] = field(default_factory=list, repr=False, init=False)
 
     @classmethod
-    def from_path(cls, path: Path | str | None = None) -> NbliteProject:
+    def from_path(
+        cls,
+        path: Path | str | None = None,
+        config_override: dict[str, Any] | None = None,
+        add_code_locations: list[dict[str, Any]] | None = None,
+    ) -> NbliteProject:
         """
         Load project from path.
 
@@ -97,6 +102,8 @@ class NbliteProject:
 
         Args:
             path: Path to project root or nblite.toml
+            config_override: Dictionary of config values to override (merges at top level)
+            add_code_locations: List of code location dicts to add (each must have 'name' key)
 
         Returns:
             NbliteProject instance
@@ -119,7 +126,11 @@ class NbliteProject:
                 if not config_path.exists():
                     raise FileNotFoundError(f"No nblite.toml found in {root_path}")
 
-        config = load_config(root_path / "nblite.toml")
+        config = load_config(
+            root_path / "nblite.toml",
+            config_override=config_override,
+            add_code_locations=add_code_locations,
+        )
         project = cls(root_path=root_path.resolve(), config=config)
 
         # Load extensions from config

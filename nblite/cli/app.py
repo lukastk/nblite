@@ -8,12 +8,19 @@ from __future__ import annotations
 
 __all__ = ["app"]
 
+import json
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, List
 
 import typer
 
-from nblite.cli._helpers import CONFIG_PATH_KEY, version_callback
+from nblite.cli._helpers import (
+    ADD_CODE_LOCATION_KEY,
+    CONFIG_OVERRIDE_KEY,
+    CONFIG_PATH_KEY,
+    console,
+    version_callback,
+)
 
 # Create app first so commands can import and register themselves
 app = typer.Typer(
@@ -35,6 +42,20 @@ def main(
             envvar="NBLITE_CONFIG",
         ),
     ] = None,
+    override_config: Annotated[
+        str | None,
+        typer.Option(
+            "--override-config",
+            help="JSON string to override config values (overwrites at key level)",
+        ),
+    ] = None,
+    add_code_location: Annotated[
+        List[str] | None,
+        typer.Option(
+            "--add-code-location",
+            help='JSON string to add a code location: \'{"name": "cl_name", "path": "...", "format": "..."}\'',
+        ),
+    ] = None,
     version: Annotated[
         bool,
         typer.Option(
@@ -48,8 +69,32 @@ def main(
 ) -> None:
     """nblite - Notebook-driven Python package development tool."""
     ctx.ensure_object(dict)
+
     if config is not None:
         ctx.obj[CONFIG_PATH_KEY] = config
+
+    # Parse and store override config
+    if override_config is not None:
+        try:
+            ctx.obj[CONFIG_OVERRIDE_KEY] = json.loads(override_config)
+        except json.JSONDecodeError as e:
+            console.print(f"[red]Error: Invalid JSON in --override-config: {e}[/red]")
+            raise typer.Exit(1) from None
+
+    # Parse and store add code locations
+    if add_code_location is not None:
+        parsed_locations = []
+        for loc_json in add_code_location:
+            try:
+                parsed = json.loads(loc_json)
+                if "name" not in parsed:
+                    console.print("[red]Error: --add-code-location requires 'name' field[/red]")
+                    raise typer.Exit(1)
+                parsed_locations.append(parsed)
+            except json.JSONDecodeError as e:
+                console.print(f"[red]Error: Invalid JSON in --add-code-location: {e}[/red]")
+                raise typer.Exit(1) from None
+        ctx.obj[ADD_CODE_LOCATION_KEY] = parsed_locations
 
 
 from nblite.cli.commands import (  # noqa: E402, F401

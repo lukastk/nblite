@@ -2,7 +2,15 @@
 
 from __future__ import annotations
 
-__all__ = ["console", "CONFIG_PATH_KEY", "version_callback", "get_project", "get_config_path"]
+__all__ = [
+    "console",
+    "CONFIG_PATH_KEY",
+    "CONFIG_OVERRIDE_KEY",
+    "ADD_CODE_LOCATION_KEY",
+    "version_callback",
+    "get_project",
+    "get_config_path",
+]
 
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -17,8 +25,10 @@ if TYPE_CHECKING:
 
 console = Console()
 
-# Global config path stored in context
+# Global config keys stored in context
 CONFIG_PATH_KEY = "config_path"
+CONFIG_OVERRIDE_KEY = "config_override"
+ADD_CODE_LOCATION_KEY = "add_code_location"
 
 
 def version_callback(value: bool) -> None:
@@ -33,7 +43,7 @@ def get_project(ctx: typer.Context) -> NbliteProject:
     Get the NbliteProject using the config path from context.
 
     Args:
-        ctx: Typer context containing optional config_path
+        ctx: Typer context containing optional config_path, config_override, add_code_location
 
     Returns:
         NbliteProject instance
@@ -44,9 +54,15 @@ def get_project(ctx: typer.Context) -> NbliteProject:
     from nblite.core.project import NbliteProject
 
     config_path = ctx.obj.get(CONFIG_PATH_KEY) if ctx.obj else None
+    config_override = ctx.obj.get(CONFIG_OVERRIDE_KEY) if ctx.obj else None
+    add_code_locations = ctx.obj.get(ADD_CODE_LOCATION_KEY) if ctx.obj else None
 
     try:
-        return NbliteProject.from_path(config_path)
+        return NbliteProject.from_path(
+            config_path,
+            config_override=config_override,
+            add_code_locations=add_code_locations,
+        )
     except FileNotFoundError as e:
         console.print(f"[red]Error: {e}[/red]")
         raise typer.Exit(1) from None

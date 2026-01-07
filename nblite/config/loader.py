@@ -161,12 +161,18 @@ def _parse_extensions(extensions_data: list[dict[str, Any]]) -> list[ExtensionEn
     return extensions
 
 
-def load_config(path: Path | str) -> NbliteConfig:
+def load_config(
+    path: Path | str,
+    config_override: dict[str, Any] | None = None,
+    add_code_locations: list[dict[str, Any]] | None = None,
+) -> NbliteConfig:
     """
     Load and parse nblite.toml configuration.
 
     Args:
         path: Path to nblite.toml file
+        config_override: Dictionary of config values to override (merges at top level)
+        add_code_locations: List of code location dicts to add (each must have 'name' key)
 
     Returns:
         NbliteConfig object
@@ -185,6 +191,23 @@ def load_config(path: Path | str) -> NbliteConfig:
             raw_config = tomllib.load(f)
     except tomllib.TOMLDecodeError as e:
         raise ConfigError(f"Invalid TOML in {path}: {e}") from e
+
+    # Apply config_override - overwrites at top level
+    if config_override:
+        for key, value in config_override.items():
+            raw_config[key] = value
+
+    # Add extra code locations
+    if add_code_locations:
+        if "cl" not in raw_config:
+            raw_config["cl"] = {}
+        for cl_data in add_code_locations:
+            name = cl_data.get("name")
+            if not name:
+                raise ConfigError("--add-code-location requires 'name' field")
+            # Copy all fields except 'name' into cl section
+            cl_config = {k: v for k, v in cl_data.items() if k != "name"}
+            raw_config["cl"][name] = cl_config
 
     # Parse export pipeline
     pipeline_data = raw_config.get("export_pipeline", "")

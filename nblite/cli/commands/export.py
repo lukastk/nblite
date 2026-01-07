@@ -64,9 +64,7 @@ def export(
     # Handle --reverse flag
     if reverse:
         if export_pipeline:
-            console.print(
-                "[red]Error: Cannot use --reverse with --export-pipeline[/red]"
-            )
+            console.print("[red]Error: Cannot use --reverse with --export-pipeline[/red]")
             raise typer.Exit(1)
         reversed_pipeline = project.get_reversed_pipeline()
         if not reversed_pipeline:

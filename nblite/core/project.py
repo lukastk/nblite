@@ -393,6 +393,7 @@ class NbliteProject:
         self,
         notebooks: list[Path] | None = None,
         pipeline: str | None = None,
+        silence_warnings: bool = False,
     ) -> ExportResult:
         """
         Run the export pipeline.
@@ -402,6 +403,7 @@ class NbliteProject:
             pipeline: Custom pipeline string (use config if None).
                 Format: "from_key -> to_key" or "from1 -> to1, from2 -> to2"
                 Can also use newlines to separate rules.
+            silence_warnings: If True, suppress warning messages about unrecognized directives.
 
         Returns:
             ExportResult with success status and file lists
@@ -412,6 +414,8 @@ class NbliteProject:
             POST_NOTEBOOK_EXPORT: After each notebook (notebook=nb, output_path=path, success=bool)
             POST_EXPORT: After export completes (project=self, result=result)
         """
+        from nblite.core.directive import get_unrecognized_directives
+
         result = ExportResult()
 
         # Trigger PRE_EXPORT hook
@@ -491,6 +495,20 @@ class NbliteProject:
                         source_ref = str(nb.source_path.relative_to(self.root_path))
                     except ValueError:
                         source_ref = str(nb.source_path)
+
+                    # Check for unrecognized directives
+                    all_directives = []
+                    for cell in nb.cells:
+                        for directive_list in cell.directives.values():
+                            all_directives.extend(directive_list)
+                    unrecognized = get_unrecognized_directives(all_directives)
+                    for directive in unrecognized:
+                        warning_msg = (
+                            f"Unrecognized directive '#|{directive.name}' "
+                            f"in '{source_ref}' (line {directive.line_num + 1})"
+                        )
+                        if warning_msg not in result.warnings:
+                            result.warnings.append(warning_msg)
 
                     # Check for duplicate #|default_exp
                     if nb.default_exp:
@@ -642,6 +660,26 @@ class NbliteProject:
                 if to_cl.format == CodeLocationFormat.MODULE:
                     # Module exports already handled above
                     continue
+
+                # Compute source reference for warnings
+                try:
+                    source_ref = str(nb.source_path.relative_to(self.root_path))
+                except ValueError:
+                    source_ref = str(nb.source_path)
+
+                # Check for unrecognized directives (if not already checked in module export)
+                all_directives = []
+                for cell in nb.cells:
+                    for directive_list in cell.directives.values():
+                        all_directives.extend(directive_list)
+                unrecognized = get_unrecognized_directives(all_directives)
+                for directive in unrecognized:
+                    warning_msg = (
+                        f"Unrecognized directive '#|{directive.name}' "
+                        f"in '{source_ref}' (line {directive.line_num + 1})"
+                    )
+                    if warning_msg not in result.warnings:
+                        result.warnings.append(warning_msg)
 
                 # For notebook-to-notebook exports, preserve directory structure
                 stem = rel_path.stem

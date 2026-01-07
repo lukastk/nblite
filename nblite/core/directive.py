@@ -29,6 +29,7 @@ __all__ = [
     "get_directive_definition",
     "list_directive_definitions",
     "parse_directives_from_source",
+    "get_unrecognized_directives",
 ]
 
 
@@ -76,6 +77,19 @@ def get_directive_definition(name: str) -> DirectiveDefinition | None:
 def list_directive_definitions() -> list[DirectiveDefinition]:
     """List all registered directive definitions."""
     return list(_directive_definitions.values())
+
+
+def get_unrecognized_directives(directives: list[Directive]) -> list[Directive]:
+    """
+    Get all unrecognized directives from a list of directives.
+
+    Args:
+        directives: List of Directive objects to check
+
+    Returns:
+        List of directives that are not registered in the directive definitions
+    """
+    return [d for d in directives if get_directive_definition(d.name) is None]
 
 
 def clear_directive_definitions() -> None:

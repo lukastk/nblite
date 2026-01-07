@@ -29,6 +29,13 @@ def export(
             help="Custom export pipeline. E.g. 'nbs->lib' or 'pcts->nbs' (to reverse)",
         ),
     ] = None,
+    silence_warnings: Annotated[
+        bool,
+        typer.Option(
+            "--silence-warnings",
+            help="Suppress warning messages about unrecognized directives",
+        ),
+    ] = False,
 ) -> None:
     """Run the export pipeline.
 
@@ -60,7 +67,17 @@ def export(
     if export_pipeline:
         console.print(f"[blue]Using custom pipeline: {export_pipeline}[/blue]")
 
-    result = project.export(notebooks=notebooks, pipeline=export_pipeline)
+    result = project.export(
+        notebooks=notebooks,
+        pipeline=export_pipeline,
+        silence_warnings=silence_warnings,
+    )
+
+    # Print warnings (unless silenced)
+    if result.warnings and not silence_warnings:
+        console.print("[yellow]Warnings:[/yellow]")
+        for warning in result.warnings:
+            console.print(f"  [yellow]⚠[/yellow] {warning}")
 
     if result.success:
         console.print("[green]Export completed successfully[/green]")

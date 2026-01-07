@@ -102,6 +102,7 @@ class ExportResult:
     files_created: list[Path] = field(default_factory=list)
     files_updated: list[Path] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
 
 
 def export_notebook_to_notebook(

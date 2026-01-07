@@ -469,6 +469,120 @@ format = "module"
         with pytest.raises(ValueError, match="uses #|export or #|exporti without #|default_exp"):
             project.export()
 
+    def test_unrecognized_directive_warns(self, tmp_path: Path) -> None:
+        """Test that unrecognized directives produce warnings."""
+        import json
+
+        # Create a minimal project with an unrecognized directive
+        project_dir = tmp_path / "warn_proj"
+        nbs_dir = project_dir / "nbs"
+        lib_dir = project_dir / "mylib"
+        nbs_dir.mkdir(parents=True)
+        lib_dir.mkdir(parents=True)
+
+        # Create nblite.toml
+        config = """
+export_pipeline = "nbs -> lib"
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.lib]
+path = "mylib"
+format = "module"
+"""
+        (project_dir / "nblite.toml").write_text(config)
+
+        # Create notebook with an unrecognized directive
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp mymodule",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\n#|unknown_directive\ndef func(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        (nbs_dir / "test.ipynb").write_text(nb_content)
+
+        # Export should succeed but produce warnings
+        project = NbliteProject.from_path(project_dir)
+        result = project.export()
+        assert result.success
+        assert len(result.warnings) == 1
+        assert "unknown_directive" in result.warnings[0]
+        assert "nbs" in result.warnings[0]  # source path should be in warning
+
+    def test_silence_warnings_suppresses_collection(self, tmp_path: Path) -> None:
+        """Test that silence_warnings=True still collects warnings in result."""
+        import json
+
+        # Create a minimal project with an unrecognized directive
+        project_dir = tmp_path / "silence_proj"
+        nbs_dir = project_dir / "nbs"
+        lib_dir = project_dir / "mylib"
+        nbs_dir.mkdir(parents=True)
+        lib_dir.mkdir(parents=True)
+
+        # Create nblite.toml
+        config = """
+export_pipeline = "nbs -> lib"
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.lib]
+path = "mylib"
+format = "module"
+"""
+        (project_dir / "nblite.toml").write_text(config)
+
+        # Create notebook with an unrecognized directive
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp mymodule",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\n#|fake_directive value\ndef func(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        (nbs_dir / "test.ipynb").write_text(nb_content)
+
+        # Export with silence_warnings=True
+        project = NbliteProject.from_path(project_dir)
+        result = project.export(silence_warnings=True)
+        assert result.success
+        # Warnings should still be collected (just not printed by CLI)
+        assert len(result.warnings) == 1
+        assert "fake_directive" in result.warnings[0]
+
 
 class TestDunderFolderExport:
     """Test that notebooks in dunder folders are handled correctly."""

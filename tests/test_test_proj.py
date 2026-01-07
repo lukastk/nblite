@@ -584,6 +584,231 @@ format = "module"
         assert "fake_directive" in result.warnings[0]
 
 
+class TestReversePipeline:
+    """Test the reverse pipeline feature."""
+
+    def test_get_reversed_pipeline_excludes_modules(self, tmp_path: Path) -> None:
+        """Test that get_reversed_pipeline excludes module code locations."""
+        import json
+
+        # Create a project with nbs -> pts -> lib pipeline
+        project_dir = tmp_path / "reverse_proj"
+        nbs_dir = project_dir / "nbs"
+        pts_dir = project_dir / "pts"
+        lib_dir = project_dir / "mylib"
+        nbs_dir.mkdir(parents=True)
+        pts_dir.mkdir(parents=True)
+        lib_dir.mkdir(parents=True)
+
+        # Create nblite.toml with multi-step pipeline
+        config = """
+export_pipeline = \"\"\"
+nbs -> pts
+pts -> lib
+\"\"\"
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.pts]
+path = "pts"
+format = "percent"
+
+[cl.lib]
+path = "mylib"
+format = "module"
+"""
+        (project_dir / "nblite.toml").write_text(config)
+
+        # Create a simple notebook
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp test\n#|export\ndef func(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        (nbs_dir / "test.ipynb").write_text(nb_content)
+
+        project = NbliteProject.from_path(project_dir)
+        reversed_pipeline = project.get_reversed_pipeline()
+
+        # Should only include "pts -> nbs", not "lib -> pts"
+        assert reversed_pipeline == "pts -> nbs"
+
+    def test_get_reversed_pipeline_no_modules(self, tmp_path: Path) -> None:
+        """Test reverse pipeline when there are no module code locations."""
+        import json
+
+        # Create a project with only notebook code locations
+        project_dir = tmp_path / "reverse_proj2"
+        nbs_dir = project_dir / "nbs"
+        pts_dir = project_dir / "pts"
+        nbs_dir.mkdir(parents=True)
+        pts_dir.mkdir(parents=True)
+
+        # Create nblite.toml
+        config = """
+export_pipeline = "nbs -> pts"
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.pts]
+path = "pts"
+format = "percent"
+"""
+        (project_dir / "nblite.toml").write_text(config)
+
+        # Create a simple notebook
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "x = 1",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        (nbs_dir / "test.ipynb").write_text(nb_content)
+
+        project = NbliteProject.from_path(project_dir)
+        reversed_pipeline = project.get_reversed_pipeline()
+
+        assert reversed_pipeline == "pts -> nbs"
+
+    def test_get_reversed_pipeline_only_modules(self, tmp_path: Path) -> None:
+        """Test reverse pipeline when all destinations are modules."""
+        import json
+
+        # Create a project where all rules go to modules
+        project_dir = tmp_path / "reverse_proj3"
+        nbs_dir = project_dir / "nbs"
+        lib_dir = project_dir / "mylib"
+        nbs_dir.mkdir(parents=True)
+        lib_dir.mkdir(parents=True)
+
+        # Create nblite.toml
+        config = """
+export_pipeline = "nbs -> lib"
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.lib]
+path = "mylib"
+format = "module"
+"""
+        (project_dir / "nblite.toml").write_text(config)
+
+        # Create a simple notebook
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp test\n#|export\ndef func(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        (nbs_dir / "test.ipynb").write_text(nb_content)
+
+        project = NbliteProject.from_path(project_dir)
+        reversed_pipeline = project.get_reversed_pipeline()
+
+        # Should return None since all rules involve modules
+        assert reversed_pipeline is None
+
+    def test_reverse_export_syncs_changes(self, tmp_path: Path) -> None:
+        """Test that reverse export actually syncs changes from pts to nbs."""
+        import json
+
+        # Create a project
+        project_dir = tmp_path / "reverse_proj4"
+        nbs_dir = project_dir / "nbs"
+        pts_dir = project_dir / "pts"
+        nbs_dir.mkdir(parents=True)
+        pts_dir.mkdir(parents=True)
+
+        # Create nblite.toml
+        config = """
+export_pipeline = "nbs -> pts"
+
+[cl.nbs]
+path = "nbs"
+format = "ipynb"
+
+[cl.pts]
+path = "pts"
+format = "percent"
+"""
+        (project_dir / "nblite.toml").write_text(config)
+
+        # Create a notebook
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "x = 1",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        (nbs_dir / "test.ipynb").write_text(nb_content)
+
+        # First, export nbs -> pts
+        project = NbliteProject.from_path(project_dir)
+        project.export()
+
+        # Verify pts file was created
+        pts_file = pts_dir / "test.pct.py"
+        assert pts_file.exists()
+        assert "x = 1" in pts_file.read_text()
+
+        # Now modify the pts file
+        pts_file.write_text("# %%\ny = 2\n")
+
+        # Reverse export: pts -> nbs
+        reversed_pipeline = project.get_reversed_pipeline()
+        assert reversed_pipeline == "pts -> nbs"
+        result = project.export(pipeline=reversed_pipeline)
+        assert result.success
+
+        # Verify nbs file was updated
+        nbs_file = nbs_dir / "test.ipynb"
+        nb_data = json.loads(nbs_file.read_text())
+        assert "y = 2" in nb_data["cells"][0]["source"]
+
+
 class TestDunderFolderExport:
     """Test that notebooks in dunder folders are handled correctly."""
 

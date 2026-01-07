@@ -389,6 +389,46 @@ class NbliteProject:
             module_path=module_path,
         )
 
+    def get_reversed_pipeline(self) -> str | None:
+        """
+        Get the reversed export pipeline string, excluding module code locations.
+
+        Reverses the direction of each pipeline rule (from_key <-> to_key) but
+        only for rules where neither the source nor destination is a module
+        code location.
+
+        Returns:
+            Reversed pipeline string (e.g., "pts -> nbs"), or None if no
+            reversible rules exist.
+
+        Example:
+            If the pipeline is "nbs -> pts, pts -> lib", the reversed pipeline
+            would be "pts -> nbs" (the "pts -> lib" rule is excluded because
+            'lib' is a module code location).
+        """
+        reversed_rules: list[str] = []
+
+        for rule in self.config.export_pipeline:
+            from_cl = self.code_locations.get(rule.from_key)
+            to_cl = self.code_locations.get(rule.to_key)
+
+            if not from_cl or not to_cl:
+                continue
+
+            # Skip rules involving module code locations
+            if from_cl.format == CodeLocationFormat.MODULE:
+                continue
+            if to_cl.format == CodeLocationFormat.MODULE:
+                continue
+
+            # Reverse the direction: to_key -> from_key
+            reversed_rules.append(f"{rule.to_key} -> {rule.from_key}")
+
+        if not reversed_rules:
+            return None
+
+        return ", ".join(reversed_rules)
+
     def export(
         self,
         notebooks: list[Path] | None = None,

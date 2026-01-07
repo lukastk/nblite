@@ -266,7 +266,7 @@ def fill(
     ] = 4,
     fill_unchanged: Annotated[
         bool,
-        typer.Option("--fill-unchanged", help="Fill notebooks even if unchanged"),
+        typer.Option("--fill-unchanged", "-f", help="Fill notebooks even if unchanged"),
     ] = False,
     remove_outputs_first: Annotated[
         bool,

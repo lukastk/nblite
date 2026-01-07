@@ -33,6 +33,7 @@ def export(
         bool,
         typer.Option(
             "--reverse",
+            "-r",
             help="Reverse the export pipeline direction (notebook formats only, excludes modules)",
         ),
     ] = False,

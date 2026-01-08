@@ -11,11 +11,11 @@ def public_function():
 PUBLIC_CONSTANT = 42
 
 # %% nbs/01_export_basics.ipynb 6
-def _internal_helper():
+def internal_helper():
     """This function is exported but NOT in __all__.
 
     It can still be imported directly:
-        from .export_basics import _internal_helper
+        from .export_basics import internal_helper
 
     But won't be included in:
         from .export_basics import *
@@ -25,4 +25,4 @@ def _internal_helper():
 # %% nbs/01_export_basics.ipynb 7
 def use_internal():
     """Public function that uses the internal helper."""
-    return _internal_helper()
+    return internal_helper()

@@ -471,6 +471,11 @@ def _parse_export_to(value: str) -> dict[str, Any]:
     return {"module": module, "order": order}
 
 
+def _parse_add_to_all(value: str) -> list[str]:
+    """Parse add_to_all value: space-separated names to add to __all__."""
+    return value.strip().split()
+
+
 def _register_builtin_directives() -> None:
     """Register all built-in directive definitions."""
     # Export directives
@@ -504,6 +509,14 @@ def _register_builtin_directives() -> None:
             in_topmatter=True,
             value_parser=_parse_export_to,
             description="Export cell to specific module with optional order",
+        )
+    )
+    register_directive(
+        DirectiveDefinition(
+            name="add_to_all",
+            in_topmatter=True,
+            value_parser=_parse_add_to_all,
+            description="Add names to __all__ (space-separated)",
         )
     )
 

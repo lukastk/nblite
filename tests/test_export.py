@@ -360,6 +360,44 @@ class TestNotebookToModule:
         content = module_path.read_text()
         assert "def internal_func():" in content
 
+    def test_export_with_add_to_all(self, tmp_path: Path) -> None:
+        """Test export with add_to_all directive."""
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|add_to_all my_var other_var some_func",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef public_func(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb_path = tmp_path / "test.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        module_path = tmp_path / "test.py"
+        export_notebook_to_module(nb, module_path, project_root=tmp_path)
+
+        content = module_path.read_text()
+        # Check that names from add_to_all are in __all__
+        assert "'my_var'" in content
+        assert "'other_var'" in content
+        assert "'some_func'" in content
+        # Also check the auto-detected name
+        assert "'public_func'" in content
+
     def test_export_creates_parent_dirs(
         self, notebook_with_exports: Notebook, tmp_path: Path
     ) -> None:

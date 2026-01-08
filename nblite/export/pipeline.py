@@ -224,8 +224,17 @@ def export_notebook_to_module(
 
     # Add __all__ list
     all_names = _extract_public_names(exported_content)
-    if all_names:
-        all_str = ", ".join(f"'{name}'" for name in sorted(all_names))
+    # Add names from #|add_to_all directives
+    all_names.extend(_collect_add_to_all_names(notebook))
+    # Deduplicate while preserving order
+    seen = set()
+    unique_names = []
+    for name in all_names:
+        if name not in seen:
+            seen.add(name)
+            unique_names.append(name)
+    if unique_names:
+        all_str = ", ".join(f"'{name}'" for name in sorted(unique_names))
         lines.append(f"__all__ = [{all_str}]")
         lines.append("")
 
@@ -312,8 +321,18 @@ def export_notebooks_to_module(
 
     # Add __all__ list (aggregated from all notebooks)
     all_names = _extract_public_names(exported_content)
-    if all_names:
-        all_str = ", ".join(f"'{name}'" for name in sorted(all_names))
+    # Add names from #|add_to_all directives from all notebooks
+    for nb, _source_ref in notebooks:
+        all_names.extend(_collect_add_to_all_names(nb))
+    # Deduplicate while preserving order
+    seen = set()
+    unique_names = []
+    for name in all_names:
+        if name not in seen:
+            seen.add(name)
+            unique_names.append(name)
+    if unique_names:
+        all_str = ", ".join(f"'{name}'" for name in sorted(unique_names))
         lines.append(f"__all__ = [{all_str}]")
         lines.append("")
 
@@ -654,4 +673,23 @@ def _extract_public_names(content: str) -> list[str]:
         if not name.startswith("_"):
             names.append(name)
 
+    return names
+
+
+def _collect_add_to_all_names(notebook: Notebook) -> list[str]:
+    """
+    Collect names from #|add_to_all directives in a notebook.
+
+    Args:
+        notebook: Source notebook
+
+    Returns:
+        List of names to add to __all__
+    """
+    names: list[str] = []
+    for cell in notebook.cells:
+        if cell.has_directive("add_to_all"):
+            directive = cell.get_directive("add_to_all")
+            if directive and directive.value_parsed:
+                names.extend(directive.value_parsed)
     return names

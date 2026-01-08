@@ -28,7 +28,8 @@ __all__ = [
 # Pattern to extract function/class names for __all__
 FUNCTION_PATTERN = re.compile(r"^(?:async\s+)?def\s+(\w+)\s*\(", re.MULTILINE)
 CLASS_PATTERN = re.compile(r"^class\s+(\w+)\s*[\(:]", re.MULTILINE)
-VARIABLE_PATTERN = re.compile(r"^([A-Z][A-Z0-9_]*)\s*=", re.MULTILINE)
+# Match variable assignments at module level (not starting with _)
+VARIABLE_PATTERN = re.compile(r"^([a-zA-Z][a-zA-Z0-9_]*)\s*=", re.MULTILINE)
 
 # Pattern to match "from package.module import ..." statements
 # Captures: (1) the package.module part, (2) the rest after "import"
@@ -647,9 +648,10 @@ def _extract_public_names(content: str) -> list[str]:
         if not name.startswith("_"):
             names.append(name)
 
-    # Find constants (UPPERCASE variables)
+    # Find module-level variables (not starting with _)
     for match in VARIABLE_PATTERN.finditer(content):
         name = match.group(1)
-        names.append(name)
+        if not name.startswith("_"):
+            names.append(name)
 
     return names

@@ -806,7 +806,11 @@ format = "percent"
         # Verify nbs file was updated
         nbs_file = nbs_dir / "test.ipynb"
         nb_data = json.loads(nbs_file.read_text())
-        assert "y = 2" in nb_data["cells"][0]["source"]
+        # Source can be a string or list of strings, handle both cases
+        cell_source = nb_data["cells"][0]["source"]
+        if isinstance(cell_source, list):
+            cell_source = "".join(cell_source)
+        assert "y = 2" in cell_source
 
 
 class TestDunderFolderExport:

@@ -226,11 +226,13 @@ def export_notebook_to_module(
     all_names = _extract_public_names(exported_content)
     # Add names from #|add_to_all directives
     all_names.extend(_collect_add_to_all_names(notebook))
-    # Deduplicate while preserving order
+    # Get names from #|exporti cells to exclude
+    exporti_names = _collect_exporti_names(notebook)
+    # Deduplicate while preserving order, excluding exporti names
     seen = set()
     unique_names = []
     for name in all_names:
-        if name not in seen:
+        if name not in seen and name not in exporti_names:
             seen.add(name)
             unique_names.append(name)
     if unique_names:
@@ -322,13 +324,16 @@ def export_notebooks_to_module(
     # Add __all__ list (aggregated from all notebooks)
     all_names = _extract_public_names(exported_content)
     # Add names from #|add_to_all directives from all notebooks
+    # Also collect exporti names to exclude
+    exporti_names: set[str] = set()
     for nb, _source_ref in notebooks:
         all_names.extend(_collect_add_to_all_names(nb))
-    # Deduplicate while preserving order
+        exporti_names.update(_collect_exporti_names(nb))
+    # Deduplicate while preserving order, excluding exporti names
     seen = set()
     unique_names = []
     for name in all_names:
-        if name not in seen:
+        if name not in seen and name not in exporti_names:
             seen.add(name)
             unique_names.append(name)
     if unique_names:
@@ -692,4 +697,30 @@ def _collect_add_to_all_names(notebook: Notebook) -> list[str]:
             directive = cell.get_directive("add_to_all")
             if directive and directive.value_parsed:
                 names.extend(directive.value_parsed)
+    return names
+
+
+def _collect_exporti_names(notebook: Notebook) -> set[str]:
+    """
+    Collect names from #|exporti cells to exclude from __all__.
+
+    Args:
+        notebook: Source notebook
+
+    Returns:
+        Set of names to exclude from __all__
+    """
+    names: set[str] = set()
+    for cell in notebook.cells:
+        if not cell.is_code:
+            continue
+        if cell.has_directive("exporti"):
+            source = cell.source_without_directives
+            # Extract names from this cell
+            for match in FUNCTION_PATTERN.finditer(source):
+                names.add(match.group(1))
+            for match in CLASS_PATTERN.finditer(source):
+                names.add(match.group(1))
+            for match in VARIABLE_PATTERN.finditer(source):
+                names.add(match.group(1))
     return names

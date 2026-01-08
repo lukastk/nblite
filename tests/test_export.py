@@ -360,6 +360,46 @@ class TestNotebookToModule:
         content = module_path.read_text()
         assert "def internal_func():" in content
 
+    def test_exporti_excludes_from_all(self, tmp_path: Path) -> None:
+        """Test that exporti names are excluded from __all__."""
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\ndef public_func(): pass",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|exporti\ndef internal_func(): pass\nINTERNAL_VAR = 1",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        nb_path = tmp_path / "test.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        module_path = tmp_path / "test.py"
+        export_notebook_to_module(nb, module_path, project_root=tmp_path)
+
+        content = module_path.read_text()
+        # public_func should be in __all__
+        assert "'public_func'" in content
+        # internal_func and INTERNAL_VAR should NOT be in __all__
+        assert "'internal_func'" not in content
+        assert "'INTERNAL_VAR'" not in content
+        # But they should still be in the exported code
+        assert "def internal_func():" in content
+        assert "INTERNAL_VAR = 1" in content
+
     def test_export_with_add_to_all(self, tmp_path: Path) -> None:
         """Test export with add_to_all directive."""
         nb_content = json.dumps(

@@ -512,8 +512,11 @@ class NbliteProject:
                         continue
             else:
                 # Get all notebooks from source code location
+                # Note: We use ignore_dunders=False here because dunder files should be
+                # exported to notebook formats. The module export code handles filtering
+                # dunder files separately via _path_contains_dunder().
                 if from_cl.is_notebook:
-                    nbs_to_export = from_cl.get_notebooks()
+                    nbs_to_export = from_cl.get_notebooks(ignore_dunders=False)
                 else:
                     continue
 

@@ -364,7 +364,7 @@ def render_function_doc(func: dict[str, Any], title_level: int = 2) -> str:
     return "\n".join(md_lines)
 
 
-def render_class_doc(cls: dict[str, Any], title_level: int = 2) -> str:
+def render_class_doc(cls: dict[str, Any], title_level: int = 2, show_methods: bool = True) -> str:
     """
     Render class metadata as formatted Markdown documentation.
 
@@ -397,7 +397,7 @@ def render_class_doc(cls: dict[str, Any], title_level: int = 2) -> str:
     md_lines.append("")
 
     # Methods
-    if cls.get("methods"):
+    if show_methods and cls.get("methods"):
         md_lines.append(f"{'#' * (title_level + 1)} Methods")
         md_lines.append("")
         for method in cls["methods"]:
@@ -435,7 +435,7 @@ def render_cell_doc(cell_code: str, title_level: int = 2) -> str:
     return "\n\n".join(docs)
 
 
-def show_doc(obj: Any, title_level: int = 2):
+def show_doc(obj: Any, title_level: int = 2, show_class_methods: bool = True):
     """
     Display formatted documentation for a function or class in IPython/Jupyter.
 
@@ -445,6 +445,7 @@ def show_doc(obj: Any, title_level: int = 2):
     Args:
         obj: A function, method, or class object
         title_level: Heading level for the documentation
+        show_class_methods: Whether to show methods for classes
 
     Returns:
         IPython Markdown display object
@@ -470,6 +471,6 @@ def show_doc(obj: Any, title_level: int = 2):
         return Markdown(render_function_doc(meta, title_level))
     elif inspect.isclass(obj):
         meta = extract_class_meta_from_obj(obj)
-        return Markdown(render_class_doc(meta, title_level))
+        return Markdown(render_class_doc(meta, title_level, show_methods=show_class_methods))
     else:
         raise ValueError("Object must be a function, method, or class.")

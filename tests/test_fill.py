@@ -32,6 +32,11 @@ def create_simple_notebook(
             }
         ]
 
+    # Ensure all cells have an id field (required by nbformat 4.5+)
+    for i, cell in enumerate(cells):
+        if "id" not in cell:
+            cell["id"] = f"cell-{i}"
+
     nb_content = {
         "cells": cells,
         "metadata": {},
@@ -651,6 +656,7 @@ format = "ipynb"
             "cells": [
                 {
                     "cell_type": "code",
+                    "id": "cell-0",
                     "source": f"import os\nresult = os.environ.get('{DISABLE_NBLITE_EXPORT_ENV_VAR}', '')",
                     "metadata": {},
                     "outputs": [],

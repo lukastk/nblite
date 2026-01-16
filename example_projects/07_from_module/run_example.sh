@@ -53,7 +53,7 @@ echo ""
 
 # Fill notebooks (execute and save outputs, auto-cleans)
 echo "Filling notebooks..."
-nbl fill
+nbl prepare
 echo ""
 
 # Run export

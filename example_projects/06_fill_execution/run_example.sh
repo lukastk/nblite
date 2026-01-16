@@ -21,7 +21,7 @@ nbl test || echo "(Note: test may show warnings)"
 echo ""
 
 echo "Running nbl fill (execute and save outputs)..."
-nbl fill
+nbl prepare
 echo ""
 
 echo "Checking outputs were saved:"

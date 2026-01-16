@@ -23,7 +23,7 @@ for i, cell in enumerate(nb['cells']):
 
 echo ""
 echo "Running nbl fill (with auto-clean based on config)..."
-nbl fill
+nbl prepare
 
 echo ""
 echo "After fill (auto-cleaned):"

@@ -162,6 +162,7 @@ class TestCleanConfig:
         assert cc.normalize_cell_ids is True  # Normalize for clean diffs
         assert cc.remove_output_metadata is True  # Remove for clean diffs
         assert cc.remove_output_execution_counts is True  # Remove for clean diffs
+        assert cc.sort_keys is False  # Don't sort by default
         assert cc.keep_only_metadata is None
         # Exclusion options still default to True
         assert cc.exclude_dunders is True
@@ -176,6 +177,16 @@ class TestCleanConfig:
         # Can be set to False
         cc_disabled = CleanConfig(normalize_cell_ids=False)
         assert cc_disabled.normalize_cell_ids is False
+
+    def test_clean_config_sort_keys(self) -> None:
+        """Test sort_keys config option."""
+        # Default is False
+        cc_default = CleanConfig()
+        assert cc_default.sort_keys is False
+
+        # Can be set to True
+        cc_enabled = CleanConfig(sort_keys=True)
+        assert cc_enabled.sort_keys is True
 
 
 class TestDocsConfig:

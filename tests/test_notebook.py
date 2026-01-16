@@ -521,6 +521,98 @@ class TestNotebookClean:
         assert cleaned1.cells[0].id == cleaned2.cells[0].id == "cell0"
         assert cleaned1.cells[1].id == cleaned2.cells[1].id == "cell1"
 
+    def test_clean_sort_keys_true(self) -> None:
+        """Test clean with sort_keys=True sorts JSON keys alphabetically."""
+        # Create notebook with metadata keys in non-alphabetical order
+        data = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "cell-0",
+                    "source": "x = 1",
+                    "metadata": {"zebra": 1, "apple": 2, "mango": 3},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {"zoo": "value", "aardvark": "value", "banana": "value"},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+        # Clean without removing metadata, but with sort_keys
+        cleaned = nb.clean(
+            sort_keys=True, remove_cell_metadata=False, remove_notebook_metadata=False
+        )
+
+        # Convert to dict to check key order
+        cleaned_dict = cleaned.to_dict()
+
+        # Check notebook metadata keys are sorted
+        nb_meta_keys = list(cleaned_dict["metadata"].keys())
+        assert nb_meta_keys == sorted(nb_meta_keys), f"Notebook metadata keys not sorted: {nb_meta_keys}"
+
+        # Check cell metadata keys are sorted
+        cell_meta_keys = list(cleaned_dict["cells"][0]["metadata"].keys())
+        assert cell_meta_keys == sorted(cell_meta_keys), f"Cell metadata keys not sorted: {cell_meta_keys}"
+
+    def test_clean_sort_keys_false_does_not_sort(self) -> None:
+        """Test clean with sort_keys=False does not force alphabetical sorting."""
+        # Create notebook with metadata keys in specific non-alphabetical order
+        data = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "cell-0",
+                    "source": "x = 1",
+                    "metadata": {"zebra": 1, "apple": 2, "mango": 3},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+        # Clean without sorting keys
+        cleaned = nb.clean(sort_keys=False, remove_cell_metadata=False)
+
+        # Keys should NOT be alphabetically sorted (that's what sort_keys=True does)
+        cell_meta_keys = list(cleaned.cells[0].metadata.keys())
+        # Verify all keys are present
+        assert set(cell_meta_keys) == {"zebra", "apple", "mango"}
+        # Verify they're NOT in alphabetical order (which would be ["apple", "mango", "zebra"])
+        assert cell_meta_keys != ["apple", "mango", "zebra"]
+
+    def test_clean_sort_keys_default_is_false(self) -> None:
+        """Test that sort_keys defaults to False."""
+        data = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "cell-0",
+                    "source": "x = 1",
+                    "metadata": {"zebra": 1, "apple": 2, "mango": 3},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+        # Default clean() should NOT sort keys
+        cleaned = nb.clean(remove_cell_metadata=False)
+
+        # Keys should NOT be alphabetically sorted
+        cell_meta_keys = list(cleaned.cells[0].metadata.keys())
+        # Verify all keys are present
+        assert set(cell_meta_keys) == {"zebra", "apple", "mango"}
+        # Verify they're NOT in alphabetical order (which would be ["apple", "mango", "zebra"])
+        assert cell_meta_keys != ["apple", "mango", "zebra"]
+
 
 class TestFormat:
     def test_from_path_ipynb(self) -> None:

@@ -418,6 +418,86 @@ class TestCleanCommand:
         cleaned_nb = json.loads(nb_path.read_text())
         assert cleaned_nb["cells"][0]["id"] == "my-custom-id"
 
+    def test_clean_sort_keys(self, tmp_path: Path) -> None:
+        """Test nbl clean --sort-keys sorts JSON keys alphabetically."""
+        # Create a minimal project
+        nbs_dir = tmp_path / "nbs"
+        nbs_dir.mkdir()
+        (tmp_path / "nblite.toml").write_text(
+            '[cl.nbs]\npath = "nbs"\nformat = "ipynb"\n'
+        )
+
+        # Create notebook with metadata keys in non-alphabetical order
+        nb_content = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "cell-0",
+                    "source": "x = 1",
+                    "metadata": {"zebra": 1, "apple": 2, "mango": 3},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {"zoo": "val", "aardvark": "val"},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb_path = nbs_dir / "test.ipynb"
+        nb_path.write_text(json.dumps(nb_content))
+
+        os.chdir(tmp_path)
+        # Use --sort-keys and preserve metadata so we can check the order
+        result = runner.invoke(app, ["clean", "--sort-keys"])
+
+        assert result.exit_code == 0
+
+        # Check that keys are sorted in the output file
+        cleaned_nb = json.loads(nb_path.read_text())
+        # Notebook metadata keys should be sorted
+        nb_meta_keys = list(cleaned_nb["metadata"].keys())
+        assert nb_meta_keys == sorted(nb_meta_keys)
+
+    def test_clean_no_sort_keys_default(self, tmp_path: Path) -> None:
+        """Test that nbl clean without --sort-keys preserves original key order."""
+        # Create a minimal project
+        nbs_dir = tmp_path / "nbs"
+        nbs_dir.mkdir()
+        (tmp_path / "nblite.toml").write_text(
+            '[cl.nbs]\npath = "nbs"\nformat = "ipynb"\n'
+        )
+
+        # Create notebook with metadata keys in non-alphabetical order
+        nb_content = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "cell-0",
+                    "source": "x = 1",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {"zoo": "val", "aardvark": "val"},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb_path = nbs_dir / "test.ipynb"
+        nb_path.write_text(json.dumps(nb_content))
+
+        os.chdir(tmp_path)
+        # Default clean (no --sort-keys)
+        result = runner.invoke(app, ["clean"])
+
+        assert result.exit_code == 0
+
+        # Check that original key order is preserved
+        cleaned_nb = json.loads(nb_path.read_text())
+        nb_meta_keys = list(cleaned_nb["metadata"].keys())
+        # Original order was ["zoo", "aardvark"], should be preserved
+        assert nb_meta_keys == ["zoo", "aardvark"]
+
 
 class TestConvertCommand:
     def test_convert_ipynb_to_pct(self, tmp_path: Path) -> None:

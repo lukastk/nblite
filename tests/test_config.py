@@ -159,12 +159,23 @@ class TestCleanConfig:
         assert cc.remove_notebook_metadata is False  # Keep notebook metadata
         assert cc.remove_kernel_info is False  # Keep kernel info
         assert cc.preserve_cell_ids is True  # Preserve for idempotency
+        assert cc.normalize_cell_ids is True  # Normalize for clean diffs
         assert cc.remove_output_metadata is True  # Remove for clean diffs
         assert cc.remove_output_execution_counts is True  # Remove for clean diffs
         assert cc.keep_only_metadata is None
         # Exclusion options still default to True
         assert cc.exclude_dunders is True
         assert cc.exclude_hidden is True
+
+    def test_clean_config_normalize_cell_ids(self) -> None:
+        """Test normalize_cell_ids config option."""
+        # Default is True
+        cc_default = CleanConfig()
+        assert cc_default.normalize_cell_ids is True
+
+        # Can be set to False
+        cc_disabled = CleanConfig(normalize_cell_ids=False)
+        assert cc_disabled.normalize_cell_ids is False
 
 
 class TestDocsConfig:

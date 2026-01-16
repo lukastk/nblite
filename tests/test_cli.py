@@ -339,6 +339,89 @@ class TestCleanCommand:
 
         assert result.exit_code == 0
 
+    def test_clean_normalize_cell_ids(self, tmp_path: Path) -> None:
+        """Test nbl clean --normalize-cell-ids normalizes cell IDs."""
+        # Create a minimal project
+        nbs_dir = tmp_path / "nbs"
+        nbs_dir.mkdir()
+        (tmp_path / "nblite.toml").write_text(
+            '[cl.nbs]\npath = "nbs"\nformat = "ipynb"\n'
+        )
+
+        # Create notebook with random cell IDs
+        nb_content = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "random-abc-123",
+                    "source": "x = 1",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+                {
+                    "cell_type": "code",
+                    "id": "another-xyz-789",
+                    "source": "y = 2",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb_path = nbs_dir / "test.ipynb"
+        nb_path.write_text(json.dumps(nb_content))
+
+        os.chdir(tmp_path)
+        result = runner.invoke(app, ["clean", "--normalize-cell-ids"])
+
+        assert result.exit_code == 0
+
+        # Check that cell IDs were normalized
+        cleaned_nb = json.loads(nb_path.read_text())
+        assert cleaned_nb["cells"][0]["id"] == "cell0"
+        assert cleaned_nb["cells"][1]["id"] == "cell1"
+
+    def test_clean_no_normalize_cell_ids(self, tmp_path: Path) -> None:
+        """Test nbl clean --no-normalize-cell-ids preserves original cell IDs."""
+        # Create a minimal project
+        nbs_dir = tmp_path / "nbs"
+        nbs_dir.mkdir()
+        (tmp_path / "nblite.toml").write_text(
+            '[cl.nbs]\npath = "nbs"\nformat = "ipynb"\n'
+        )
+
+        # Create notebook with custom cell IDs
+        nb_content = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "my-custom-id",
+                    "source": "x = 1",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb_path = nbs_dir / "test.ipynb"
+        nb_path.write_text(json.dumps(nb_content))
+
+        os.chdir(tmp_path)
+        result = runner.invoke(app, ["clean", "--no-normalize-cell-ids"])
+
+        assert result.exit_code == 0
+
+        # Check that cell IDs were preserved
+        cleaned_nb = json.loads(nb_path.read_text())
+        assert cleaned_nb["cells"][0]["id"] == "my-custom-id"
+
 
 class TestConvertCommand:
     def test_convert_ipynb_to_pct(self, tmp_path: Path) -> None:

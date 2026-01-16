@@ -94,7 +94,9 @@ def clean(
         preserve_cell_ids=preserve_cell_ids
         if not preserve_cell_ids
         else None,  # Only pass if False
-        normalize_cell_ids=normalize_cell_ids if normalize_cell_ids else None,
+        normalize_cell_ids=normalize_cell_ids
+        if not normalize_cell_ids
+        else None,  # Only pass if False
         remove_output_metadata=remove_output_metadata if remove_output_metadata else None,
         remove_output_execution_counts=remove_output_execution_counts
         if remove_output_execution_counts

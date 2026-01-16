@@ -343,6 +343,184 @@ class TestNotebookClean:
         # Cell metadata should be removed (remove_cell_metadata=True)
         assert cleaned.cells[0].metadata == {}
 
+    def test_clean_normalize_cell_ids(self) -> None:
+        """Test clean normalizes cell IDs to cell{i} format."""
+        data = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "abc123",
+                    "source": "x = 1",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+                {
+                    "cell_type": "markdown",
+                    "id": "xyz789",
+                    "source": "# Header",
+                    "metadata": {},
+                },
+                {
+                    "cell_type": "code",
+                    "id": "def456",
+                    "source": "y = 2",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+        cleaned = nb.clean(normalize_cell_ids=True)
+
+        # Cell IDs should be normalized to cell{i} format
+        assert cleaned.cells[0].id == "cell0"
+        assert cleaned.cells[1].id == "cell1"
+        assert cleaned.cells[2].id == "cell2"
+
+    def test_clean_normalize_cell_ids_false_preserves_ids(self) -> None:
+        """Test clean preserves original cell IDs when normalize_cell_ids=False."""
+        data = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "my-custom-id",
+                    "source": "x = 1",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+                {
+                    "cell_type": "code",
+                    "id": "another-custom-id",
+                    "source": "y = 2",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+        cleaned = nb.clean(normalize_cell_ids=False)
+
+        # Original cell IDs should be preserved
+        assert cleaned.cells[0].id == "my-custom-id"
+        assert cleaned.cells[1].id == "another-custom-id"
+
+    def test_clean_normalize_cell_ids_default_is_true(self) -> None:
+        """Test that normalize_cell_ids defaults to True."""
+        data = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "random-id-abc",
+                    "source": "x = 1",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+        # Default clean() should normalize cell IDs
+        cleaned = nb.clean()
+
+        assert cleaned.cells[0].id == "cell0"
+
+    def test_clean_preserve_cell_ids_false_removes_ids(self) -> None:
+        """Test that preserve_cell_ids=False with normalize_cell_ids=False removes cell IDs."""
+        data = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "some-id",
+                    "source": "x = 1",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+        # Need both preserve_cell_ids=False AND normalize_cell_ids=False to remove IDs
+        cleaned = nb.clean(preserve_cell_ids=False, normalize_cell_ids=False)
+
+        # Cell ID should be removed (None)
+        assert cleaned.cells[0].id is None
+
+    def test_clean_normalize_overrides_preserve_false(self) -> None:
+        """Test that normalize_cell_ids=True takes precedence over preserve_cell_ids=False."""
+        data = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "original-id",
+                    "source": "x = 1",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+        # Even with preserve_cell_ids=False, normalize_cell_ids=True will set IDs
+        cleaned = nb.clean(preserve_cell_ids=False, normalize_cell_ids=True)
+
+        # Cell ID should be normalized, not removed
+        assert cleaned.cells[0].id == "cell0"
+
+    def test_clean_normalize_cell_ids_idempotent(self) -> None:
+        """Test that normalizing cell IDs is idempotent."""
+        data = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "random-id",
+                    "source": "x = 1",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+                {
+                    "cell_type": "code",
+                    "id": "another-random",
+                    "source": "y = 2",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+
+        # Clean once
+        cleaned1 = nb.clean(normalize_cell_ids=True)
+        # Clean again
+        cleaned2 = cleaned1.clean(normalize_cell_ids=True)
+
+        # IDs should be the same after both cleans
+        assert cleaned1.cells[0].id == cleaned2.cells[0].id == "cell0"
+        assert cleaned1.cells[1].id == cleaned2.cells[1].id == "cell1"
+
 
 class TestFormat:
     def test_from_path_ipynb(self) -> None:

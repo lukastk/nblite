@@ -44,6 +44,10 @@ def clean(
         bool,
         typer.Option("--preserve-cell-ids/--remove-cell-ids", help="Preserve or remove cell IDs"),
     ] = True,
+    normalize_cell_ids: Annotated[
+        bool,
+        typer.Option("--normalize-cell-ids/--no-normalize-cell-ids", help="Normalize cell IDs"),
+    ] = True,
     remove_output_metadata: Annotated[
         bool,
         typer.Option("--remove-output-metadata", help="Remove metadata from outputs"),
@@ -90,6 +94,7 @@ def clean(
         preserve_cell_ids=preserve_cell_ids
         if not preserve_cell_ids
         else None,  # Only pass if False
+        normalize_cell_ids=normalize_cell_ids if normalize_cell_ids else None,
         remove_output_metadata=remove_output_metadata if remove_output_metadata else None,
         remove_output_execution_counts=remove_output_execution_counts
         if remove_output_execution_counts

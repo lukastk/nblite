@@ -188,6 +188,7 @@ class CleanConfig(BaseModel):
         remove_notebook_metadata: Remove notebook-level metadata
         remove_kernel_info: Remove kernel specification
         preserve_cell_ids: Preserve cell IDs (if False, cell IDs are removed)
+        normalize_cell_ids: Normalize cell IDs
         remove_output_metadata: Remove metadata from outputs
         remove_output_execution_counts: Remove execution counts from output results
         keep_only_metadata: Keep only these metadata keys (None = keep all)
@@ -218,6 +219,10 @@ class CleanConfig(BaseModel):
     preserve_cell_ids: bool = Field(
         default=True,
         description="Preserve cell IDs",
+    )
+    normalize_cell_ids: bool = Field(
+        default=True,
+        description="Normalize cell IDs",
     )
     remove_output_metadata: bool = Field(
         default=True,

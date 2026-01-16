@@ -333,6 +333,7 @@ class Notebook:
         remove_notebook_metadata: bool = False,
         remove_kernel_info: bool = False,
         preserve_cell_ids: bool = True,
+        normalize_cell_ids: bool = True,
         remove_output_metadata: bool = True,
         remove_output_execution_counts: bool = True,
         keep_only_metadata: list[str] | None = None,
@@ -352,6 +353,7 @@ class Notebook:
             remove_notebook_metadata: Remove notebook-level metadata
             remove_kernel_info: Remove kernel specification
             preserve_cell_ids: Preserve cell IDs (if False, cell IDs are removed)
+            normalize_cell_ids: Normalize cell IDs
             remove_output_metadata: Remove metadata from outputs
             remove_output_execution_counts: Remove execution counts from output results
             keep_only_metadata: Keep only these metadata keys (None = keep all)
@@ -374,6 +376,7 @@ class Notebook:
             remove_notebook_metadata=remove_notebook_metadata,
             remove_kernel_info=remove_kernel_info,
             preserve_cell_ids=preserve_cell_ids,
+            normalize_cell_ids=normalize_cell_ids,
             remove_output_metadata=remove_output_metadata,
             remove_output_execution_counts=remove_output_execution_counts,
             allowed_cell_metadata_keys=allowed_cell_keys,

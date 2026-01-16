@@ -797,6 +797,7 @@ class NbliteProject:
         remove_notebook_metadata: bool | None = None,
         remove_kernel_info: bool | None = None,
         preserve_cell_ids: bool | None = None,
+        normalize_cell_ids: bool | None = None,
         remove_output_metadata: bool | None = None,
         remove_output_execution_counts: bool | None = None,
         keep_only_metadata: list[str] | None = None,
@@ -812,6 +813,7 @@ class NbliteProject:
             remove_notebook_metadata: Remove notebook-level metadata (None = use config)
             remove_kernel_info: Remove kernel specification (None = use config)
             preserve_cell_ids: Preserve cell IDs (None = use config)
+            normalize_cell_ids: Normalize cell IDs (None = use config)
             remove_output_metadata: Remove metadata from outputs (None = use config)
             remove_output_execution_counts: Remove execution counts from output results (None = use config)
             keep_only_metadata: Keep only these metadata keys (None = use config)
@@ -850,6 +852,9 @@ class NbliteProject:
             "preserve_cell_ids": preserve_cell_ids
             if preserve_cell_ids is not None
             else clean_config.preserve_cell_ids,
+            "normalize_cell_ids": normalize_cell_ids
+            if normalize_cell_ids is not None
+            else clean_config.normalize_cell_ids,
             "remove_output_metadata": remove_output_metadata
             if remove_output_metadata is not None
             else clean_config.remove_output_metadata,

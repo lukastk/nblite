@@ -20,25 +20,36 @@ def clean(
     ] = None,
     remove_outputs: Annotated[
         bool,
-        typer.Option("-O", "--remove-outputs/--no-remove-outputs", help="Remove all outputs from code cells"),
+        typer.Option(
+            "-O", "--remove-outputs/--no-remove-outputs", help="Remove all outputs from code cells"
+        ),
     ] = False,
     remove_execution_counts: Annotated[
         bool,
         typer.Option(
-            "-e", "--remove-execution-counts/--no-remove-execution-counts", help="Remove execution counts from code cells"
+            "-e",
+            "--remove-execution-counts/--no-remove-execution-counts",
+            help="Remove execution counts from code cells",
         ),
     ] = False,
     remove_cell_metadata: Annotated[
         bool,
-        typer.Option("--remove-cell-metadata/--no-remove-cell-metadata", help="Remove cell-level metadata"),
+        typer.Option(
+            "--remove-cell-metadata/--no-remove-cell-metadata", help="Remove cell-level metadata"
+        ),
     ] = False,
     remove_notebook_metadata: Annotated[
         bool,
-        typer.Option("--remove-notebook-metadata/--no-remove-notebook-metadata", help="Remove notebook-level metadata"),
+        typer.Option(
+            "--remove-notebook-metadata/--no-remove-notebook-metadata",
+            help="Remove notebook-level metadata",
+        ),
     ] = False,
     remove_kernel_info: Annotated[
         bool,
-        typer.Option("--remove-kernel-info/--no-remove-kernel-info", help="Remove kernel specification"),
+        typer.Option(
+            "--remove-kernel-info/--no-remove-kernel-info", help="Remove kernel specification"
+        ),
     ] = False,
     preserve_cell_ids: Annotated[
         bool,
@@ -50,20 +61,28 @@ def clean(
     ] = True,
     remove_output_metadata: Annotated[
         bool,
-        typer.Option("--remove-output-metadata/--no-remove-output-metadata", help="Remove metadata from outputs"),
+        typer.Option(
+            "--remove-output-metadata/--no-remove-output-metadata",
+            help="Remove metadata from outputs",
+        ),
     ] = False,
     remove_output_execution_counts: Annotated[
         bool,
         typer.Option(
-            "--remove-output-execution-counts/--no-remove-output-execution-counts", help="Remove execution counts from output results"
+            "--remove-output-execution-counts/--no-remove-output-execution-counts",
+            help="Remove execution counts from output results",
         ),
+    ] = False,
+    sort_keys: Annotated[
+        bool,
+        typer.Option("--sort-keys/--no-sort-keys", help="Sort JSON keys alphabetically"),
     ] = False,
     keep_only: Annotated[
         str | None,
         typer.Option("--keep-only", help="Keep only these metadata keys (comma-separated)"),
     ] = None,
 ) -> None:
-    """Clean notebooks by removing outputs and metadata.
+    r"""Clean notebooks by removing outputs and metadata.
 
     By default, uses sensible VCS defaults: removes execution counts, cell
     metadata, output metadata, and output execution counts. Outputs and
@@ -101,6 +120,7 @@ def clean(
         remove_output_execution_counts=remove_output_execution_counts
         if remove_output_execution_counts
         else None,
+        sort_keys=sort_keys if sort_keys else None,
         keep_only_metadata=keep_only_list,
     )
     console.print("[green]Notebooks cleaned[/green]")

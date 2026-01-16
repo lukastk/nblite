@@ -336,6 +336,7 @@ class Notebook:
         normalize_cell_ids: bool = True,
         remove_output_metadata: bool = True,
         remove_output_execution_counts: bool = True,
+        sort_keys: bool = False,
         keep_only_metadata: list[str] | None = None,
     ) -> Notebook:
         """
@@ -356,6 +357,7 @@ class Notebook:
             normalize_cell_ids: Normalize cell IDs
             remove_output_metadata: Remove metadata from outputs
             remove_output_execution_counts: Remove execution counts from output results
+            sort_keys: Sort JSON keys alphabetically
             keep_only_metadata: Keep only these metadata keys (None = keep all)
 
         Returns:
@@ -379,6 +381,7 @@ class Notebook:
             normalize_cell_ids=normalize_cell_ids,
             remove_output_metadata=remove_output_metadata,
             remove_output_execution_counts=remove_output_execution_counts,
+            sort_keys=sort_keys,
             allowed_cell_metadata_keys=allowed_cell_keys,
             allowed_notebook_metadata_keys=allowed_nb_keys,
         )

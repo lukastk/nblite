@@ -800,6 +800,7 @@ class NbliteProject:
         normalize_cell_ids: bool | None = None,
         remove_output_metadata: bool | None = None,
         remove_output_execution_counts: bool | None = None,
+        sort_keys: bool | None = None,
         keep_only_metadata: list[str] | None = None,
     ) -> None:
         """
@@ -816,6 +817,7 @@ class NbliteProject:
             normalize_cell_ids: Normalize cell IDs (None = use config)
             remove_output_metadata: Remove metadata from outputs (None = use config)
             remove_output_execution_counts: Remove execution counts from output results (None = use config)
+            sort_keys: Sort JSON keys alphabetically (None = use config)
             keep_only_metadata: Keep only these metadata keys (None = use config)
 
         Hooks triggered:
@@ -861,6 +863,7 @@ class NbliteProject:
             "remove_output_execution_counts": remove_output_execution_counts
             if remove_output_execution_counts is not None
             else clean_config.remove_output_execution_counts,
+            "sort_keys": sort_keys if sort_keys is not None else clean_config.sort_keys,
             "keep_only_metadata": keep_only_metadata
             if keep_only_metadata is not None
             else clean_config.keep_only_metadata,

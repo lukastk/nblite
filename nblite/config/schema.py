@@ -191,6 +191,7 @@ class CleanConfig(BaseModel):
         normalize_cell_ids: Normalize cell IDs
         remove_output_metadata: Remove metadata from outputs
         remove_output_execution_counts: Remove execution counts from output results
+        sort_keys: Sort JSON keys alphabetically
         keep_only_metadata: Keep only these metadata keys (None = keep all)
         exclude_dunders: Exclude __* notebooks
         exclude_hidden: Exclude .* notebooks
@@ -231,6 +232,10 @@ class CleanConfig(BaseModel):
     remove_output_execution_counts: bool = Field(
         default=True,
         description="Remove execution counts from output results",
+    )
+    sort_keys: bool = Field(
+        default=False,
+        description="Sort JSON keys alphabetically",
     )
     keep_only_metadata: list[str] | None = Field(
         default=None,

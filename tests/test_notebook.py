@@ -550,11 +550,15 @@ class TestNotebookClean:
 
         # Check notebook metadata keys are sorted
         nb_meta_keys = list(cleaned_dict["metadata"].keys())
-        assert nb_meta_keys == sorted(nb_meta_keys), f"Notebook metadata keys not sorted: {nb_meta_keys}"
+        assert nb_meta_keys == sorted(nb_meta_keys), (
+            f"Notebook metadata keys not sorted: {nb_meta_keys}"
+        )
 
         # Check cell metadata keys are sorted
         cell_meta_keys = list(cleaned_dict["cells"][0]["metadata"].keys())
-        assert cell_meta_keys == sorted(cell_meta_keys), f"Cell metadata keys not sorted: {cell_meta_keys}"
+        assert cell_meta_keys == sorted(cell_meta_keys), (
+            f"Cell metadata keys not sorted: {cell_meta_keys}"
+        )
 
     def test_clean_sort_keys_false_does_not_sort(self) -> None:
         """Test clean with sort_keys=False does not force alphabetical sorting."""

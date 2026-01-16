@@ -344,9 +344,7 @@ class TestCleanCommand:
         # Create a minimal project
         nbs_dir = tmp_path / "nbs"
         nbs_dir.mkdir()
-        (tmp_path / "nblite.toml").write_text(
-            '[cl.nbs]\npath = "nbs"\nformat = "ipynb"\n'
-        )
+        (tmp_path / "nblite.toml").write_text('[cl.nbs]\npath = "nbs"\nformat = "ipynb"\n')
 
         # Create notebook with random cell IDs
         nb_content = {
@@ -390,9 +388,7 @@ class TestCleanCommand:
         # Create a minimal project
         nbs_dir = tmp_path / "nbs"
         nbs_dir.mkdir()
-        (tmp_path / "nblite.toml").write_text(
-            '[cl.nbs]\npath = "nbs"\nformat = "ipynb"\n'
-        )
+        (tmp_path / "nblite.toml").write_text('[cl.nbs]\npath = "nbs"\nformat = "ipynb"\n')
 
         # Create notebook with custom cell IDs
         nb_content = {

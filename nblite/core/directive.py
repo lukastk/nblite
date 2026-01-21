@@ -198,9 +198,10 @@ def _get_string_ranges(source: str) -> list[tuple[int, int, int, int]]:
             if tok.type in string_token_types:
                 # tok.start and tok.end are (row, col) tuples, 1-indexed rows
                 ranges.append((tok.start[0], tok.start[1], tok.end[0], tok.end[1]))
-    except tokenize.TokenizeError:
+    except tokenize.TokenError:
         # Handle incomplete/invalid Python code gracefully
-        # Return empty list - directives will be parsed normally
+        # Return whatever ranges we collected before the error - this provides
+        # partial string detection rather than none at all
         pass
     return ranges
 

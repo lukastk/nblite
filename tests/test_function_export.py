@@ -333,3 +333,99 @@ class TestFunctionNotebookExport:
         earlier_pos = content.find("earlier_bottom = 1")
         later_pos = content.find("later_bottom = 2")
         assert earlier_pos < later_pos, "bottom_export with lower order should appear first"
+
+    def test_multiline_signature(self, tmp_path: Path) -> None:
+        """Test multi-line function signature is properly exported."""
+        nb_content = """{
+            "cells": [
+                {"cell_type": "code", "source": "#|default_exp multiline\\n#|export_as_func true", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|set_func_signature\\ndef process_data(\\n    input_list: list,\\n    multiplier: int = 2\\n) -> list:", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|export\\nresult = [x * multiplier for x in input_list]", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|func_return\\nresult", "metadata": {}, "outputs": [], "execution_count": null}
+            ],
+            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+            "nbformat": 4,
+            "nbformat_minor": 5
+        }"""
+        nb_path = tmp_path / "multiline.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        module_path = tmp_path / "multiline.py"
+        export_function_notebook(nb, module_path)
+
+        content = module_path.read_text()
+        # Check that all parts of the signature are present
+        assert "def process_data(" in content
+        assert "input_list: list," in content
+        assert "multiplier: int = 2" in content
+        assert ") -> list:" in content
+        # Check that function body is properly indented
+        assert "    result = [x * multiplier for x in input_list]" in content
+        assert "    return result" in content
+
+    def test_docstring_export(self, tmp_path: Path) -> None:
+        """Test function docstring is properly exported."""
+        nb_content = """{
+            "cells": [
+                {"cell_type": "code", "source": "#|default_exp withdoc\\n#|export_as_func true", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|set_func_signature\\ndef my_func(x: int) -> int:\\n    \\"\\"\\"Process a number.\\n\\n    Args:\\n        x: Input number\\n\\n    Returns:\\n        Processed number\\n    \\"\\"\\"", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|export\\ny = x * 2", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|func_return\\ny", "metadata": {}, "outputs": [], "execution_count": null}
+            ],
+            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+            "nbformat": 4,
+            "nbformat_minor": 5
+        }"""
+        nb_path = tmp_path / "withdoc.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        module_path = tmp_path / "withdoc.py"
+        export_function_notebook(nb, module_path)
+
+        content = module_path.read_text()
+        # Check signature
+        assert "def my_func(x: int) -> int:" in content
+        # Check docstring is present and indented
+        assert '    """Process a number.' in content
+        assert "    Args:" in content
+        assert "        x: Input number" in content
+        assert "    Returns:" in content
+        assert '    """' in content
+        # Check body comes after docstring
+        assert "    y = x * 2" in content
+
+    def test_multiline_signature_with_docstring(self, tmp_path: Path) -> None:
+        """Test multi-line signature with docstring is properly exported."""
+        nb_content = """{
+            "cells": [
+                {"cell_type": "code", "source": "#|default_exp full\\n#|export_as_func true", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|set_func_signature\\ndef process(\\n    data: list[int],\\n    factor: float = 1.0\\n) -> list[float]:\\n    \\"\\"\\"Process data with a factor.\\n\\n    Args:\\n        data: Input data\\n        factor: Multiplication factor\\n\\n    Returns:\\n        Processed data\\n    \\"\\"\\"", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|export\\nresult = [x * factor for x in data]", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|func_return\\nresult", "metadata": {}, "outputs": [], "execution_count": null}
+            ],
+            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+            "nbformat": 4,
+            "nbformat_minor": 5
+        }"""
+        nb_path = tmp_path / "full.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        module_path = tmp_path / "full.py"
+        export_function_notebook(nb, module_path)
+
+        content = module_path.read_text()
+        # Check multi-line signature
+        assert "def process(" in content
+        assert "data: list[int]," in content
+        assert "factor: float = 1.0" in content
+        assert ") -> list[float]:" in content
+        # Check docstring
+        assert '    """Process data with a factor.' in content
+        assert "        data: Input data" in content
+        assert "        factor: Multiplication factor" in content
+        # Check body
+        assert "    result = [x * factor for x in data]" in content
+        assert "    return result" in content

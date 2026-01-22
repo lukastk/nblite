@@ -477,6 +477,38 @@ def _parse_add_to_all(value: str) -> list[str]:
     return value.strip().split()
 
 
+# Pattern for validating cell IDs
+CELL_ID_PATTERN = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_-]*$")
+
+
+def _validate_cell_id(value: str) -> str:
+    """Validate and return a cell ID.
+
+    Cell IDs must:
+    - Start with a letter or underscore
+    - Contain only alphanumeric characters, underscores, and hyphens
+    - Be non-empty
+
+    Args:
+        value: The cell ID string to validate
+
+    Returns:
+        The validated cell ID (stripped of whitespace)
+
+    Raises:
+        DirectiveError: If the cell ID is invalid
+    """
+    cell_id = value.strip()
+    if not cell_id:
+        raise DirectiveError("Cell ID cannot be empty")
+    if not CELL_ID_PATTERN.match(cell_id):
+        raise DirectiveError(
+            f"Invalid cell ID '{cell_id}'. Must start with letter/underscore, "
+            "contain only alphanumeric, underscore, hyphen."
+        )
+    return cell_id
+
+
 def _register_builtin_directives() -> None:
     """Register all built-in directive definitions."""
     # Export directives
@@ -613,6 +645,16 @@ def _register_builtin_directives() -> None:
             name="skip_evals_stop",
             in_topmatter=True,
             description="Resume cell execution",
+        )
+    )
+
+    # Cell identity directive
+    register_directive(
+        DirectiveDefinition(
+            name="cell_id",
+            in_topmatter=True,
+            value_parser=_validate_cell_id,
+            description="Set custom cell ID that persists through cleaning",
         )
     )
 

@@ -805,3 +805,207 @@ class TestNotebookRepr:
         )
         repr_str = repr(nb)
         assert "None" in repr_str
+
+
+class TestCellIdDirective:
+    """Tests for the #|cell_id directive in notebook cleaning."""
+
+    def test_cell_id_directive_overrides_normalized_id(self) -> None:
+        """Test that #|cell_id directive overrides the normalized cell ID."""
+        data = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "random-id-abc",
+                    "source": "#|cell_id my-custom-cell\nx = 1",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+        cleaned = nb.clean()
+
+        # Cell ID should be the one specified by directive, not "cell0"
+        assert cleaned.cells[0].id == "my-custom-cell"
+
+    def test_cell_id_directive_with_multiple_cells(self) -> None:
+        """Test #|cell_id with some cells having directive and others not."""
+        data = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "random-id-1",
+                    "source": "#|cell_id first-cell\nx = 1",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+                {
+                    "cell_type": "code",
+                    "id": "random-id-2",
+                    "source": "y = 2",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+                {
+                    "cell_type": "code",
+                    "id": "random-id-3",
+                    "source": "#|cell_id third-cell\nz = 3",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+        cleaned = nb.clean()
+
+        # First cell uses directive ID
+        assert cleaned.cells[0].id == "first-cell"
+        # Second cell uses normalized ID
+        assert cleaned.cells[1].id == "cell1"
+        # Third cell uses directive ID
+        assert cleaned.cells[2].id == "third-cell"
+
+    def test_cell_id_directive_duplicate_raises_error(self) -> None:
+        """Test that duplicate cell IDs raise DirectiveError."""
+        from nblite.core.directive import DirectiveError
+
+        data = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "random-id-1",
+                    "source": "#|cell_id duplicate-id\nx = 1",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+                {
+                    "cell_type": "code",
+                    "id": "random-id-2",
+                    "source": "#|cell_id duplicate-id\ny = 2",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+
+        with pytest.raises(DirectiveError, match="Duplicate cell ID 'duplicate-id'"):
+            nb.clean()
+
+    def test_cell_id_directive_is_idempotent(self) -> None:
+        """Test that cleaning with #|cell_id is idempotent."""
+        data = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "random-id",
+                    "source": "#|cell_id stable-id\nx = 1",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+                {
+                    "cell_type": "code",
+                    "id": "another-random",
+                    "source": "y = 2",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+
+        # Clean once
+        cleaned1 = nb.clean()
+        # Clean again
+        cleaned2 = cleaned1.clean()
+
+        # Cell IDs should be identical after both cleans
+        assert cleaned1.cells[0].id == cleaned2.cells[0].id == "stable-id"
+        assert cleaned1.cells[1].id == cleaned2.cells[1].id == "cell1"
+
+    def test_cell_id_directive_in_markdown_cell_ignored(self) -> None:
+        """Test that #|cell_id in markdown cell is ignored (directives only parsed in code cells)."""
+        data = {
+            "cells": [
+                {
+                    "cell_type": "markdown",
+                    "id": "random-id",
+                    "source": "#|cell_id markdown-cell\n# Header",
+                    "metadata": {},
+                },
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+        cleaned = nb.clean()
+
+        # Markdown cell should get normalized ID since directive is ignored
+        assert cleaned.cells[0].id == "cell0"
+
+    def test_cell_id_directive_preserves_source_path(self) -> None:
+        """Test that applying cell_id directive preserves source_path."""
+        data = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "random-id",
+                    "source": "#|cell_id my-cell\nx = 1",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data, source_path=Path("/path/to/notebook.ipynb"))
+        cleaned = nb.clean()
+
+        assert cleaned.source_path == Path("/path/to/notebook.ipynb")
+
+    def test_cell_id_directive_without_normalize(self) -> None:
+        """Test cell_id directive when normalize_cell_ids=False."""
+        data = {
+            "cells": [
+                {
+                    "cell_type": "code",
+                    "id": "original-id",
+                    "source": "#|cell_id custom-id\nx = 1",
+                    "metadata": {},
+                    "outputs": [],
+                    "execution_count": None,
+                },
+            ],
+            "metadata": {},
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+        cleaned = nb.clean(normalize_cell_ids=False)
+
+        # Even without normalization, directive should override
+        assert cleaned.cells[0].id == "custom-id"

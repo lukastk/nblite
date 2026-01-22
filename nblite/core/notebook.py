@@ -15,7 +15,7 @@ from typing import Any
 import notebookx
 
 from nblite.core.cell import Cell
-from nblite.core.directive import Directive
+from nblite.core.directive import Directive, DirectiveError
 
 __all__ = ["Notebook", "Format", "FormatError"]
 
@@ -394,7 +394,90 @@ class Notebook:
         cleaned_nbx = nbx_nb.clean(clean_options)
 
         # Convert back to nblite Notebook
-        return Notebook.from_notebookx(cleaned_nbx, source_path=self.source_path)
+        cleaned_nb = Notebook.from_notebookx(cleaned_nbx, source_path=self.source_path)
+
+        # Apply any #|cell-id directives to override normalized IDs
+        return cleaned_nb._apply_cell_id_directives()
+
+    def _apply_cell_id_directives(self) -> Notebook:
+        """
+        Apply #|cell_id directives to set custom cell IDs.
+
+        This method iterates through cells, finds those with #|cell_id directives,
+        and creates a new notebook with the specified IDs applied.
+
+        Returns:
+            New Notebook instance with directive-specified cell IDs applied
+
+        Raises:
+            DirectiveError: If duplicate cell IDs are found
+        """
+        # Collect cell IDs from directives
+        cell_id_map: dict[int, str] = {}  # cell index -> custom ID
+        seen_ids: dict[str, int] = {}  # cell ID -> cell index (for duplicate detection)
+
+        for i, cell in enumerate(self.cells):
+            directive = cell.get_directive("cell_id")
+            if directive is not None:
+                custom_id = directive.value_parsed
+                # Check for duplicate IDs
+                if custom_id in seen_ids:
+                    raise DirectiveError(
+                        f"Duplicate cell ID '{custom_id}' found in cells "
+                        f"{seen_ids[custom_id]} and {i}"
+                    )
+                seen_ids[custom_id] = i
+                cell_id_map[i] = custom_id
+
+        # If no cell-id directives, return self unchanged
+        if not cell_id_map:
+            return self
+
+        # Create new cells with updated IDs
+        new_cells: list[Cell] = []
+        for i, cell in enumerate(self.cells):
+            if i in cell_id_map:
+                # Create new cell with custom ID
+                new_cell = Cell(
+                    cell_type=cell.cell_type,
+                    source=cell.source,
+                    metadata=cell.metadata,
+                    outputs=cell.outputs,
+                    execution_count=cell.execution_count,
+                    id=cell_id_map[i],
+                    index=cell.index,
+                    notebook=None,  # Will be set below
+                )
+                new_cells.append(new_cell)
+            else:
+                # Keep cell as-is but need to create new instance for new notebook
+                new_cell = Cell(
+                    cell_type=cell.cell_type,
+                    source=cell.source,
+                    metadata=cell.metadata,
+                    outputs=cell.outputs,
+                    execution_count=cell.execution_count,
+                    id=cell.id,
+                    index=cell.index,
+                    notebook=None,  # Will be set below
+                )
+                new_cells.append(new_cell)
+
+        # Create new notebook with updated cells
+        new_notebook = Notebook(
+            cells=new_cells,
+            metadata=self.metadata,
+            nbformat=self.nbformat,
+            nbformat_minor=self.nbformat_minor,
+            source_path=self.source_path,
+            code_location=self.code_location,
+        )
+
+        # Update notebook references in cells
+        for cell in new_notebook.cells:
+            cell.notebook = new_notebook
+
+        return new_notebook
 
     @property
     def directives(self) -> dict[str, list[Directive]]:

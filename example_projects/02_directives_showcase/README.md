@@ -11,6 +11,7 @@ This example demonstrates all built-in nblite directives.
 | `03_export_as_func.ipynb` | `#\|export_as_func`, `#\|set_func_signature`, `#\|top_export`, `#\|func_return`, `#\|func_return_line` |
 | `04_documentation.ipynb` | `#\|hide`, `#\|hide_input`, `#\|hide_output` |
 | `05_evaluation.ipynb` | `#\|eval: false`, `#\|skip_evals`, `#\|skip_evals_stop` |
+| `09_cell_id.ipynb` | `#\|cell_id` |
 
 ## Directive Summary
 
@@ -36,6 +37,9 @@ This example demonstrates all built-in nblite directives.
 - `#|eval: false` - Skip cell during `nbl fill`
 - `#|skip_evals` - Start skipping all following cells
 - `#|skip_evals_stop` - Resume cell execution
+
+### Cell Identity Directive
+- `#|cell_id name` - Set a custom cell ID that persists through cleaning
 
 ## Run the Example
 

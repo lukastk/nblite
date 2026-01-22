@@ -443,3 +443,90 @@ class TestDirectiveValueParsing:
         source = "#|bad_parsed not_a_number"
         with pytest.raises(DirectiveError, match="Failed to parse"):
             parse_directives_from_source(source)
+
+
+class TestCellIdDirective:
+    """Tests for the cell_id directive validation."""
+
+    def setup_method(self) -> None:
+        """Reset registry to built-in directives before each test."""
+        clear_directive_definitions()
+        _register_builtin_directives()
+
+    def test_cell_id_directive_registered(self) -> None:
+        """Test that cell_id directive is registered."""
+        defn = get_directive_definition("cell_id")
+        assert defn is not None
+        assert defn.name == "cell_id"
+        assert defn.in_topmatter is True
+        assert defn.value_parser is not None
+
+    def test_valid_cell_id_starts_with_letter(self) -> None:
+        """Test valid cell IDs that start with a letter."""
+        source = "#|cell_id my-cell"
+        directives = parse_directives_from_source(source)
+        assert len(directives) == 1
+        assert directives[0].value_parsed == "my-cell"
+
+    def test_valid_cell_id_starts_with_underscore(self) -> None:
+        """Test valid cell IDs that start with an underscore."""
+        source = "#|cell_id _private_cell"
+        directives = parse_directives_from_source(source)
+        assert len(directives) == 1
+        assert directives[0].value_parsed == "_private_cell"
+
+    def test_valid_cell_id_with_numbers(self) -> None:
+        """Test valid cell IDs containing numbers."""
+        source = "#|cell_id cell123"
+        directives = parse_directives_from_source(source)
+        assert len(directives) == 1
+        assert directives[0].value_parsed == "cell123"
+
+    def test_valid_cell_id_with_hyphens_and_underscores(self) -> None:
+        """Test valid cell IDs with hyphens and underscores."""
+        source = "#|cell_id data-loading_v2"
+        directives = parse_directives_from_source(source)
+        assert len(directives) == 1
+        assert directives[0].value_parsed == "data-loading_v2"
+
+    def test_invalid_cell_id_empty(self) -> None:
+        """Test that empty cell ID raises DirectiveError."""
+        source = "#|cell_id"
+        with pytest.raises(DirectiveError, match="Cell ID cannot be empty"):
+            parse_directives_from_source(source)
+
+    def test_invalid_cell_id_whitespace_only(self) -> None:
+        """Test that whitespace-only cell ID raises DirectiveError."""
+        source = "#|cell_id   "
+        with pytest.raises(DirectiveError, match="Cell ID cannot be empty"):
+            parse_directives_from_source(source)
+
+    def test_invalid_cell_id_starts_with_number(self) -> None:
+        """Test that cell ID starting with number raises DirectiveError."""
+        source = "#|cell_id 123cell"
+        with pytest.raises(DirectiveError, match="Invalid cell ID"):
+            parse_directives_from_source(source)
+
+    def test_invalid_cell_id_starts_with_hyphen(self) -> None:
+        """Test that cell ID starting with hyphen raises DirectiveError."""
+        source = "#|cell_id -my-cell"
+        with pytest.raises(DirectiveError, match="Invalid cell ID"):
+            parse_directives_from_source(source)
+
+    def test_invalid_cell_id_special_chars(self) -> None:
+        """Test that cell ID with special characters raises DirectiveError."""
+        source = "#|cell_id my.cell"
+        with pytest.raises(DirectiveError, match="Invalid cell ID"):
+            parse_directives_from_source(source)
+
+    def test_invalid_cell_id_spaces(self) -> None:
+        """Test that cell ID with spaces raises DirectiveError."""
+        source = "#|cell_id my cell"
+        with pytest.raises(DirectiveError, match="Invalid cell ID"):
+            parse_directives_from_source(source)
+
+    def test_cell_id_value_is_stripped(self) -> None:
+        """Test that cell ID value is stripped of surrounding whitespace."""
+        source = "#|cell_id   my-cell   "
+        directives = parse_directives_from_source(source)
+        assert directives[0].value_parsed == "my-cell"

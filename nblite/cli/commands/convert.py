@@ -36,6 +36,13 @@ def convert(
             help=f"Output format. Available formats: {', '.join(Format.get_valid_formats())}",
         ),
     ] = None,
+    no_header: Annotated[
+        bool,
+        typer.Option(
+            "--no-header",
+            help="Omit YAML frontmatter when converting to percent format",
+        ),
+    ] = False,
 ) -> None:
     """Convert notebook between formats."""
     from nblite.core.notebook import FormatError, Notebook
@@ -47,7 +54,7 @@ def convert(
 
     try:
         nb = Notebook.from_file(input_path, format=from_format)
-        export_notebook_to_notebook(nb, output_path, format=to_format)
+        export_notebook_to_notebook(nb, output_path, format=to_format, no_header=no_header)
     except FormatError as e:
         console.print(f"[red]Error: {e}[/red]")
         raise typer.Exit(1) from e

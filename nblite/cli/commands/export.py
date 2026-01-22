@@ -44,6 +44,13 @@ def export(
             help="Suppress warning messages about unrecognized directives",
         ),
     ] = False,
+    no_header: Annotated[
+        bool,
+        typer.Option(
+            "--no-header",
+            help="Omit YAML frontmatter when exporting to percent format",
+        ),
+    ] = False,
 ) -> None:
     """Run the export pipeline.
 
@@ -94,6 +101,7 @@ def export(
         notebooks=notebooks,
         pipeline=export_pipeline,
         silence_warnings=silence_warnings,
+        no_header=no_header if no_header else None,
     )
 
     # Print warnings (unless silenced)

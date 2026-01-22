@@ -290,6 +290,62 @@ class TestNotebookConversion:
         content = path.read_text()
         assert "# %%" in content
 
+    def test_to_string_percent_no_header(self) -> None:
+        """Test to_string with no_header=True omits YAML frontmatter."""
+        data = {
+            "cells": [{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []}],
+            "metadata": {
+                "kernelspec": {"display_name": "Python 3", "name": "python3", "language": "python"}
+            },
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+
+        content = nb.to_string(Format.PERCENT, no_header=True)
+        # Percent format uses # --- for frontmatter
+        assert "# ---" not in content
+        assert "# %%" in content
+        assert "x = 1" in content
+
+    def test_to_string_percent_with_header(self) -> None:
+        """Test to_string with no_header=False includes YAML frontmatter."""
+        data = {
+            "cells": [{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []}],
+            "metadata": {
+                "kernelspec": {"display_name": "Python 3", "name": "python3", "language": "python"}
+            },
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+
+        content = nb.to_string(Format.PERCENT, no_header=False)
+        # Percent format uses # --- for frontmatter
+        assert content.startswith("# ---")
+        assert "# %%" in content
+        assert "x = 1" in content
+
+    def test_to_file_percent_no_header(self, tmp_path: Path) -> None:
+        """Test to_file with no_header=True omits YAML frontmatter."""
+        data = {
+            "cells": [{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []}],
+            "metadata": {
+                "kernelspec": {"display_name": "Python 3", "name": "python3", "language": "python"}
+            },
+            "nbformat": 4,
+            "nbformat_minor": 5,
+        }
+        nb = Notebook.from_dict(data)
+        path = tmp_path / "output.pct.py"
+
+        nb.to_file(path, no_header=True)
+
+        content = path.read_text()
+        # Percent format uses # --- for frontmatter
+        assert "# ---" not in content
+        assert "# %%" in content
+
 
 class TestNotebookClean:
     def test_clean_removes_outputs(self) -> None:

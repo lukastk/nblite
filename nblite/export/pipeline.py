@@ -110,6 +110,8 @@ def export_notebook_to_notebook(
     notebook: Notebook,
     output_path: Path | str,
     format: str | None = None,
+    *,
+    no_header: bool = False,
 ) -> None:
     """
     Export a notebook to another notebook format.
@@ -118,13 +120,14 @@ def export_notebook_to_notebook(
         notebook: Source notebook
         output_path: Output path for the notebook
         format: Output format (ipynb, percent). Auto-detected if None.
+        no_header: If True, omit YAML frontmatter when serializing to percent format.
     """
     output_path = Path(output_path)
 
     if format is None:
         format = Format.from_path(output_path)
 
-    content = notebook.to_string(format)
+    content = notebook.to_string(format, no_header=no_header)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(content)
 

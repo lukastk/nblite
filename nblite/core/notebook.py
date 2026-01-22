@@ -287,12 +287,13 @@ class Notebook:
             "nbformat_minor": self.nbformat_minor,
         }
 
-    def to_string(self, format: str = Format.IPYNB) -> str:
+    def to_string(self, format: str = Format.IPYNB, *, no_header: bool = False) -> str:
         """
         Convert notebook to string in specified format.
 
         Args:
             format: Output format (ipynb, percent)
+            no_header: If True, omit YAML frontmatter when serializing to percent format.
 
         Returns:
             Notebook content as string
@@ -306,22 +307,25 @@ class Notebook:
         # Use notebookx for format conversion
         nbx_nb = notebookx.Notebook.from_string(ipynb_str, notebookx.Format.Ipynb)
         nbx_format = Format.to_notebookx(format)
-        return nbx_nb.to_string(nbx_format)
+        return nbx_nb.to_string(nbx_format, no_header=no_header)
 
-    def to_file(self, path: Path | str, format: str | None = None) -> None:
+    def to_file(
+        self, path: Path | str, format: str | None = None, *, no_header: bool = False
+    ) -> None:
         """
         Save notebook to file.
 
         Args:
             path: Output file path
             format: Output format. Auto-detected from path if None.
+            no_header: If True, omit YAML frontmatter when serializing to percent format.
         """
         path = Path(path)
 
         if format is None:
             format = Format.from_path(path)
 
-        content = self.to_string(format)
+        content = self.to_string(format, no_header=no_header)
         path.write_text(content)
 
     def clean(

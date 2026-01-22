@@ -445,6 +445,7 @@ class NbliteProject:
         notebooks: list[Path] | None = None,
         pipeline: str | None = None,
         silence_warnings: bool = False,
+        no_header: bool | None = None,
     ) -> ExportResult:
         """
         Run the export pipeline.
@@ -455,6 +456,8 @@ class NbliteProject:
                 Format: "from_key -> to_key" or "from1 -> to1, from2 -> to2"
                 Can also use newlines to separate rules.
             silence_warnings: If True, suppress warning messages about unrecognized directives.
+            no_header: If True, omit YAML frontmatter when exporting to percent format.
+                If None, uses config value (export.no_header).
 
         Returns:
             ExportResult with success status and file lists
@@ -758,7 +761,13 @@ class NbliteProject:
                         if to_cl.format == CodeLocationFormat.PERCENT
                         else Format.IPYNB.value
                     )
-                    export_notebook_to_notebook(nb, output_path, format=fmt)
+                    # Determine no_header value: parameter overrides config
+                    effective_no_header = (
+                        no_header if no_header is not None else self.config.export.no_header
+                    )
+                    export_notebook_to_notebook(
+                        nb, output_path, format=fmt, no_header=effective_no_header
+                    )
 
                     if output_path.exists():
                         result.files_created.append(output_path)

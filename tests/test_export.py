@@ -123,6 +123,58 @@ class TestNotebookToNotebook:
 
         assert output_path.exists()
 
+    def test_no_header_omits_frontmatter(self, tmp_path: Path) -> None:
+        """Test that no_header=True omits YAML frontmatter in percent format."""
+        nb_content = json.dumps(
+            {
+                "cells": [{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []}],
+                "metadata": {
+                    "kernelspec": {"display_name": "Python 3", "name": "python3", "language": "python"}
+                },
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        ipynb_path = tmp_path / "test.ipynb"
+        ipynb_path.write_text(nb_content)
+        pct_path = tmp_path / "test.pct.py"
+
+        nb = Notebook.from_file(ipynb_path)
+        export_notebook_to_notebook(nb, pct_path, format="percent", no_header=True)
+
+        content = pct_path.read_text()
+        # Should not have YAML frontmatter (percent format uses # --- for frontmatter)
+        assert "# ---" not in content
+        # Should still have the cell content
+        assert "# %%" in content
+        assert "x = 1" in content
+
+    def test_no_header_false_includes_frontmatter(self, tmp_path: Path) -> None:
+        """Test that no_header=False (default) includes YAML frontmatter."""
+        nb_content = json.dumps(
+            {
+                "cells": [{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []}],
+                "metadata": {
+                    "kernelspec": {"display_name": "Python 3", "name": "python3", "language": "python"}
+                },
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+        ipynb_path = tmp_path / "test.ipynb"
+        ipynb_path.write_text(nb_content)
+        pct_path = tmp_path / "test.pct.py"
+
+        nb = Notebook.from_file(ipynb_path)
+        export_notebook_to_notebook(nb, pct_path, format="percent", no_header=False)
+
+        content = pct_path.read_text()
+        # Should have YAML frontmatter (percent format uses # --- for frontmatter)
+        assert content.startswith("# ---")
+        # Should still have the cell content
+        assert "# %%" in content
+        assert "x = 1" in content
+
 
 class TestNotebookToModule:
     @pytest.fixture

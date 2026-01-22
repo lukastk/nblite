@@ -209,20 +209,41 @@ def _get_function_signature(notebook: Notebook) -> tuple[str | None, str | None]
             if sig_start_idx is None:
                 return None, None
 
-            # Collect lines until we find the closing '):' pattern
+            # Track bracket nesting to find true end of signature
+            # This handles complex return types like `-> tuple[list[str], ...]:`
             sig_lines = []
             sig_end_idx = sig_start_idx
+            nesting_depth = 0
+
             for i in range(sig_start_idx, len(lines)):
                 line = lines[i]
                 sig_lines.append(line)
+
+                # Count brackets in this line (outside of strings)
+                in_string = None
+                for j, char in enumerate(line):
+                    # Handle string detection (simplified - doesn't handle escapes perfectly)
+                    if char in "\"'":
+                        # Check for triple quotes
+                        triple = line[j : j + 3]
+                        if triple in ('"""', "'''"):
+                            if in_string == triple:
+                                in_string = None
+                            elif in_string is None:
+                                in_string = triple
+                        elif in_string is None:
+                            in_string = char
+                        elif in_string == char:
+                            in_string = None
+                    elif in_string is None:
+                        if char in "([{":
+                            nesting_depth += 1
+                        elif char in ")]}":
+                            nesting_depth -= 1
+
                 stripped = line.strip()
-                # Check if this line ends the signature
-                # Handle cases like `) -> list:`, `):`, `) -> int:`, etc.
-                if stripped.endswith(":") and ")" in stripped:
-                    sig_end_idx = i
-                    break
-                # Also handle single-line signatures like `def foo(): ...`
-                if i == sig_start_idx and stripped.endswith(":"):
+                # Signature ends when we're at depth 0 and line ends with ':'
+                if nesting_depth == 0 and stripped.endswith(":"):
                     sig_end_idx = i
                     break
 

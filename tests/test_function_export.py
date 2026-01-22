@@ -429,3 +429,51 @@ class TestFunctionNotebookExport:
         # Check body
         assert "    result = [x * factor for x in data]" in content
         assert "    return result" in content
+
+    def test_complex_return_type_multiline(self, tmp_path: Path) -> None:
+        """Test complex return type annotation spanning multiple lines ending with ]:"""
+        nb_content = """{
+            "cells": [
+                {"cell_type": "code", "source": "#|default_exp complex_ret\\n#|export_as_func true", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|set_func_signature\\nasync def sync_missing(\\n    config_path: str,\\n    verbose: bool = False\\n) -> tuple[\\n    list[str],\\n    list[tuple[bool, ...]],\\n]:\\n    \\"\\"\\"Sync missing items.\\n\\n    Returns:\\n        A tuple of results.\\n    \\"\\"\\"", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|export\\nresults = []\\nerrors = []", "metadata": {}, "outputs": [], "execution_count": null},
+                {"cell_type": "code", "source": "#|func_return\\n(results, errors)", "metadata": {}, "outputs": [], "execution_count": null}
+            ],
+            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"}},
+            "nbformat": 4,
+            "nbformat_minor": 5
+        }"""
+        nb_path = tmp_path / "complex_ret.ipynb"
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        module_path = tmp_path / "complex_ret.py"
+        export_function_notebook(nb, module_path)
+
+        content = module_path.read_text()
+        # Check multi-line signature with complex return type
+        assert "async def sync_missing(" in content
+        assert "config_path: str," in content
+        assert "verbose: bool = False" in content
+        assert ") -> tuple[" in content
+        assert "list[str]," in content
+        assert "list[tuple[bool, ...]]," in content
+        assert "]:" in content
+        # Check docstring is present and NOT part of signature
+        assert '    """Sync missing items.' in content
+        assert "        A tuple of results." in content
+        # Check that the signature doesn't include docstring content
+        # (i.e., no extra colon after docstring)
+        lines = content.split("\n")
+        signature_found = False
+        for line in lines:
+            if "async def sync_missing" in line:
+                signature_found = True
+            if signature_found and line.strip().startswith('"""'):
+                # Once we hit the docstring, make sure it's properly indented as body
+                assert line.startswith("    "), "Docstring should be indented as function body"
+                break
+        # Check body
+        assert "    results = []" in content
+        assert "    errors = []" in content
+        assert "    return (results, errors)" in content

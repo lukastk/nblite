@@ -307,7 +307,11 @@ class Notebook:
         # Use notebookx for format conversion
         nbx_nb = notebookx.Notebook.from_string(ipynb_str, notebookx.Format.Ipynb)
         nbx_format = Format.to_notebookx(format)
-        return nbx_nb.to_string(nbx_format, no_header=no_header)
+        try:
+            return nbx_nb.to_string(nbx_format, no_header=no_header)
+        except TypeError:
+            # Older notebookx versions don't support no_header
+            return nbx_nb.to_string(nbx_format)
 
     def to_file(
         self, path: Path | str, format: str | None = None, *, no_header: bool = False

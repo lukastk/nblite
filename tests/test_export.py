@@ -129,7 +129,11 @@ class TestNotebookToNotebook:
             {
                 "cells": [{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []}],
                 "metadata": {
-                    "kernelspec": {"display_name": "Python 3", "name": "python3", "language": "python"}
+                    "kernelspec": {
+                        "display_name": "Python 3",
+                        "name": "python3",
+                        "language": "python",
+                    }
                 },
                 "nbformat": 4,
                 "nbformat_minor": 5,
@@ -155,7 +159,11 @@ class TestNotebookToNotebook:
             {
                 "cells": [{"cell_type": "code", "source": "x = 1", "metadata": {}, "outputs": []}],
                 "metadata": {
-                    "kernelspec": {"display_name": "Python 3", "name": "python3", "language": "python"}
+                    "kernelspec": {
+                        "display_name": "Python 3",
+                        "name": "python3",
+                        "language": "python",
+                    }
                 },
                 "nbformat": 4,
                 "nbformat_minor": 5,

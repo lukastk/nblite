@@ -2,12 +2,10 @@
 Tests for the export pipeline (Milestone 6).
 """
 
-import inspect
 import json
 import os
 from pathlib import Path
 
-import notebookx
 import pytest
 
 from nblite.config.schema import ExportMode
@@ -18,11 +16,6 @@ from nblite.export.pipeline import (
     export_notebook_to_notebook,
     export_notebooks_to_module,
 )
-
-# Check if notebookx supports no_header parameter
-_notebookx_supports_no_header = "no_header" in inspect.signature(
-    notebookx.Notebook.to_string
-).parameters
 
 
 class TestNotebookToNotebook:
@@ -130,10 +123,6 @@ class TestNotebookToNotebook:
 
         assert output_path.exists()
 
-    @pytest.mark.skipif(
-        not _notebookx_supports_no_header,
-        reason="notebookx version doesn't support no_header parameter",
-    )
     def test_no_header_omits_frontmatter(self, tmp_path: Path) -> None:
         """Test that no_header=True omits YAML frontmatter in percent format."""
         nb_content = json.dumps(

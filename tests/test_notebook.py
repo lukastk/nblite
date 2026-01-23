@@ -2,20 +2,13 @@
 Tests for the Notebook class (Milestone 3).
 """
 
-import inspect
 import json
 from pathlib import Path
 
-import notebookx
 import pytest
 
 from nblite.core.cell import Cell
 from nblite.core.notebook import Format, Notebook
-
-# Check if notebookx supports no_header parameter
-_notebookx_supports_no_header = "no_header" in inspect.signature(
-    notebookx.Notebook.to_string
-).parameters
 
 
 class TestNotebookCreation:
@@ -297,10 +290,6 @@ class TestNotebookConversion:
         content = path.read_text()
         assert "# %%" in content
 
-    @pytest.mark.skipif(
-        not _notebookx_supports_no_header,
-        reason="notebookx version doesn't support no_header parameter",
-    )
     def test_to_string_percent_no_header(self) -> None:
         """Test to_string with no_header=True omits YAML frontmatter."""
         data = {
@@ -337,10 +326,6 @@ class TestNotebookConversion:
         assert "# %%" in content
         assert "x = 1" in content
 
-    @pytest.mark.skipif(
-        not _notebookx_supports_no_header,
-        reason="notebookx version doesn't support no_header parameter",
-    )
     def test_to_file_percent_no_header(self, tmp_path: Path) -> None:
         """Test to_file with no_header=True omits YAML frontmatter."""
         data = {

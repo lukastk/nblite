@@ -5,16 +5,17 @@ def my_decorator(func):
 
 DEFAULT_MULTIPLIER = 2
 
+@my_decorator
 def process_data(
     input_list: list,
     multiplier: int = 2
 ) -> list:
     """Process a list of numbers.
-    
+
     Args:
         input_list: List of numbers to process
         multiplier: Value to multiply each number by
-    
+
     Returns:
         Processed list of numbers
     """

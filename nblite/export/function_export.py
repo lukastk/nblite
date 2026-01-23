@@ -116,28 +116,23 @@ def export_function_notebook(
         lines.append(code)
         lines.append("")
 
-    # Get function signature and docstring
-    signature, docstring = _get_function_signature(notebook)
-    if signature is None:
+    # Get function definition (decorators, signature, docstring)
+    func_def = _get_function_signature(notebook)
+    if func_def is None:
         # Default signature if not provided
         # Use only the last part of the module path (after final dot) as function name
         module_name = notebook.default_exp or "exported_func"
         if "." in module_name:
             module_name = module_name.rsplit(".", 1)[-1]
-        signature = f"def {module_name}():"
+        func_def = f"def {module_name}():"
 
-    # Add function definition (may be multi-line)
-    for sig_line in signature.split("\n"):
-        lines.append(sig_line)
+    # Add function definition (decorators, signature, docstring - may be multi-line)
+    for line in func_def.split("\n"):
+        lines.append(line)
 
     # Collect function body
     body_lines = _collect_function_body(notebook)
 
-    # Prepend docstring to body if present
-    if docstring:
-        # Add docstring lines at the beginning of the body
-        docstring_lines = docstring.split("\n")
-        body_lines = docstring_lines + body_lines
     if body_lines:
         for line in body_lines:
             lines.append(f"    {line}")
@@ -183,130 +178,28 @@ def _collect_top_exports(notebook: Notebook) -> list[str]:
     return [code for _, _, code in cells_with_order]
 
 
-def _get_function_signature(notebook: Notebook) -> tuple[str | None, str | None]:
-    """Extract function signature and docstring from #|set_func_signature directive.
+def _get_function_signature(notebook: Notebook) -> str | None:
+    """Extract function definition from #|set_func_signature directive.
+
+    Returns the entire cell content (decorators, signature, docstring) as-is,
+    only stripping trailing `...` or `pass` placeholders.
 
     Returns:
-        A tuple of (signature, docstring). Either or both may be None.
-        The signature is the complete function definition line(s) ending with `:`.
-        The docstring is the triple-quoted string content (without quotes), if present.
+        The function definition string, or None if not found.
     """
     for cell in notebook.cells:
         if not cell.is_code:
             continue
         if cell.has_directive("set_func_signature"):
-            code = cell.source_without_directives.strip()
-            lines = code.split("\n")
+            code = cell.source_without_directives.rstrip()
 
-            # Find the start of the function definition
-            sig_start_idx = None
-            for i, line in enumerate(lines):
-                stripped = line.strip()
-                if stripped.startswith("def ") or stripped.startswith("async def "):
-                    sig_start_idx = i
-                    break
+            # Remove trailing ellipsis or pass placeholder
+            if code.endswith("..."):
+                code = code[:-3].rstrip()
+            elif code.endswith("pass"):
+                code = code[:-4].rstrip()
 
-            if sig_start_idx is None:
-                return None, None
-
-            # Track bracket nesting to find true end of signature
-            # This handles complex return types like `-> tuple[list[str], ...]:`
-            sig_lines = []
-            sig_end_idx = sig_start_idx
-            nesting_depth = 0
-
-            for i in range(sig_start_idx, len(lines)):
-                line = lines[i]
-                sig_lines.append(line)
-
-                # Count brackets in this line (outside of strings)
-                in_string = None
-                for j, char in enumerate(line):
-                    # Handle string detection (simplified - doesn't handle escapes perfectly)
-                    if char in "\"'":
-                        # Check for triple quotes
-                        triple = line[j : j + 3]
-                        if triple in ('"""', "'''"):
-                            if in_string == triple:
-                                in_string = None
-                            elif in_string is None:
-                                in_string = triple
-                        elif in_string is None:
-                            in_string = char
-                        elif in_string == char:
-                            in_string = None
-                    elif in_string is None:
-                        if char in "([{":
-                            nesting_depth += 1
-                        elif char in ")]}":
-                            nesting_depth -= 1
-
-                stripped = line.strip()
-                # Signature ends when we're at depth 0 and line ends with ':'
-                if nesting_depth == 0 and stripped.endswith(":"):
-                    sig_end_idx = i
-                    break
-
-            # Build the signature string
-            signature = "\n".join(sig_lines)
-
-            # Remove trailing ellipsis or pass from signature
-            signature = signature.rstrip()
-            if signature.endswith("..."):
-                signature = signature[:-3].rstrip()
-            elif signature.endswith("pass"):
-                signature = signature[:-4].rstrip()
-
-            # Ensure signature ends with colon
-            if not signature.endswith(":"):
-                signature += ":"
-
-            # Now extract the docstring if present (lines after the signature)
-            docstring = None
-            remaining_lines = lines[sig_end_idx + 1 :]
-            if remaining_lines:
-                remaining_code = "\n".join(remaining_lines).strip()
-                docstring = _extract_docstring(remaining_code)
-
-            return signature, docstring
-
-    return None, None
-
-
-def _extract_docstring(code: str) -> str | None:
-    """Extract a docstring from the beginning of code.
-
-    Args:
-        code: Code that may start with a docstring.
-
-    Returns:
-        The docstring content (including quotes) if found, None otherwise.
-        The docstring is dedented to remove any common leading whitespace.
-    """
-    import textwrap
-
-    code = code.strip()
-    if not code:
-        return None
-
-    # Check for triple-quoted strings
-    for quote in ['"""', "'''"]:
-        if code.startswith(quote):
-            # Find the closing quotes
-            end_idx = code.find(quote, len(quote))
-            if end_idx != -1:
-                # Extract the full docstring including quotes
-                docstring = code[: end_idx + len(quote)]
-                # Dedent to remove common leading whitespace from lines
-                # (except the first line which starts with quotes)
-                lines = docstring.split("\n")
-                if len(lines) > 1:
-                    # Dedent all lines except the first
-                    first_line = lines[0]
-                    rest = "\n".join(lines[1:])
-                    dedented_rest = textwrap.dedent(rest)
-                    docstring = first_line + "\n" + dedented_rest
-                return docstring
+            return code if code else None
 
     return None
 

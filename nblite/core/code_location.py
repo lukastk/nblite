@@ -100,7 +100,7 @@ class CodeLocation:
 
         Args:
             ignore_dunders: Exclude files starting with __
-            ignore_hidden: Exclude files starting with .
+            ignore_hidden: Exclude files starting with . (also excludes files in hidden directories)
 
         Returns:
             List of file paths matching the format
@@ -126,6 +126,12 @@ class CodeLocation:
                 continue
             if ignore_hidden and name.startswith("."):
                 continue
+
+            # Check if file is inside a hidden directory (e.g., .ipynb_checkpoints)
+            if ignore_hidden:
+                rel_path = file_path.relative_to(self.path)
+                if any(part.startswith(".") for part in rel_path.parts[:-1]):
+                    continue
 
             files.append(file_path)
 

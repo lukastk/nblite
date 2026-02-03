@@ -154,6 +154,62 @@ class TestCodeLocationGetFiles:
 
         assert len(files) == 2
 
+    def test_get_files_excludes_hidden_directories(self, tmp_path: Path) -> None:
+        """Test that files in hidden directories like .ipynb_checkpoints are excluded."""
+        nbs_dir = tmp_path / "nbs"
+        nbs_dir.mkdir()
+        checkpoint_dir = nbs_dir / ".ipynb_checkpoints"
+        checkpoint_dir.mkdir()
+
+        # Create normal files
+        (nbs_dir / "utils.ipynb").write_text("{}")
+        (nbs_dir / "api.ipynb").write_text("{}")
+
+        # Create checkpoint files (should be excluded)
+        (checkpoint_dir / "utils-checkpoint.ipynb").write_text("{}")
+        (checkpoint_dir / "api-checkpoint.ipynb").write_text("{}")
+
+        cl = CodeLocation(key="nbs", path=nbs_dir, format="ipynb")
+        files = cl.get_files()
+
+        assert len(files) == 2
+        assert all(".ipynb_checkpoints" not in str(f) for f in files)
+
+    def test_get_files_excludes_nested_hidden_directories(self, tmp_path: Path) -> None:
+        """Test that files in nested hidden directories are excluded."""
+        pts_dir = tmp_path / "pts"
+        (pts_dir / "api").mkdir(parents=True)
+        checkpoint_dir = pts_dir / "api" / ".ipynb_checkpoints"
+        checkpoint_dir.mkdir()
+
+        # Create normal files
+        (pts_dir / "utils.pct.py").write_text("# %%")
+        (pts_dir / "api" / "routes.pct.py").write_text("# %%")
+
+        # Create checkpoint files (should be excluded)
+        (checkpoint_dir / "routes-checkpoint.pct.py").write_text("# %%")
+
+        cl = CodeLocation(key="pts", path=pts_dir, format="percent")
+        files = cl.get_files()
+
+        assert len(files) == 2
+        assert all(".ipynb_checkpoints" not in str(f) for f in files)
+
+    def test_get_files_includes_hidden_directories_when_ignore_hidden_false(self, tmp_path: Path) -> None:
+        """Test that hidden directories are included when ignore_hidden=False."""
+        nbs_dir = tmp_path / "nbs"
+        nbs_dir.mkdir()
+        checkpoint_dir = nbs_dir / ".ipynb_checkpoints"
+        checkpoint_dir.mkdir()
+
+        (nbs_dir / "utils.ipynb").write_text("{}")
+        (checkpoint_dir / "utils-checkpoint.ipynb").write_text("{}")
+
+        cl = CodeLocation(key="nbs", path=nbs_dir, format="ipynb")
+        files = cl.get_files(ignore_hidden=False)
+
+        assert len(files) == 2
+
     def test_get_files_nonexistent_dir(self, tmp_path: Path) -> None:
         """Test getting files from nonexistent directory."""
         cl = CodeLocation(

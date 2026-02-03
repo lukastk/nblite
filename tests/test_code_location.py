@@ -195,7 +195,9 @@ class TestCodeLocationGetFiles:
         assert len(files) == 2
         assert all(".ipynb_checkpoints" not in str(f) for f in files)
 
-    def test_get_files_includes_hidden_directories_when_ignore_hidden_false(self, tmp_path: Path) -> None:
+    def test_get_files_includes_hidden_directories_when_ignore_hidden_false(
+        self, tmp_path: Path
+    ) -> None:
         """Test that hidden directories are included when ignore_hidden=False."""
         nbs_dir = tmp_path / "nbs"
         nbs_dir.mkdir()

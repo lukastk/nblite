@@ -6,6 +6,7 @@ Handles exporting notebooks to different formats and to Python modules.
 
 from __future__ import annotations
 
+import bisect
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -623,6 +624,8 @@ def _transform_imports(source: str, package_name: str, module_depth: int) -> str
     Converts imports like "from {package_name}.X import Y" to relative imports
     like "from .X import Y" (with appropriate number of dots based on depth).
 
+    Imports inside string literals (f-strings, docstrings, etc.) are left unchanged.
+
     Args:
         source: Source code to transform
         package_name: The package name to convert (e.g., "my_lib")
@@ -633,13 +636,32 @@ def _transform_imports(source: str, package_name: str, module_depth: int) -> str
     Returns:
         Transformed source code
     """
+    from nblite.core.directive import _get_string_ranges, _is_position_in_string
+
     # Number of dots needed: depth + 1
     # depth 0 (my_lib/core.py) -> 1 dot (.)
     # depth 1 (my_lib/submodule/utils.py) -> 2 dots (..)
     num_dots = module_depth + 1
     dots = "." * num_dots
 
+    # Compute string ranges to avoid rewriting imports inside string literals
+    string_ranges = _get_string_ranges(source)
+
+    # Precompute line start offsets for offset-to-position conversion
+    line_starts = [0]
+    for i, ch in enumerate(source):
+        if ch == "\n":
+            line_starts.append(i + 1)
+
     def replace_import(match: re.Match) -> str:
+        # Skip matches inside string literals (f-strings, docstrings, etc.)
+        if string_ranges:
+            offset = match.start()
+            line_idx = bisect.bisect_right(line_starts, offset) - 1
+            col = offset - line_starts[line_idx]
+            if _is_position_in_string(line_idx, col, string_ranges):
+                return match.group(0)
+
         indent = match.group(1)
         module_path = match.group(2)
         imports = match.group(3)

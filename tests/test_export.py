@@ -12,6 +12,7 @@ from nblite.config.schema import ExportMode
 from nblite.core.notebook import Notebook
 from nblite.export.pipeline import (
     ExportResult,
+    _transform_imports,
     export_notebook_to_module,
     export_notebook_to_notebook,
     export_notebooks_to_module,
@@ -704,6 +705,45 @@ class TestImportTransformation:
         assert "from .. import const" in content
         assert "from . import const" not in content
         assert "from my_pkg import" not in content
+
+
+class TestImportTransformationInStrings:
+    """Test that imports inside string literals are NOT transformed."""
+
+    def test_fstring_multiline_not_transformed(self) -> None:
+        """Imports inside multi-line f-strings should not be rewritten."""
+        source = 'x = f"""\nfrom my_pkg.utils import helper\n"""'
+        result = _transform_imports(source, "my_pkg", 0)
+        assert "from my_pkg.utils import helper" in result
+
+    def test_regular_string_multiline_not_transformed(self) -> None:
+        """Imports inside multi-line regular strings should not be rewritten."""
+        source = 'x = """\nfrom my_pkg.utils import helper\n"""'
+        result = _transform_imports(source, "my_pkg", 0)
+        assert "from my_pkg.utils import helper" in result
+
+    def test_docstring_not_transformed(self) -> None:
+        """Imports inside docstrings should not be rewritten."""
+        source = 'def foo():\n    """\n    from my_pkg.utils import helper\n    """\n    pass'
+        result = _transform_imports(source, "my_pkg", 0)
+        assert "from my_pkg.utils import helper" in result
+
+    def test_real_import_still_transformed(self) -> None:
+        """Real imports alongside strings should still be rewritten."""
+        source = 'from my_pkg.utils import helper\nx = """\nfrom my_pkg.core import other\n"""'
+        result = _transform_imports(source, "my_pkg", 0)
+        # Real import should be transformed
+        assert "from .utils import helper" in result
+        # String import should NOT be transformed
+        assert "from my_pkg.core import other" in result
+
+    def test_single_line_string_not_transformed(self) -> None:
+        """Imports inside single-line strings are not at line start, so naturally excluded."""
+        source = 'x = "from my_pkg.utils import helper"'
+        result = _transform_imports(source, "my_pkg", 0)
+        # The regex requires ^ (line start), so single-line strings are safe,
+        # but verify the string content is unchanged
+        assert "from my_pkg.utils import helper" in result
 
 
 class TestExportResult:

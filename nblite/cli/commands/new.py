@@ -150,6 +150,10 @@ def new(
         list[str] | None,
         typer.Option("--var", "-v", help="Template variable as key=value (can be repeated)"),
     ] = None,
+    overwrite: Annotated[
+        bool,
+        typer.Option("--overwrite", help="Overwrite the file if it already exists"),
+    ] = False,
 ) -> None:
     """Create a new notebook.
 
@@ -252,6 +256,14 @@ def new(
         else:
             console.print(f"[red]Error: Template '{template_name}' not found.[/red]")
             raise typer.Exit(1)
+
+    # Check if file already exists
+    if notebook_path.exists() and not overwrite:
+        console.print(
+            f"[red]Error: File '{notebook_path}' already exists. "
+            f"Use --overwrite to overwrite it.[/red]"
+        )
+        raise typer.Exit(1)
 
     # Write the notebook
     notebook_path.parent.mkdir(parents=True, exist_ok=True)

@@ -16,6 +16,11 @@ from nblite.fill.hash import (
     get_notebook_hash_from_path,
     has_notebook_changed,
 )
+from nblite.fill.kernel import (
+    CUSTOM_KERNEL_NAME,
+    custom_kernel_environment,
+    validate_python_binary,
+)
 
 __all__ = [
     "fill_notebook",
@@ -26,4 +31,7 @@ __all__ = [
     "get_notebook_hash_from_path",
     "has_notebook_changed",
     "HASH_METADATA_KEY",
+    "validate_python_binary",
+    "custom_kernel_environment",
+    "CUSTOM_KERNEL_NAME",
 ]

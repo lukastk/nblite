@@ -261,6 +261,14 @@ class TestFillNotebook:
 
         assert result.status == FillStatus.SUCCESS
 
+    def test_fill_notebook_with_kernel_name(self, tmp_path: Path) -> None:
+        """Test filling with explicit kernel_name parameter."""
+        path = create_simple_notebook(tmp_path)
+
+        result = fill_notebook(path, kernel_name="python3")
+
+        assert result.status == FillStatus.SUCCESS
+
 
 class TestSkipDirectives:
     """Tests for skip directives (#|eval: false, #|skip_evals, etc.)."""
@@ -441,6 +449,28 @@ class TestFillNotebooks:
         assert len(results) == 4
         assert all(r.status == FillStatus.SUCCESS for r in results)
 
+    def test_fill_notebooks_with_python(self, tmp_path: Path) -> None:
+        """Test fill_notebooks with python parameter using current executable."""
+        import subprocess
+        import sys
+
+        # Skip if ipykernel is not installed in the current environment
+        result = subprocess.run(
+            [sys.executable, "-c", "import ipykernel"],
+            capture_output=True,
+        )
+        if result.returncode != 0:
+            import pytest
+
+            pytest.skip("ipykernel not installed in current environment")
+
+        paths = [create_simple_notebook(tmp_path, f"nb{i}.ipynb") for i in range(2)]
+
+        results = fill_notebooks(paths, skip_unchanged=False, python=sys.executable)
+
+        assert len(results) == 2
+        assert all(r.status == FillStatus.SUCCESS for r in results)
+
     def test_fill_notebooks_dry_run(self, tmp_path: Path) -> None:
         """Test batch dry run."""
         paths = [create_simple_notebook(tmp_path, f"nb{i}.ipynb") for i in range(2)]
@@ -471,6 +501,7 @@ class TestFillConfig:
         assert config.exclude_patterns == []
         assert config.exclude_dunders is True
         assert config.exclude_hidden is True
+        assert config.python is None
 
     def test_fill_config_custom_values(self) -> None:
         """Test FillConfig with custom values."""
@@ -496,6 +527,13 @@ class TestFillConfig:
         assert config.exclude_dunders is False
         assert config.exclude_hidden is False
 
+    def test_fill_config_python_field(self) -> None:
+        """Test FillConfig with python field."""
+        from nblite.config.schema import FillConfig
+
+        config = FillConfig(python="/usr/bin/python3")
+        assert config.python == "/usr/bin/python3"
+
     def test_fill_config_in_nblite_config(self) -> None:
         """Test fill config is part of NbliteConfig."""
         from nblite.config.schema import NbliteConfig
@@ -504,6 +542,7 @@ class TestFillConfig:
 
         assert hasattr(config, "fill")
         assert config.fill.n_workers == 4
+        assert config.fill.python is None
 
 
 class TestFillCLI:
@@ -531,6 +570,42 @@ class TestFillCLI:
         result = runner.invoke(app, ["test", "--help"])
 
         assert result.exit_code == 0
+
+    def test_fill_python_option_in_help(self) -> None:
+        """Test that --python option appears in fill --help."""
+        from typer.testing import CliRunner
+
+        from nblite.cli.app import app
+
+        runner = CliRunner()
+        result = runner.invoke(app, ["fill", "--help"])
+
+        assert result.exit_code == 0
+        assert "--python" in result.output
+
+    def test_test_python_option_in_help(self) -> None:
+        """Test that --python option appears in test --help."""
+        from typer.testing import CliRunner
+
+        from nblite.cli.app import app
+
+        runner = CliRunner()
+        result = runner.invoke(app, ["test", "--help"])
+
+        assert result.exit_code == 0
+        assert "--python" in result.output
+
+    def test_prepare_python_option_in_help(self) -> None:
+        """Test that --python option appears in prepare --help."""
+        from typer.testing import CliRunner
+
+        from nblite.cli.app import app
+
+        runner = CliRunner()
+        result = runner.invoke(app, ["prepare", "--help"])
+
+        assert result.exit_code == 0
+        assert "--python" in result.output
 
     def test_fill_cli_with_notebooks(self, tmp_path: Path) -> None:
         """Test fill CLI with specific notebooks."""

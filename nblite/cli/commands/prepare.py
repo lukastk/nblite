@@ -42,6 +42,10 @@ def prepare(
         bool,
         typer.Option("--fill-unchanged", "-f", help="Fill notebooks even if unchanged"),
     ] = False,
+    python: Annotated[
+        str | None,
+        typer.Option("--python", help="Path to Python binary for notebook execution (must have ipykernel installed)"),
+    ] = None,
 ) -> None:
     """Run export, clean, fill, and readme in sequence.
 
@@ -98,6 +102,7 @@ def prepare(
             dry_run=False,
             silent=False,
             config_path=config_path,
+            python=python,
         )
         if exit_code != 0:
             raise typer.Exit(exit_code)

@@ -304,6 +304,10 @@ class FillConfig(BaseModel):
         default=True,
         description="Exclude .* notebooks",
     )
+    python: str | None = Field(
+        default=None,
+        description="Path to Python binary for notebook execution (must have ipykernel installed)",
+    )
 
 
 class DocsConfig(BaseModel):

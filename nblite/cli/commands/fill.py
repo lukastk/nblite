@@ -30,6 +30,7 @@ def _run_fill(
     silent: bool,
     allow_export: bool = False,
     config_path: Path | None = None,
+    python: str | None = None,
 ) -> int:
     """
     Internal fill implementation shared by fill and test commands.
@@ -53,13 +54,34 @@ def _run_fill(
     try:
         project = NbliteProject.from_path(config_path)
     except FileNotFoundError as e:
-        console.print(f"[red]Error: {e}[/red]")
-        # Restore environment variable before returning
-        if prev_disable_export is None:
-            os.environ.pop(DISABLE_NBLITE_EXPORT_ENV_VAR, None)
+        if notebooks:
+            project = None
         else:
-            os.environ[DISABLE_NBLITE_EXPORT_ENV_VAR] = prev_disable_export
-        return 1
+            console.print(f"[red]Error: {e}[/red]")
+            # Restore environment variable before returning
+            if prev_disable_export is None:
+                os.environ.pop(DISABLE_NBLITE_EXPORT_ENV_VAR, None)
+            else:
+                os.environ[DISABLE_NBLITE_EXPORT_ENV_VAR] = prev_disable_export
+            return 1
+
+    # Resolve effective python: CLI arg > config value
+    effective_python = python or (project.config.fill.python if project else None)
+
+    # Validate python binary early if specified
+    if effective_python:
+        from nblite.fill.kernel import validate_python_binary
+
+        try:
+            validate_python_binary(effective_python)
+        except (FileNotFoundError, PermissionError, RuntimeError) as e:
+            console.print(f"[red]Error: {e}[/red]")
+            # Restore environment variable before returning
+            if prev_disable_export is None:
+                os.environ.pop(DISABLE_NBLITE_EXPORT_ENV_VAR, None)
+            else:
+                os.environ[DISABLE_NBLITE_EXPORT_ENV_VAR] = prev_disable_export
+            return 1
 
     # Collect notebooks to fill
     nbs_to_fill: list[Path] = []
@@ -67,7 +89,7 @@ def _run_fill(
     if notebooks:
         # Use specified notebooks
         for nb_path in notebooks:
-            resolved = project.root_path / nb_path if not nb_path.is_absolute() else nb_path
+            resolved = nb_path.resolve()
             if resolved.exists():
                 nbs_to_fill.append(resolved)
             else:
@@ -137,11 +159,12 @@ def _run_fill(
         table.add_column("Notebook")
         table.add_column("Message")
 
+        root_path = project.root_path if project else Path.cwd()
         for nb_path in nbs_to_fill:
             status, msg = task_statuses.get(nb_path, ("...", "Pending"))
             rel_path = (
-                nb_path.relative_to(project.root_path)
-                if nb_path.is_relative_to(project.root_path)
+                nb_path.relative_to(root_path)
+                if nb_path.is_relative_to(root_path)
                 else nb_path
             )
 
@@ -160,6 +183,17 @@ def _run_fill(
 
         return table
 
+    # Set up kernel environment if custom python is specified
+    from contextlib import ExitStack
+
+    kernel_name = "python3"
+    exit_stack = ExitStack()
+
+    if effective_python:
+        from nblite.fill.kernel import custom_kernel_environment
+
+        kernel_name = exit_stack.enter_context(custom_kernel_environment(effective_python))
+
     # Process notebooks
     def process_one(nb_path: Path) -> FillResult:
         task_statuses[nb_path] = ("run", "Executing...")
@@ -170,6 +204,7 @@ def _run_fill(
             remove_outputs_first=remove_outputs_first,
             clean=clean,
             save_hash=save_hash,
+            kernel_name=kernel_name,
         )
         if result.status == FillStatus.SUCCESS:
             task_statuses[nb_path] = ("ok", "Success")
@@ -179,29 +214,30 @@ def _run_fill(
             task_statuses[nb_path] = ("err", result.message[:50])
         return result
 
-    if silent:
-        # Silent mode - no output during execution
-        if n_workers <= 1:
-            for nb_path in to_process:
-                results.append(process_one(nb_path))
-        else:
-            with ThreadPoolExecutor(max_workers=n_workers) as executor:
-                futures = {executor.submit(process_one, p): p for p in to_process}
-                for future in as_completed(futures):
-                    results.append(future.result())
-    else:
-        # Progress display mode
-        with Live(make_table(), refresh_per_second=4, console=console) as live:
+    with exit_stack:
+        if silent:
+            # Silent mode - no output during execution
             if n_workers <= 1:
                 for nb_path in to_process:
                     results.append(process_one(nb_path))
-                    live.update(make_table())
             else:
                 with ThreadPoolExecutor(max_workers=n_workers) as executor:
                     futures = {executor.submit(process_one, p): p for p in to_process}
                     for future in as_completed(futures):
                         results.append(future.result())
+        else:
+            # Progress display mode
+            with Live(make_table(), refresh_per_second=4, console=console) as live:
+                if n_workers <= 1:
+                    for nb_path in to_process:
+                        results.append(process_one(nb_path))
                         live.update(make_table())
+                else:
+                    with ThreadPoolExecutor(max_workers=n_workers) as executor:
+                        futures = {executor.submit(process_one, p): p for p in to_process}
+                        for future in as_completed(futures):
+                            results.append(future.result())
+                            live.update(make_table())
 
     # Summary
     success_count = sum(1 for r in results if r.status == FillStatus.SUCCESS)
@@ -224,9 +260,10 @@ def _run_fill(
         console.print("[red]Errors:[/red]")
         for r in results:
             if r.status == FillStatus.ERROR:
+                root_path = project.root_path if project else Path.cwd()
                 rel_path = (
-                    r.path.relative_to(project.root_path)
-                    if r.path and r.path.is_relative_to(project.root_path)
+                    r.path.relative_to(root_path)
+                    if r.path and r.path.is_relative_to(root_path)
                     else r.path
                 )
                 # Use Text.from_ansi() to properly render ANSI codes from Jupyter tracebacks
@@ -302,6 +339,10 @@ def fill(
         bool,
         typer.Option("--allow-export", help="Allow nbl_export() during fill (disabled by default)"),
     ] = False,
+    python: Annotated[
+        str | None,
+        typer.Option("--python", help="Path to Python binary for notebook execution (must have ipykernel installed)"),
+    ] = None,
 ) -> None:
     """Execute notebooks and fill cell outputs.
 
@@ -340,6 +381,7 @@ def fill(
         silent=silent,
         allow_export=allow_export,
         config_path=config_path,
+        python=python,
     )
     if exit_code != 0:
         raise typer.Exit(exit_code)
@@ -384,6 +426,10 @@ def test(
         bool,
         typer.Option("--allow-export", help="Allow nbl_export() during test (disabled by default)"),
     ] = False,
+    python: Annotated[
+        str | None,
+        typer.Option("--python", help="Path to Python binary for notebook execution (must have ipykernel installed)"),
+    ] = None,
 ) -> None:
     """Test that notebooks execute without errors (dry run).
 
@@ -413,6 +459,7 @@ def test(
         silent=silent,
         allow_export=allow_export,
         config_path=config_path,
+        python=python,
     )
     if exit_code != 0:
         raise typer.Exit(exit_code)

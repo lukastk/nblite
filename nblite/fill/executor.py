@@ -130,6 +130,8 @@ def fill_notebook(
     remove_outputs_first: bool = False,
     clean: bool = True,
     save_hash: bool = True,
+    kernel_name: str = "python3",
+    python: str | Path | None = None,
 ) -> FillResult:
     """
     Execute a notebook and fill its outputs.
@@ -144,6 +146,10 @@ def fill_notebook(
             metadata for cleaner VCS diffs). Cleaning happens before hash is
             computed to ensure hash validity.
         save_hash: If True, save the notebook hash in metadata for change detection.
+        kernel_name: Jupyter kernel name to use (default: "python3").
+        python: Path to Python binary for execution. If set, creates a temporary
+            kernel spec and wraps execution with custom_kernel_environment.
+            Overrides kernel_name when set.
 
     Returns:
         FillResult with status and any error information.
@@ -169,6 +175,23 @@ def fill_notebook(
     else:
         working_dir = Path(working_dir)
 
+    # If python is specified, wrap execution with custom kernel environment
+    if python is not None:
+        from nblite.fill.kernel import custom_kernel_environment
+
+        with custom_kernel_environment(python) as custom_kernel_name:
+            return fill_notebook(
+                notebook=path,
+                timeout=timeout,
+                working_dir=working_dir,
+                dry_run=dry_run,
+                remove_outputs_first=remove_outputs_first,
+                clean=clean,
+                save_hash=save_hash,
+                kernel_name=custom_kernel_name,
+                python=None,  # Don't recurse
+            )
+
     try:
         # Read notebook with nbformat for execution
         with open(path, encoding="utf-8") as f:
@@ -187,7 +210,7 @@ def fill_notebook(
         # Execute the notebook
         ep = ExecutePreprocessor(
             timeout=timeout,
-            kernel_name="python3",
+            kernel_name=kernel_name,
         )
         resources = {"metadata": {"path": str(working_dir)}}
 
@@ -238,6 +261,8 @@ def fill_notebooks(
     skip_unchanged: bool = True,
     n_workers: int = 1,
     on_progress: callable | None = None,
+    kernel_name: str = "python3",
+    python: str | Path | None = None,
 ) -> list[FillResult]:
     """
     Execute multiple notebooks and fill their outputs.
@@ -252,6 +277,9 @@ def fill_notebooks(
         skip_unchanged: If True, skip notebooks that haven't changed.
         n_workers: Number of parallel workers (1 = sequential).
         on_progress: Optional callback(path, result) for progress updates.
+        kernel_name: Jupyter kernel name to use (default: "python3").
+        python: Path to Python binary for execution. If set, creates a temporary
+            kernel spec once and uses it for all notebooks. Overrides kernel_name.
 
     Returns:
         List of FillResult objects.
@@ -259,6 +287,25 @@ def fill_notebooks(
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
     from nblite.fill.hash import has_notebook_changed
+
+    # If python is specified, validate upfront and wrap execution
+    if python is not None:
+        from nblite.fill.kernel import custom_kernel_environment
+
+        with custom_kernel_environment(python) as custom_kernel_name:
+            return fill_notebooks(
+                notebooks,
+                timeout=timeout,
+                dry_run=dry_run,
+                remove_outputs_first=remove_outputs_first,
+                clean=clean,
+                save_hash=save_hash,
+                skip_unchanged=skip_unchanged,
+                n_workers=n_workers,
+                on_progress=on_progress,
+                kernel_name=custom_kernel_name,
+                python=None,  # Don't recurse
+            )
 
     results: list[FillResult] = []
     to_process: list[Path] = []
@@ -294,6 +341,7 @@ def fill_notebooks(
             remove_outputs_first=remove_outputs_first,
             clean=clean,
             save_hash=save_hash,
+            kernel_name=kernel_name,
         )
         if on_progress:
             on_progress(path, result)

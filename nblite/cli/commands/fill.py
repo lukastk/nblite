@@ -54,16 +54,19 @@ def _run_fill(
     try:
         project = NbliteProject.from_path(config_path)
     except FileNotFoundError as e:
-        console.print(f"[red]Error: {e}[/red]")
-        # Restore environment variable before returning
-        if prev_disable_export is None:
-            os.environ.pop(DISABLE_NBLITE_EXPORT_ENV_VAR, None)
+        if notebooks:
+            project = None
         else:
-            os.environ[DISABLE_NBLITE_EXPORT_ENV_VAR] = prev_disable_export
-        return 1
+            console.print(f"[red]Error: {e}[/red]")
+            # Restore environment variable before returning
+            if prev_disable_export is None:
+                os.environ.pop(DISABLE_NBLITE_EXPORT_ENV_VAR, None)
+            else:
+                os.environ[DISABLE_NBLITE_EXPORT_ENV_VAR] = prev_disable_export
+            return 1
 
     # Resolve effective python: CLI arg > config value
-    effective_python = python or project.config.fill.python
+    effective_python = python or (project.config.fill.python if project else None)
 
     # Validate python binary early if specified
     if effective_python:
@@ -156,11 +159,12 @@ def _run_fill(
         table.add_column("Notebook")
         table.add_column("Message")
 
+        root_path = project.root_path if project else Path.cwd()
         for nb_path in nbs_to_fill:
             status, msg = task_statuses.get(nb_path, ("...", "Pending"))
             rel_path = (
-                nb_path.relative_to(project.root_path)
-                if nb_path.is_relative_to(project.root_path)
+                nb_path.relative_to(root_path)
+                if nb_path.is_relative_to(root_path)
                 else nb_path
             )
 
@@ -256,9 +260,10 @@ def _run_fill(
         console.print("[red]Errors:[/red]")
         for r in results:
             if r.status == FillStatus.ERROR:
+                root_path = project.root_path if project else Path.cwd()
                 rel_path = (
-                    r.path.relative_to(project.root_path)
-                    if r.path and r.path.is_relative_to(project.root_path)
+                    r.path.relative_to(root_path)
+                    if r.path and r.path.is_relative_to(root_path)
                     else r.path
                 )
                 # Use Text.from_ansi() to properly render ANSI codes from Jupyter tracebacks

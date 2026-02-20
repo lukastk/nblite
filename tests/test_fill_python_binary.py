@@ -14,9 +14,6 @@ from pathlib import Path
 
 import pytest
 
-# Skip all tests in this module if uv is not available
-pytestmark = pytest.mark.slow
-
 
 def _uv_available() -> bool:
     """Check if uv is available on the system."""

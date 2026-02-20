@@ -86,7 +86,7 @@ def _run_fill(
     if notebooks:
         # Use specified notebooks
         for nb_path in notebooks:
-            resolved = project.root_path / nb_path if not nb_path.is_absolute() else nb_path
+            resolved = nb_path.resolve()
             if resolved.exists():
                 nbs_to_fill.append(resolved)
             else:

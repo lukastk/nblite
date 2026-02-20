@@ -482,7 +482,7 @@ class NbliteProject:
         # If specific notebooks provided, convert to Notebook objects
         specific_nbs: list[Notebook] | None = None
         if notebooks:
-            specific_nbs = [Notebook.from_file(p) for p in notebooks]
+            specific_nbs = [Notebook.from_file(Path(p).resolve()) for p in notebooks]
 
         # Determine which pipeline rules to use
         if pipeline is not None:

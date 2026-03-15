@@ -88,6 +88,7 @@ def prepare(
     # Step 3: Fill
     if not skip_fill:
         console.print("[bold]Step 3: Fill[/bold]")
+        fill_config = project.config.fill
         exit_code = _run_fill(
             notebooks=None,
             code_locations=None,
@@ -97,8 +98,8 @@ def prepare(
             remove_outputs_first=False,
             clean=True,
             save_hash=True,
-            exclude_dunders=True,
-            exclude_hidden=True,
+            exclude_dunders=fill_config.exclude_dunders,
+            exclude_hidden=fill_config.exclude_hidden,
             dry_run=False,
             silent=False,
             config_path=config_path,

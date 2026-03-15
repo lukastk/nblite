@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import fnmatch
 import os
 from pathlib import Path
 from typing import Annotated
@@ -13,6 +14,35 @@ from rich.text import Text
 from nblite import DISABLE_NBLITE_EXPORT_ENV_VAR
 from nblite.cli._helpers import console
 from nblite.cli.app import app
+
+
+def _matches_exclude_pattern(rel_path: str, pattern: str) -> bool:
+    """Check if a relative path matches an exclude pattern.
+
+    Supports ``**`` for matching across directory separators (e.g.
+    ``**/*_v1.ipynb``).  Falls back to plain ``fnmatch`` for simple
+    patterns like ``scratch/*``.
+    """
+    # Normalise separators so patterns work cross-platform
+    rel_path = rel_path.replace(os.sep, "/")
+    pattern = pattern.replace(os.sep, "/")
+
+    if "**" in pattern:
+        # fnmatch doesn't handle ** across directories, so we try matching
+        # against every possible suffix of the path components.
+        parts = rel_path.split("/")
+        for i in range(len(parts)):
+            suffix = "/".join(parts[i:])
+            if fnmatch.fnmatch(suffix, pattern):
+                return True
+        # Also try with ** expanded to zero components (e.g. **/*_v1.ipynb
+        # should match root-level *_v1.ipynb files).
+        collapsed = pattern.replace("**/", "")
+        if fnmatch.fnmatch(rel_path, collapsed):
+            return True
+        return False
+
+    return fnmatch.fnmatch(rel_path, pattern)
 
 
 def _run_fill(
@@ -98,6 +128,7 @@ def _run_fill(
         # Get from code locations
         fill_config = project.config.fill
         locations_to_fill = code_locations or fill_config.code_locations
+        exclude_patterns = fill_config.exclude_patterns
 
         for key, cl in project.code_locations.items():
             # Only fill ipynb notebooks
@@ -116,6 +147,11 @@ def _run_fill(
 
             for nb in nbs:
                 if nb.source_path:
+                    # Check exclude patterns against path relative to code location
+                    if exclude_patterns:
+                        rel_path = str(nb.source_path.relative_to(cl.path))
+                        if any(_matches_exclude_pattern(rel_path, p) for p in exclude_patterns):
+                            continue
                     nbs_to_fill.append(nb.source_path)
 
     if not nbs_to_fill:

@@ -862,3 +862,43 @@ skip_unchanged = true
 
         assert regular_path.exists()
         assert hidden_path.exists()
+
+
+class TestExcludePatterns:
+    """Tests for exclude pattern matching in fill."""
+
+    def test_simple_glob_pattern(self) -> None:
+        """Test simple glob patterns like 'scratch/*'."""
+        from nblite.cli.commands.fill import _matches_exclude_pattern
+
+        assert _matches_exclude_pattern("scratch/test.ipynb", "scratch/*")
+        assert not _matches_exclude_pattern("core/test.ipynb", "scratch/*")
+
+    def test_double_star_pattern(self) -> None:
+        """Test ** patterns matching across directories."""
+        from nblite.cli.commands.fill import _matches_exclude_pattern
+
+        assert _matches_exclude_pattern("sub/deep/old_v1.ipynb", "**/*_v1.ipynb")
+        assert _matches_exclude_pattern("old_v1.ipynb", "**/*_v1.ipynb")
+        assert not _matches_exclude_pattern("sub/deep/old_v2.ipynb", "**/*_v1.ipynb")
+
+    def test_filename_only_pattern(self) -> None:
+        """Test pattern matching just a filename."""
+        from nblite.cli.commands.fill import _matches_exclude_pattern
+
+        assert _matches_exclude_pattern("scratch.ipynb", "scratch.ipynb")
+        assert not _matches_exclude_pattern("sub/scratch.ipynb", "scratch.ipynb")
+
+    def test_nested_directory_pattern(self) -> None:
+        """Test patterns with nested directories."""
+        from nblite.cli.commands.fill import _matches_exclude_pattern
+
+        assert _matches_exclude_pattern("experiments/wip/test.ipynb", "experiments/*/*")
+        assert not _matches_exclude_pattern("experiments/test.ipynb", "experiments/*/*")
+
+    def test_wildcard_in_name(self) -> None:
+        """Test patterns with wildcards in filenames."""
+        from nblite.cli.commands.fill import _matches_exclude_pattern
+
+        assert _matches_exclude_pattern("test_foo.ipynb", "test_*.ipynb")
+        assert not _matches_exclude_pattern("foo_test.ipynb", "test_*.ipynb")

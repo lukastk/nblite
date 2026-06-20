@@ -706,6 +706,74 @@ class TestImportTransformation:
         assert "from . import const" not in content
         assert "from my_pkg import" not in content
 
+    def test_transform_imports_func_export_in_subpackage(self, tmp_path: Path) -> None:
+        """Regression test for issue #2.
+
+        An ``#|export_as_func`` module living in a subpackage must get the same
+        relative-import depth as a normal module at the same depth. Previously the
+        function-export path computed depth from the *absolute* output path, so
+        when an ancestor directory shared the package name (the common case of a
+        repo dir named after the package, e.g. ``mypkg/src/mypkg/...``) it matched
+        the wrong occurrence and over-dotted by +2, emitting
+        ``from ...._utils import foo`` ("beyond top-level package") instead of
+        ``from .._utils import foo``.
+        """
+        nb_content = json.dumps(
+            {
+                "cells": [
+                    {
+                        "cell_type": "code",
+                        "source": "#|default_exp cmds.thing\n#|export_as_func true",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|top_export\nfrom mypkg._utils import foo",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|set_func_signature\ndef thing() -> None: ...",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                    {
+                        "cell_type": "code",
+                        "source": "#|export\nfoo()",
+                        "metadata": {},
+                        "outputs": [],
+                    },
+                ],
+                "metadata": {},
+                "nbformat": 4,
+                "nbformat_minor": 5,
+            }
+        )
+
+        # Project root directory shares the package name (mypkg), and the lib root
+        # sits under src/ -- this is what triggers the over-dotting bug.
+        project_root = tmp_path / "mypkg"
+        nb_path = project_root / "nbs" / "cmds" / "thing.ipynb"
+        nb_path.parent.mkdir(parents=True)
+        nb_path.write_text(nb_content)
+        nb = Notebook.from_file(nb_path)
+
+        # Output module: src/mypkg/cmds/thing.py -> package depth 1 -> 2 dots
+        module_path = project_root / "src" / "mypkg" / "cmds" / "thing.py"
+        module_path.parent.mkdir(parents=True)
+
+        export_notebook_to_module(
+            nb, module_path, project_root=project_root, package_name="mypkg"
+        )
+
+        content = module_path.read_text()
+        # At depth 1, should use exactly two dots, same as a normal module.
+        assert "from .._utils import foo" in content
+        assert "from ...._utils" not in content
+        assert "from mypkg._utils" not in content
+
 
 class TestImportTransformationInStrings:
     """Test that imports inside string literals are NOT transformed."""

@@ -133,6 +133,48 @@ def export_notebook_to_notebook(
     output_path.write_text(content)
 
 
+def _compute_module_depth(
+    output_path: Path, project_root: Path, package_name: str
+) -> int:
+    """
+    Compute a module's nesting depth within its package.
+
+    The depth is the number of subdirectories between the package root and the
+    module file, which determines the number of leading dots needed when an
+    absolute intra-package import is rewritten to a relative one:
+
+        <root>/src/my_lib/core.py        -> depth 0 -> 1 dot  (from . ...)
+        <root>/src/my_lib/sub/utils.py   -> depth 1 -> 2 dots (from .. ...)
+
+    The path is resolved relative to ``project_root`` *before* locating the
+    package name in it. This is essential: if an ancestor directory shares the
+    package's name (e.g. a project dir ``my_lib`` containing ``src/my_lib/...``),
+    using the absolute path would match the wrong (outer) occurrence and inflate
+    the depth, producing too many dots ("attempted relative import beyond
+    top-level package").
+
+    Args:
+        output_path: Absolute path of the module file being written.
+        project_root: Project root directory (the prefix to strip first).
+        package_name: The package name to locate within the path.
+
+    Returns:
+        The module depth (0 = directly in the package). Returns 0 if the package
+        name cannot be found in the path.
+    """
+    try:
+        parts = output_path.relative_to(project_root).parts
+    except ValueError:
+        # output_path is not under project_root; fall back to its full parts.
+        parts = output_path.parts
+    try:
+        pkg_index = parts.index(package_name)
+    except ValueError:
+        # Package name not found in path.
+        return 0
+    return len(parts) - pkg_index - 2
+
+
 def export_notebook_to_module(
     notebook: Notebook,
     output_path: Path | str,
@@ -173,6 +215,7 @@ def export_notebook_to_module(
             output_path,
             include_warning=include_warning,
             package_name=package_name,
+            project_root=project_root,
         )
         return
 
@@ -195,23 +238,7 @@ def export_notebook_to_module(
     # e.g., my_lib/submodule/utils.py has depth 1 (one subdirectory)
     module_depth = 0
     if package_name:
-        try:
-            # Get the path relative to project root
-            rel_to_project = output_path.relative_to(project_root)
-            parts = rel_to_project.parts
-            # Find where the package name appears in the path
-            # (it may not be at index 0 if package is inside src/ or similar)
-            try:
-                pkg_index = parts.index(package_name)
-                # module_depth = number of directories after the package, minus the filename
-                # e.g., src/my_lib/submodule/utils.py with my_lib at index 1:
-                #   parts after package = ('submodule', 'utils.py'), depth = 1
-                module_depth = len(parts) - pkg_index - 2
-            except ValueError:
-                # Package name not found in path
-                pass
-        except ValueError:
-            pass
+        module_depth = _compute_module_depth(output_path, project_root, package_name)
 
     # Collect exported cells
     exported_content = _collect_exported_content(
@@ -297,16 +324,7 @@ def export_notebooks_to_module(
     # Calculate module depth for relative imports
     module_depth = 0
     if package_name:
-        try:
-            rel_to_project = output_path.relative_to(project_root)
-            parts = rel_to_project.parts
-            try:
-                pkg_index = parts.index(package_name)
-                module_depth = len(parts) - pkg_index - 2
-            except ValueError:
-                pass
-        except ValueError:
-            pass
+        module_depth = _compute_module_depth(output_path, project_root, package_name)
 
     # Collect exported content from all notebooks
     exported_content, source_refs = _collect_exported_content_multi(

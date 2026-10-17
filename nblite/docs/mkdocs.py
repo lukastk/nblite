@@ -64,6 +64,7 @@ class MkDocsGenerator(DocsGenerator):
             cl_format = "ipynb"
 
         # Process and copy notebooks to docs directory
+        notebook_paths: list[Path] = []
         for nb in notebooks:
             if nb.source_path is None:
                 continue
@@ -78,6 +79,7 @@ class MkDocsGenerator(DocsGenerator):
 
             # Process notebook for docs (inject API docs, remove hidden cells)
             process_notebook_for_docs(nb.source_path, dest, cl_format)
+            notebook_paths.append(dest.relative_to(docs_dir))
 
         # Copy markdown files
         if docs_cl and docs_cl in project.code_locations:
@@ -94,9 +96,9 @@ class MkDocsGenerator(DocsGenerator):
                     shutil.copy(md_file, dest)
 
         # Generate mkdocs.yml
-        config = self._generate_config(project, notebooks)
+        config = self._generate_config(project, notebook_paths)
         config_path = output_dir / "mkdocs.yml"
-        config_path.write_text(yaml.dump(config, default_flow_style=False))
+        config_path.write_text(yaml.dump(config, default_flow_style=False, sort_keys=False))
 
     def build(self, output_dir: Path, final_dir: Path) -> None:
         """
@@ -134,12 +136,18 @@ class MkDocsGenerator(DocsGenerator):
             check=True,
         )
 
-    def _generate_config(self, project: NbliteProject, notebooks: list[Any]) -> dict[str, Any]:
+    def _generate_config(
+        self, project: NbliteProject, notebook_paths: list[Path]
+    ) -> dict[str, Any]:
         """Generate MkDocs mkdocs.yml content."""
         title = project.config.docs.title or project.root_path.name
 
-        # Build nav structure
-        nav = self._generate_nav(notebooks)
+        # An explicit override replaces automatic navigation, including an empty list.
+        nav = (
+            project.config.docs.nav
+            if project.config.docs.nav is not None
+            else self._generate_nav(notebook_paths)
+        )
 
         config: dict[str, Any] = {
             "site_name": title,
@@ -155,33 +163,38 @@ class MkDocsGenerator(DocsGenerator):
 
         return config
 
-    def _generate_nav(self, notebooks: list[Any]) -> list[dict[str, str]]:
-        """Generate MkDocs nav structure."""
-        nav: list[dict[str, str]] = []
+    def _generate_nav(self, notebook_paths: list[Path]) -> list[dict[str, Any]]:
+        """Generate a folder tree using the paths of the prepared notebooks."""
+        tree: dict[str, Any] = {}
+        for path in notebook_paths:
+            folder = tree
+            for part in path.parts[:-1]:
+                folder = folder.setdefault(part, {})
+            folder[path.name] = path
 
-        # Find index notebook
-        index_nb = None
-        other_nbs = []
+        def folder_nav(folder: dict[str, Any]) -> list[dict[str, Any]]:
+            def sort_key(name: str) -> tuple[bool, str]:
+                value = folder[name]
+                is_index = isinstance(value, Path) and value.stem in (
+                    "index",
+                    "00_index",
+                    "00_intro",
+                )
+                return (not is_index, name)
 
-        for nb in notebooks:
-            if nb.source_path is None:
-                continue
-            name = nb.source_path.stem
-            if name in ("index", "00_index", "00_intro"):
-                index_nb = nb
-            else:
-                other_nbs.append(nb)
+            nav: list[dict[str, Any]] = []
+            for name in sorted(folder, key=sort_key):
+                value = folder[name]
+                if isinstance(value, dict):
+                    title = name.replace("_", " ").replace("-", " ").title()
+                    nav.append({title: folder_nav(value)})
+                else:
+                    title = (
+                        "Home"
+                        if value.stem in ("index", "00_index", "00_intro")
+                        else value.stem.replace("_", " ").replace("-", " ").title()
+                    )
+                    nav.append({title: value.as_posix()})
+            return nav
 
-        # Add index first
-        if index_nb and index_nb.source_path:
-            nav.append({"Home": index_nb.source_path.name})
-
-        # Add other notebooks
-        for nb in sorted(other_nbs, key=lambda n: n.source_path.name if n.source_path else ""):
-            if nb.source_path is None:
-                continue
-            # Use stem as title, replace underscores with spaces
-            title = nb.source_path.stem.replace("_", " ").replace("-", " ").title()
-            nav.append({title: nb.source_path.name})
-
-        return nav
+        return folder_nav(tree)

@@ -61,6 +61,7 @@ class JupyterBookGenerator(DocsGenerator):
             cl_format = "ipynb"
 
         # Process and copy notebooks to output directory
+        notebook_paths: list[Path] = []
         for nb in notebooks:
             if nb.source_path is None:
                 continue
@@ -75,6 +76,7 @@ class JupyterBookGenerator(DocsGenerator):
 
             # Process notebook for docs (inject API docs, remove hidden cells)
             process_notebook_for_docs(nb.source_path, dest, cl_format)
+            notebook_paths.append(dest.relative_to(output_dir))
 
         # Copy markdown files
         if docs_cl and docs_cl in project.code_locations:
@@ -96,7 +98,7 @@ class JupyterBookGenerator(DocsGenerator):
         config_path.write_text(yaml.dump(config, default_flow_style=False))
 
         # Generate _toc.yml
-        toc = self._generate_toc(project, notebooks)
+        toc = self._generate_toc(notebook_paths)
         toc_path = output_dir / "_toc.yml"
         toc_path.write_text(yaml.dump(toc, default_flow_style=False))
 
@@ -154,39 +156,22 @@ class JupyterBookGenerator(DocsGenerator):
 
         return config
 
-    def _generate_toc(self, project: NbliteProject, notebooks: list[Any]) -> dict[str, Any]:
-        """Generate Jupyter Book _toc.yml content."""
-        # Find index notebook
-        index_nb = None
-        other_nbs = []
-
-        for nb in notebooks:
-            if nb.source_path is None:
-                continue
-            name = nb.source_path.stem
-            if name in ("index", "00_index", "00_intro"):
-                index_nb = nb
-            else:
-                other_nbs.append(nb)
-
-        # Build TOC structure
-        toc: dict[str, Any] = {
+    def _generate_toc(self, notebook_paths: list[Path]) -> dict[str, Any]:
+        """Generate a flat TOC whose links match the prepared notebook paths."""
+        paths = sorted(notebook_paths)
+        # Prefer a top-level index; nested indexes remain ordinary chapters.
+        root = next(
+            (
+                path
+                for path in paths
+                if path.parent == Path(".") and path.stem in ("index", "00_index", "00_intro")
+            ),
+            paths[0] if paths else None,
+        )
+        return {
             "format": "jb-book",
-            "root": "index"
-            if index_nb
-            else other_nbs[0].source_path.stem
-            if other_nbs
-            else "index",
-            "chapters": [],
+            "root": root.with_suffix("").as_posix() if root else "index",
+            "chapters": [
+                {"file": path.with_suffix("").as_posix()} for path in paths if path != root
+            ],
         }
-
-        for nb in other_nbs:
-            if nb.source_path is None:
-                continue
-            # Skip if this is the root
-            if index_nb is None and nb == other_nbs[0]:
-                continue
-            stem = nb.source_path.stem
-            toc["chapters"].append({"file": stem})
-
-        return toc

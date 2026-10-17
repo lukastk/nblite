@@ -7,7 +7,7 @@ Defines the schema for nblite.toml configuration files.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -321,6 +321,7 @@ class DocsConfig(BaseModel):
         output_folder: Output folder for documentation
         execute_notebooks: Execute notebooks during build
         exclude_patterns: Patterns to exclude from docs
+        nav: MkDocs navigation override (None generates navigation from notebooks)
     """
 
     code_location: str | None = Field(
@@ -346,6 +347,10 @@ class DocsConfig(BaseModel):
     exclude_patterns: list[str] = Field(
         default_factory=lambda: ["__*", ".*"],
         description="Patterns to exclude from docs",
+    )
+    nav: list[dict[str, Any] | str] | None = Field(
+        default=None,
+        description="MkDocs navigation override; replaces generated navigation when set",
     )
 
 

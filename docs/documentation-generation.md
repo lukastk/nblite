@@ -107,19 +107,25 @@ Starts a server at `http://localhost:8000` with live reload.
 
 ### Customization
 
-Create `mkdocs.yml` in your project for advanced customization:
+MkDocs navigation is generated from the notebook folder tree. Each folder becomes a nested section. Folder and notebook titles replace underscores and hyphens with spaces and use title case. Within each folder, index notebooks (`index`, `00_index`, or `00_intro`) appear first as `Home`, followed by notebooks and subfolders in alphabetical filename order.
 
-```yaml
-site_name: My Project
-theme:
-  name: material
-  palette:
-    primary: blue
-nav:
-  - Home: index.md
-  - Tutorial: tutorial.md
-  - API: api.md
+To replace the generated navigation, set `nav` under `[docs]` in `nblite.toml`:
+
+```toml
+[docs]
+code_location = "nbs"
+nav = [
+    { Home = "index.ipynb" },
+    { Tutorial = [{ Basics = "tutorial/basics.ipynb" }, { Advanced = "tutorial/advanced.ipynb" }] },
+    { Guide = "guide.md" },
+]
 ```
+
+The list uses MkDocs navigation syntax: a title maps to a file path, an external URL, or another list of entries. Paths are relative to the generated `docs/` directory, not the project root. For an ipynb code location, `nbs/tutorial/basics.ipynb` becomes `tutorial/basics.ipynb`. Markdown files in the code location are copied too, but are not added to the generated navigation automatically.
+
+The override replaces the entire generated navigation; it is not merged. Omitting `nav` enables automatic navigation. An explicit `nav = []` is passed through unchanged. This setting applies only to MkDocs.
+
+`render-docs` and `preview-docs` generate their own `mkdocs.yml`. They do not read or merge a project-level `mkdocs.yml`. Theme and plugin overrides through that file are not supported.
 
 ## Jupyter Book
 
@@ -260,17 +266,7 @@ Notebooks are sorted alphabetically, so use numeric prefixes for ordering.
 
 ### Navigation
 
-For MkDocs, create a custom navigation in `mkdocs.yml`:
-
-```yaml
-nav:
-  - Home: 00_index.md
-  - Getting Started: 01_getting_started.md
-  - Tutorial:
-    - Basics: 02a_basics.md
-    - Advanced: 02b_advanced.md
-  - API Reference: 03_api_reference.md
-```
+For MkDocs, use `[docs].nav` in `nblite.toml` to customize navigation (see [Customization](#customization)). Use `.ipynb` paths for notebooks, including their subfolders, rather than `.md` paths. Without an override, nblite generates nested sections from the folder tree.
 
 ### Multiple Sections
 

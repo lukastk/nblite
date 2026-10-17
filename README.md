@@ -245,6 +245,11 @@ docs_generator = "mkdocs" # Generator to use
 output_folder = "_docs"
 ```
 
+MkDocs generates nested navigation from the notebook folder tree. To replace it, set
+`nav` under `[docs]`, for example `nav = [{ Home = "index.ipynb" }]`. Paths are relative
+to the generated docs directory. A project-level `mkdocs.yml` is not merged.
+See [documentation generation](docs/documentation-generation.md#customization) for nested overrides.
+
 ## Notebook Execution
 
 Fill notebooks with outputs:

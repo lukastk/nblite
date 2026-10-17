@@ -7,9 +7,9 @@ Defines the schema for nblite.toml configuration files.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Literal
+from typing import Any, Literal
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 __all__ = [
     "ExportRule",
@@ -321,6 +321,7 @@ class DocsConfig(BaseModel):
         output_folder: Output folder for documentation
         execute_notebooks: Execute notebooks during build
         exclude_patterns: Patterns to exclude from docs
+        nav: MkDocs navigation override (None generates navigation from notebooks)
     """
 
     code_location: str | None = Field(
@@ -347,6 +348,46 @@ class DocsConfig(BaseModel):
         default_factory=lambda: ["__*", ".*"],
         description="Patterns to exclude from docs",
     )
+    nav: list[dict[str, Any] | str] | None = Field(
+        default=None,
+        description="MkDocs navigation override; replaces generated navigation when set",
+    )
+
+    @field_validator("nav", mode="before")
+    @classmethod
+    def validate_nav(cls, nav: Any) -> Any:
+        """Require paths or single-key mappings to paths/entry lists at every depth."""
+        if nav is None:
+            return nav
+
+        def validate_entries(entries: Any, location: str) -> None:
+            if not isinstance(entries, list):
+                raise ValueError(
+                    f"{location}: expected a list of navigation entries; got {entries!r}"
+                )
+            for index, entry in enumerate(entries):
+                entry_location = f"{location}[{index}]"
+                if isinstance(entry, str):
+                    continue
+                if not isinstance(entry, dict) or len(entry) != 1:
+                    raise ValueError(
+                        f"{entry_location}: expected a path string or a mapping with exactly "
+                        f"one key; got {entry!r}"
+                    )
+                title, value = next(iter(entry.items()))
+                if not isinstance(title, str):
+                    raise ValueError(f"{entry_location}: expected a string title; got {title!r}")
+                value_location = f"{entry_location}[{title!r}]"
+                if isinstance(value, list):
+                    validate_entries(value, value_location)
+                elif not isinstance(value, str):
+                    raise ValueError(
+                        f"{value_location}: expected a path string or a list of navigation "
+                        f"entries; got {value!r}"
+                    )
+
+        validate_entries(nav, "docs.nav")
+        return nav
 
 
 class NbliteConfig(BaseModel):

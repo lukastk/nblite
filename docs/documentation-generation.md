@@ -121,9 +121,11 @@ nav = [
 ]
 ```
 
-The list uses MkDocs navigation syntax: a title maps to a file path, an external URL, or another list of entries. Paths are relative to the generated `docs/` directory, not the project root. For an ipynb code location, `nbs/tutorial/basics.ipynb` becomes `tutorial/basics.ipynb`. Markdown files in the code location are copied too, but are not added to the generated navigation automatically.
+Each navigation entry is either a string (an untitled path or URL) or a mapping with exactly one title. That title maps to a path string, an external URL, or a list of entries following the same rules. Invalid entries are rejected when nblite loads the project, with an error identifying their location in `docs.nav`.
 
-The override replaces the entire generated navigation; it is not merged. Omitting `nav` enables automatic navigation. An explicit `nav = []` is passed through unchanged. This setting applies only to MkDocs.
+Paths are relative to the generated `docs/` directory, not the project root. For an ipynb code location, `nbs/tutorial/basics.ipynb` becomes `tutorial/basics.ipynb`. Markdown files in the code location are copied too, but are not added to the generated navigation automatically.
+
+The override replaces the entire generated navigation; it is not merged. Omitting `nav` enables nblite's automatic navigation. An explicit `nav = []` is passed through unchanged, which makes MkDocs fall back to its own automatic navigation; it does not produce an empty menu. This setting applies only to MkDocs.
 
 `render-docs` and `preview-docs` generate their own `mkdocs.yml`. They do not read or merge a project-level `mkdocs.yml`. Theme and plugin overrides through that file are not supported.
 

@@ -221,14 +221,86 @@ def test_percent_nav_uses_converted_notebook_paths(tmp_path: Path) -> None:
     assert (output / "docs" / "nested" / "example.pct.ipynb").is_file()
 
 
-def test_nav_override_preserves_mapping_order_and_untitled_links(tmp_path: Path) -> None:
+def test_nav_override_preserves_order_and_untitled_links(tmp_path: Path) -> None:
+    if shutil.which("mkdocs") is None:
+        pytest.skip("Install dev dependencies to run MkDocs integration tests")
     project = make_project(
         tmp_path,
-        ["index.ipynb"],
-        'nav = [{ Zed = "guide.md", Alpha = "index.ipynb" }, "guide.md"]\n',
+        ["index.ipynb", "untitled.ipynb"],
+        'nav = [{ Zed = "guide.md" }, { Alpha = "index.ipynb" }, "untitled.ipynb"]\n',
     )
     output = tmp_path / "prepared"
     MkDocsGenerator().prepare(project, output)
     nav = yaml.safe_load((output / "mkdocs.yml").read_text())["nav"]
-    assert list(nav[0]) == ["Zed", "Alpha"]
-    assert nav[1] == "guide.md"
+    assert nav == [{"Zed": "guide.md"}, {"Alpha": "index.ipynb"}, "untitled.ipynb"]
+    result = subprocess.run(
+        ["mkdocs", "build", "--strict", "--config-file", str(output / "mkdocs.yml")],
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert (output / "site" / "untitled" / "index.html").is_file()
+
+
+@pytest.mark.parametrize(
+    ("entry", "location", "offending"),
+    [
+        ("{}", "docs.nav[0]", "{}"),
+        ('{ Zed = "guide.md", Alpha = "index.ipynb" }', "docs.nav[0]", "Zed"),
+        ("{ Home = 42 }", "docs.nav[0]['Home']", "42"),
+        ("{ Section = [42] }", "docs.nav[0]['Section'][0]", "42"),
+        ("{ Section = [{}] }", "docs.nav[0]['Section'][0]", "{}"),
+        ('{ Section = [{ A = "a.md", B = "b.md" }] }', "docs.nav[0]['Section'][0]", "A"),
+        (
+            "{ Section = [{ Deep = [{ Home = false }] }] }",
+            "docs.nav[0]['Section'][0]['Deep'][0]['Home']",
+            "False",
+        ),
+        ('{ Home = { Page = "index.ipynb" } }', "docs.nav[0]['Home']", "Page"),
+        ('["index.ipynb"]', "docs.nav[0]", "index.ipynb"),
+        ("42", "docs.nav[0]", "42"),
+    ],
+    ids=[
+        "empty-map",
+        "multi-key-map",
+        "numeric-leaf",
+        "numeric-section-entry",
+        "nested-empty-map",
+        "nested-multi-key-map",
+        "deep-boolean-leaf",
+        "mapping-leaf",
+        "list-entry",
+        "numeric-entry",
+    ],
+)
+def test_invalid_nav_entries_are_rejected_at_load_time(
+    tmp_path: Path,
+    entry: str,
+    location: str,
+    offending: str,
+) -> None:
+    with pytest.raises(ConfigError) as error:
+        make_project(tmp_path, ["index.ipynb"], f"nav = [{entry}]\n")
+    assert location in str(error.value)
+    assert offending in str(error.value)
+
+
+@pytest.mark.parametrize(
+    ("names", "root"),
+    [
+        (["00_intro", "index", "00_index"], "index"),
+        (["00_intro", "00_index"], "00_index"),
+    ],
+)
+def test_jupyterbook_index_precedence_preserves_other_aliases(
+    tmp_path: Path,
+    names: list[str],
+    root: str,
+) -> None:
+    project = make_project(tmp_path, [f"{name}.ipynb" for name in names])
+    output = tmp_path / "prepared"
+    JupyterBookGenerator().prepare(project, output)
+    toc = yaml.safe_load((output / "_toc.yml").read_text())
+    assert toc["root"] == root
+    assert toc["chapters"] == [{"file": name} for name in sorted(names) if name != root]

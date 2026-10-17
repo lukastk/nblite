@@ -159,12 +159,13 @@ class JupyterBookGenerator(DocsGenerator):
     def _generate_toc(self, notebook_paths: list[Path]) -> dict[str, Any]:
         """Generate a flat TOC whose links match the prepared notebook paths."""
         paths = sorted(notebook_paths)
-        # Prefer a top-level index; nested indexes remain ordinary chapters.
+        # Prefer index, then numbered aliases; keep the others as chapters.
         root = next(
             (
                 path
+                for name in ("index", "00_index", "00_intro")
                 for path in paths
-                if path.parent == Path(".") and path.stem in ("index", "00_index", "00_intro")
+                if path.parent == Path(".") and path.stem == name
             ),
             paths[0] if paths else None,
         )
